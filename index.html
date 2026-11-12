@@ -12,30 +12,183 @@
             --card-bg: var(--tg-theme-secondary-bg-color, #212e3c);
             --button-color: var(--tg-theme-button-color, #3390ec);
             --button-text: var(--tg-theme-button-text-color, #ffffff);
-            --accent-green: #2ecc71;
             --accent-red: #e74c3c;
+            --accent-green: #2ecc71;
+            --accent-orange: #f39c12;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 12px;
         }
-        .container { max-width: 500px; margin: 0 auto; }
-        h2 { text-align: center; margin-bottom: 12px; font-size: 18px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .card { background: var(--card-bg); padding: 14px; border-radius: 12px; text-align: center; }
-        .card h3 { margin: 0 0 6px 0; font-size: 12px; opacity: 0.7; }
-        .card .value { font-size: 22px; font-weight: bold; }
-        .info-card { background: var(--card-bg); padding: 12px 14px; border-radius: 10px; margin-bottom: 8px; font-size: 13px; display: flex; justify-content: space-between; }
-        .sync-status { text-align: center; font-size: 11px; opacity: 0.5; margin-top: 12px; }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0 0 12px 0;
+            font-size: 18px;
+        }
+
+        .reminder-box {
+            background: linear-gradient(135deg, #f39c12, #d35400);
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .status-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .badge.ok { background-color: rgba(46, 204, 113, 0.2); color: var(--accent-green); }
+        .badge.alert { background-color: rgba(231, 76, 60, 0.2); color: var(--accent-red); }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin: 0 0 6px 0;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .card .value {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .tray-pos-banner {
+            background: var(--card-bg);
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--button-color);
+        }
+
+        .tray-pos-banner span { font-size: 14px; font-weight: bold; }
+        .tray-pos-banner strong { font-size: 20px; color: var(--button-color); }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 14px 0 8px 0;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 8px;
+            color: var(--text-color);
+        }
+
+        .tab-btn.active {
+            background-color: var(--button-color);
+            color: var(--button-text);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .info-card {
+            background: var(--card-bg);
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            background-color: var(--button-color);
+            color: var(--button-text);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .sync-status {
+            text-align: center;
+            font-size: 11px;
+            opacity: 0.5;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h2>🥚 RTN SMART Incubator</h2>
+
+        <div class="reminder-box">
+            <span>🔔</span> <span id="reminderText">System Active - Monitoring Incubator</span>
+        </div>
+
+        <div class="status-banner">
+            <div>Power: <span id="powerStatus" class="badge ok">Grid Normal</span></div>
+            <div>Door: <span id="doorStatus" class="badge ok">CLOSED 🔒</span></div>
+        </div>
 
         <div class="grid-2">
             <div class="card">
@@ -48,25 +201,71 @@
             </div>
         </div>
 
-        <div class="info-card">
-            <span>Door Status: <strong id="doorStatus">CLOSED 🔒</strong></span>
-            <span>Angle: <strong id="trayPosVal">45°</strong></span>
+        <div class="tray-pos-banner">
+            <span>📐 All Trays Angle (-45° / 0° / +45°)</span>
+            <strong id="trayPosVal">45°</strong>
         </div>
 
-        <div class="info-card">
-            <div><strong>1st Store</strong><br><small id="s1Type">Type: --</small></div>
-            <div><strong id="s1Qty">0 Eggs</strong></div>
+        <div class="section-title">Egg Categories</div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchEggTab('chicken', this)">🐔 Chicken</button>
+            <button class="tab-btn" onclick="switchEggTab('quail', this)">🐦 Quail</button>
         </div>
 
-        <div class="info-card">
-            <div><strong>2nd Store</strong><br><small id="s2Type">Type: --</small></div>
-            <div><strong id="s2Qty">0 Eggs</strong></div>
+        <div id="chickenTab" class="tab-content active">
+            <div class="info-card">
+                <span>Total Chicken Eggs: <strong id="chickenCount">0</strong></span>
+                <span>Tray: <strong id="chickenTray">--</strong></span>
+            </div>
         </div>
 
+        <div id="quailTab" class="tab-content">
+            <div class="info-card">
+                <span>Total Quail Eggs: <strong id="quailCount">0</strong></span>
+                <span>Tray: <strong id="quailTray">--</strong></span>
+            </div>
+        </div>
+
+        <div class="section-title">Tray Store Details</div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTrayTab(1, this)">Tray 1</button>
+            <button class="tab-btn" onclick="switchTrayTab(2, this)">Tray 2</button>
+            <button class="tab-btn" onclick="switchTrayTab(3, this)">Tray 3</button>
+        </div>
+
+        <div id="trayDetail1" class="tab-content active">
+            <div class="info-card">
+                <div><strong id="t1Store">Empty</strong><br><small id="t1Type">Type: --</small></div>
+                <div><strong id="t1Qty">0 Eggs</strong></div>
+            </div>
+        </div>
+        <div id="trayDetail2" class="tab-content">
+            <div class="info-card">
+                <div><strong id="t2Store">Empty</strong><br><small id="t2Type">Type: --</small></div>
+                <div><strong id="t2Qty">0 Eggs</strong></div>
+            </div>
+        </div>
+        <div id="trayDetail3" class="tab-content">
+            <div class="info-card">
+                <div><strong id="t3Store">Empty</strong><br><small id="t3Type">Type: --</small></div>
+                <div><strong id="t3Qty">0 Eggs</strong></div>
+            </div>
+        </div>
+
+        <div class="section-title">Storage Batches</div>
+        <div class="info-card">
+            <div><strong id="store1Name">1st Store</strong><br><small id="store1Type">Type: --</small></div>
+            <div style="text-align: right;"><strong id="store1Qty">0 Eggs</strong><br><small id="store1Tray">Tray: --</small></div>
+        </div>
+        <div class="info-card">
+            <div><strong id="store2Name">2nd Store</strong><br><small id="store2Type">Type: --</small></div>
+            <div style="text-align: right;"><strong id="store2Qty">0 Eggs</strong><br><small id="store2Tray">Tray: --</small></div>
+        </div>
+
+        <button class="btn" onclick="sendDataToTelegram('manual_turn')">🔄 Force Tray Turn</button>
         <div class="sync-status" id="syncStatus">Connecting to Firebase...</div>
     </div>
 
-    <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -78,27 +277,81 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Realtime Data Sync
-        const liveRef = ref(db, 'incubator');
-        onValue(liveRef, (snapshot) => {
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        window.switchEggTab = function(type, btn) {
+            btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('chickenTab').classList.toggle('active', type === 'chicken');
+            document.getElementById('quailTab').classList.toggle('active', type === 'quail');
+        }
+
+        window.switchTrayTab = function(num, btn) {
+            btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            [1, 2, 3].forEach(n => {
+                document.getElementById('trayDetail' + n).classList.toggle('active', n === num);
+            });
+        }
+
+        window.sendDataToTelegram = function(action) {
+            tg.sendData(JSON.stringify({ action: action }));
+            tg.close();
+        }
+
+        // Realtime Data Sync from Firebase
+        const incubatorRef = ref(db, 'incubator');
+        onValue(incubatorRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
+                // Live Sensor Data
                 if (data.live) {
                     document.getElementById('tempVal').innerText = data.live.temp + " °C";
                     document.getElementById('humVal').innerText = data.live.humidity + " %";
-                    document.getElementById('doorStatus').innerText = data.live.door;
                     document.getElementById('trayPosVal').innerText = data.live.angle + "°";
+                    
+                    let doorBadge = document.getElementById('doorStatus');
+                    doorBadge.innerText = data.live.door;
+                    doorBadge.className = data.live.door.includes("CLOSED") ? "badge ok" : "badge alert";
                 }
+
+                // Egg Categories Summary
+                if (data.categories) {
+                    document.getElementById('chickenCount').innerText = data.categories.chickenCount || 0;
+                    document.getElementById('chickenTray').innerText = data.categories.chickenTray || "--";
+                    document.getElementById('quailCount').innerText = data.categories.quailCount || 0;
+                    document.getElementById('quailTray').innerText = data.categories.quailTray || "--";
+                }
+
+                // Tray 1, 2, 3 Details
+                if (data.trays) {
+                    [1, 2, 3].forEach(n => {
+                        let t = data.trays['tray' + n];
+                        if (t) {
+                            document.getElementById('t' + n + 'Store').innerText = t.store || "Empty";
+                            document.getElementById('t' + n + 'Type').innerText = "Type: " + (t.eggType || "--");
+                            document.getElementById('t' + n + 'Qty').innerText = (t.quantity || 0) + " Eggs";
+                        }
+                    });
+                }
+
+                // Store 1 & Store 2 Batches
                 if (data.stores) {
                     if (data.stores.store1) {
-                        document.getElementById('s1Type').innerText = "Type: " + data.stores.store1.eggType;
-                        document.getElementById('s1Qty').innerText = data.stores.store1.qty + " Eggs";
+                        document.getElementById('store1Name').innerText = "1st Store";
+                        document.getElementById('store1Type').innerText = "Type: " + (data.stores.store1.eggType || "--");
+                        document.getElementById('store1Qty').innerText = (data.stores.store1.quantity || 0) + " Eggs";
+                        document.getElementById('store1Tray').innerText = "Tray: " + (data.stores.store1.trayNo || "--");
                     }
                     if (data.stores.store2) {
-                        document.getElementById('s2Type').innerText = "Type: " + data.stores.store2.eggType;
-                        document.getElementById('s2Qty').innerText = data.stores.store2.qty + " Eggs";
+                        document.getElementById('store2Name').innerText = "2nd Store";
+                        document.getElementById('store2Type').innerText = "Type: " + (data.stores.store2.eggType || "--");
+                        document.getElementById('store2Qty').innerText = (data.stores.store2.quantity || 0) + " Eggs";
+                        document.getElementById('store2Tray').innerText = "Tray: " + (data.stores.store2.trayNo || "--");
                     }
                 }
+
                 document.getElementById('syncStatus').innerText = "Last synced: " + new Date().toLocaleTimeString();
             }
         });
