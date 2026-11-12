@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Incubator Dashboard</title>
+  <title>RTN Smart Incubator Dashboard</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+    body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; padding: 15px; margin: 0; }
     .card { background: #1e1e1e; border-radius: 12px; padding: 15px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-    .temp { font-size: 2.5em; color: #ff9800; }
-    .fan { font-size: 3em; display: inline-block; animation: spin 2s linear infinite; }
+    .temp { font-size: 2.2em; color: #ff9800; font-weight: bold; }
+    .fan { font-size: 2.5em; display: inline-block; animation: spin 2s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .info-text { font-size: 1.1em; color: #00e676; }
   </style>
 </head>
 <body>
@@ -18,24 +19,47 @@
   <h2>🐣 RTN Smart Incubator</h2>
 
   <div class="card">
-    <div class="fan">🌀</div>
-    <div class="temp" id="tempVal">37.5 °C</div>
-    <p>Humidity: <b id="humVal">65%</b> | Door: <b id="doorVal">CLOSED 🔒</b></p>
+    <div class="fan" id="fanIcon">🌀</div>
+    <div class="temp" id="tempVal">Loading...</div>
+    <p>Humidity: <b id="humVal">--</b> | Door: <b id="doorVal">--</b></p>
   </div>
 
   <div class="card">
-    <h3>📦 1st Store</h3>
-    <p id="store1Info">Loading store 1 info...</p>
-  </div>
-
-  <div class="card">
-    <h3>📦 2nd Store</h3>
-    <p id="store2Info">Loading store 2 info...</p>
+    <h3>📦 Latest Batch Info</h3>
+    <p class="info-text" id="latestBatch">Fetching data from Google Sheet...</p>
   </div>
 
   <script>
     Telegram.WebApp.ready();
-    // Google Sheets හෝ Firebase එකෙන් Data Fetch කරන JavaScript Logic එක මෙතැනට එකතු වේ
+    Telegram.WebApp.expand(); // Telegram එක ඇතුළේ Full Screen පෙන්වීමට
+
+    // Google Apps Script Web App URL එක මෙතැනට දමන්න
+    const scriptURL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    function fetchIncubatorData() {
+      fetch(scriptURL)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("tempVal").innerText = data.temp;
+          document.getElementById("humVal").innerText = data.humidity;
+          document.getElementById("doorVal").innerText = data.door;
+          
+          document.getElementById("latestBatch").innerHTML = 
+            `Store: <b>${data.batch}</b><br>` +
+            `Egg Type: <b>${data.eggType}</b><br>` +
+            `Quantity: <b>${data.quantity} Eggs</b><br>` +
+            `Tray No: <b>Tray ${data.trayNo}</b>`;
+        })
+        .catch(error => {
+          console.error("Error fetching data:", error);
+          document.getElementById("latestBatch").innerText = "Error loading data!";
+        });
+    }
+
+    // සෑම තත්පර 5කට වරක්ම Live Data Update වීම සඳහා
+    fetchIncubatorData();
+    setInterval(fetchIncubatorData, 5000);
   </script>
+
 </body>
 </html>
