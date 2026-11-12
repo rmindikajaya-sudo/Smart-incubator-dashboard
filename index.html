@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Egg Incubator Dashboard</title>
-    <!-- Telegram Web App Script -->
+    <title>RTN SMART Egg Incubator</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -33,18 +32,20 @@
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 22px;
+            margin-bottom: 18px;
+            font-size: 20px;
         }
 
         .status-banner {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             background: var(--card-bg);
             padding: 12px 15px;
             border-radius: 12px;
             margin-bottom: 15px;
             font-weight: bold;
+            font-size: 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
@@ -74,7 +75,7 @@
 
         .card h3 {
             margin: 0 0 8px 0;
-            font-size: 14px;
+            font-size: 13px;
             opacity: 0.7;
         }
 
@@ -84,19 +85,43 @@
         }
 
         .section-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            margin: 20px 0 10px 0;
+            margin: 18px 0 10px 0;
+        }
+
+        .store-card {
+            background: var(--card-bg);
+            padding: 14px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .store-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: var(--button-color);
+        }
+
+        .store-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            opacity: 0.85;
         }
 
         .tray-card {
             background: var(--card-bg);
             padding: 12px 15px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
@@ -115,48 +140,80 @@
             width: 100%;
             padding: 12px;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .btn:active {
             opacity: 0.8;
+        }
+
+        .sync-status {
+            text-align: center;
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 12px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>🥚 Egg Incubator Dashboard</h2>
+        <h2>🥚 Egg Incubator Monitor</h2>
 
-        <!-- Status Bar: Power & Door -->
+        <!-- Power & Door Status -->
         <div class="status-banner">
             <div>Power: <span id="powerStatus" class="badge ok">Grid Normal</span></div>
-            <div>Door: <span id="doorStatus" class="badge ok">Closed</span></div>
+            <div>Door: <span id="doorStatus" class="badge ok">CLOSED 🔒</span></div>
         </div>
 
         <!-- Main Sensors Grid -->
         <div class="grid-2">
             <div class="card">
                 <h3>Temperature</h3>
-                <div class="value" id="tempVal">37.5°C</div>
+                <div class="value" id="tempVal">-- °C</div>
             </div>
             <div class="card">
                 <h3>Humidity</h3>
-                <div class="value" id="humVal">60%</div>
+                <div class="value" id="humVal">-- %</div>
             </div>
         </div>
 
         <div class="grid-2">
             <div class="card">
                 <h3>Heater Status</h3>
-                <div class="value" id="heaterVal" style="color: var(--accent-orange);">OFF</div>
+                <div class="value" id="heaterVal" style="color: var(--accent-orange);">AUTO</div>
             </div>
             <div class="card">
                 <h3>Fan Speed</h3>
-                <div class="value" id="fanVal">80%</div>
+                <div class="value" id="fanVal">100%</div>
+            </div>
+        </div>
+
+        <!-- Store / Batch Information (Google Sheet eken ena data) -->
+        <div class="section-title">Egg Storage & Batches</div>
+        
+        <div class="store-card">
+            <div class="store-header">
+                <span id="store1Title">1st Store</span>
+                <span id="store1Tray">Tray: --</span>
+            </div>
+            <div class="store-details">
+                <span>Type: <strong id="store1Type">--</strong></span>
+                <span>Qty: <strong id="store1Qty">0</strong></span>
+            </div>
+        </div>
+
+        <div class="store-card">
+            <div class="store-header">
+                <span id="store2Title">2nd Store</span>
+                <span id="store2Tray">Tray: --</span>
+            </div>
+            <div class="store-details">
+                <span>Type: <strong id="store2Type">--</strong></span>
+                <span>Qty: <strong id="store2Qty">0</strong></span>
             </div>
         </div>
 
@@ -180,43 +237,66 @@
             <div class="section-title" style="margin-top: 0;">Quick Actions</div>
             <button class="btn" onclick="sendDataToTelegram('manual_turn')">🔄 Force Tray Turn</button>
         </div>
+
+        <div class="sync-status" id="syncStatus">Connecting to Google Sheet...</div>
     </div>
 
     <script>
-        // Initialize Telegram Web App
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // මෙතැනට ඔයාගේ Google Sheet / Apps Script API URL එක දාන්න (ඩේටා ගන්න)
-        const API_URL = "https://script.google.com/macros/s/AKfycbwURxBG6V8KiKjkPPbPVle8B7aUJohrQBo9cIKguoBw4pehLwSAAQETmXRzmvzh6brdsw/exec";
+        // ඔයාගේ Google Apps Script Web App URL එක මෙතැනට දාන්න
+        const API_URL = "https://script.google.com/macros/s/AKfycbwURxBG6V8KiKjkPPbPVle8B7aUJohrQBo9cIKguoBw4pehLwSAAQETmXRzmvzh6brdsw/execE";
 
         function fetchData() {
-            // උදාහරණයක් ලෙස Google Sheet එකෙන් ඩේටා fetch කර UI එක update කිරීම:
-            /*
             fetch(API_URL)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('tempVal').innerText = data.temperature + "°C";
-                    document.getElementById('humVal').innerText = data.humidity + "%";
-                    document.getElementById('heaterVal').innerText = data.heater;
-                    document.getElementById('fanVal').innerText = data.fan_speed + "%";
-                    document.getElementById('tray1Val').innerText = data.tray1 + "°";
-                    document.getElementById('tray2Val').innerText = data.tray2 + "°";
-                    document.getElementById('tray3Val').innerText = data.tray3 + "°";
-                    // Door & Power logic...
+                    // Temperature & Humidity (ඔයාගේ Script එකෙන් කෙලින්ම ඒකකත් එක්ක එන නිසා)
+                    if (data.temp) document.getElementById('tempVal').innerText = data.temp;
+                    if (data.humidity) document.getElementById('humVal').innerText = data.humidity;
+
+                    // Door Status
+                    let doorBadge = document.getElementById('doorStatus');
+                    if (data.door) {
+                        doorBadge.innerText = data.door;
+                        doorBadge.className = data.door.includes("CLOSED") ? "badge ok" : "badge alert";
+                    }
+
+                    // Store 1 Data
+                    if (data.store1) {
+                        document.getElementById('store1Title').innerText = data.store1.batch;
+                        document.getElementById('store1Type').innerText = data.store1.eggType;
+                        document.getElementById('store1Qty').innerText = data.store1.quantity;
+                        document.getElementById('store1Tray').innerText = "Tray: " + data.store1.trayNo;
+                    }
+
+                    // Store 2 Data
+                    if (data.store2) {
+                        document.getElementById('store2Title').innerText = data.store2.batch;
+                        document.getElementById('store2Type').innerText = data.store2.eggType;
+                        document.getElementById('store2Qty').innerText = data.store2.quantity;
+                        document.getElementById('store2Tray').innerText = "Tray: " + data.store2.trayNo;
+                    }
+
+                    // Last updated time
+                    const now = new Date();
+                    document.getElementById('syncStatus').innerText = "Last synced: " + now.toLocaleTimeString();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('syncStatus').innerText = "Sync error. Retrying...";
                 });
-            */
         }
 
         function sendDataToTelegram(action) {
-            // බටන් එක එබූ විට Telegram Bot වෙත data යැවීම හෝ trigger කිරීම
             tg.sendData(JSON.stringify({ action: action }));
             tg.close();
         }
 
-        // තත්පර 5කට වතාවක් ඩේටා Update වීමට
-        // setInterval(fetchData, 5000);
-        // fetchData();
+        // Load immediately and refresh every 5 seconds
+        fetchData();
+        setInterval(fetchData, 5000);
     </script>
 </body>
 </html>
