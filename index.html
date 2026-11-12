@@ -6,57 +6,114 @@
   <title>RTN Smart Incubator Dashboard</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #121212; color: white; text-align: center; padding: 15px; margin: 0; }
-    .card { background: #1e1e1e; border-radius: 12px; padding: 15px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-    .temp { font-size: 2.2em; color: #ff9800; font-weight: bold; }
-    .fan { font-size: 2.5em; display: inline-block; animation: spin 2s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .info-text { font-size: 1.1em; color: #00e676; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; text-align: center; padding: 10px; margin: 0; }
+    .card { background: #1e1e1e; border-radius: 14px; padding: 15px; margin: 10px 0; box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+    
+    /* Gauge Styles */
+    .gauge-container { display: flex; justify-content: space-around; align-items: center; margin: 15px 0; }
+    .gauge { position: relative; width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(#ff9800 0deg, #333 0deg); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+    .gauge-inner { position: absolute; width: 96px; height: 96px; background: #1e1e1e; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .gauge-value { font-size: 1.2em; font-weight: bold; color: #ff9800; }
+    .gauge-label { font-size: 0.8em; color: #aaa; margin-top: 2px; }
+
+    /* Store Box Styles */
+    .store-box { background: #252525; border-radius: 8px; padding: 12px; margin-top: 10px; text-align: left; border-left: 4px solid #00e676; }
+    .store-box b { color: #00e676; }
+    .door-status { font-size: 1.1em; margin-top: 10px; font-weight: bold; color: #00e676; }
   </style>
 </head>
 <body>
 
   <h2>🐣 RTN Smart Incubator</h2>
 
+  <!-- Sensors & Gauges Card -->
   <div class="card">
-    <div class="fan" id="fanIcon">🌀</div>
-    <div class="temp" id="tempVal">Loading...</div>
-    <p>Humidity: <b id="humVal">--</b> | Door: <b id="doorVal">--</b></p>
+    <div class="door-status" id="doorVal">Door: CLOSED 🔒</div>
+    
+    <div class="gauge-container">
+      <!-- Temperature Gauge -->
+      <div>
+        <div class="gauge" id="tempGauge">
+          <div class="gauge-inner">
+            <span class="gauge-value" id="tempVal">--</span>
+            <span class="gauge-label">Temp</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Humidity Gauge -->
+      <div>
+        <div class="gauge" id="humGauge" style="background: conic-gradient(#2979ff 0deg, #333 0deg);">
+          <div class="gauge-inner">
+            <span class="gauge-value" id="humVal" style="color: #2979ff;">--</span>
+            <span class="gauge-label">Humidity</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Stores Card -->
   <div class="card">
-    <h3>📦 Latest Batch Info</h3>
-    <p class="info-text" id="latestBatch">Fetching data from Google Sheet...</p>
+    <h3>📦 Incubator Stores</h3>
+    
+    <div class="store-box">
+      <h4>📦 1st Store</h4>
+      <p id="store1Info">Loading...</p>
+    </div>
+
+    <div class="store-box" style="border-left-color: #2979ff;">
+      <h4 style="color: #2979ff;">📦 2nd Store</h4>
+      <p id="store2Info">Loading...</p>
+    </div>
   </div>
 
   <script>
     Telegram.WebApp.ready();
-    Telegram.WebApp.expand(); // Telegram එක ඇතුළේ Full Screen පෙන්වීමට
+    Telegram.WebApp.expand();
 
-    // Google Apps Script Web App URL එක මෙතැනට දමන්න
     const scriptURL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    function updateGauge(gaugeId, value, maxVal, color) {
+      let percentage = (parseFloat(value) / maxVal) * 100;
+      if (percentage > 100) percentage = 100;
+      let degrees = (percentage / 100) * 360;
+      document.getElementById(gaugeId).style.background = `conic-gradient(${color} ${degrees}deg, #333 ${degrees}deg)`;
+    }
 
     function fetchIncubatorData() {
       fetch(scriptURL)
         .then(response => response.json())
         .then(data => {
-          document.getElementById("tempVal").innerText = data.temp;
-          document.getElementById("humVal").innerText = data.humidity;
-          document.getElementById("doorVal").innerText = data.door;
+          // Temperature & Humidity Values
+          let rawTemp = parseFloat(data.temp) || 37.5;
+          let rawHum = parseFloat(data.humidity) || 65;
+
+          document.getElementById("tempVal").innerText = rawTemp + "°C";
+          document.getElementById("humVal").innerText = rawHum + "%";
+          document.getElementById("doorVal").innerText = "Door: " + data.door;
+
+          // Update Gauges (Max Temp = 50°C, Max Humidity = 100%)
+          updateGauge("tempGauge", rawTemp, 50, "#ff9800");
+          updateGauge("humGauge", rawHum, 100, "#2979ff");
           
-          document.getElementById("latestBatch").innerHTML = 
-            `Store: <b>${data.batch}</b><br>` +
-            `Egg Type: <b>${data.eggType}</b><br>` +
-            `Quantity: <b>${data.quantity} Eggs</b><br>` +
-            `Tray No: <b>Tray ${data.trayNo}</b>`;
+          // Store 1 Details
+          document.getElementById("store1Info").innerHTML = 
+            `Egg Type: <b>${data.store1.eggType}</b><br>` +
+            `Quantity: <b>${data.store1.quantity} Eggs</b><br>` +
+            `Tray No: <b>Tray ${data.store1.trayNo}</b>`;
+
+          // Store 2 Details
+          document.getElementById("store2Info").innerHTML = 
+            `Egg Type: <b>${data.store2.eggType}</b><br>` +
+            `Quantity: <b>${data.store2.quantity} Eggs</b><br>` +
+            `Tray No: <b>Tray ${data.store2.trayNo}</b>`;
         })
         .catch(error => {
-          console.error("Error fetching data:", error);
-          document.getElementById("latestBatch").innerText = "Error loading data!";
+          console.error("Error:", error);
         });
     }
 
-    // සෑම තත්පර 5කට වරක්ම Live Data Update වීම සඳහා
     fetchIncubatorData();
     setInterval(fetchIncubatorData, 5000);
   </script>
