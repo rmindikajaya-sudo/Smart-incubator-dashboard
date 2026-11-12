@@ -16,7 +16,6 @@
             --accent-green: #2ecc71;
             --accent-orange: #f39c12;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
@@ -24,18 +23,8 @@
             margin: 0;
             padding: 12px;
         }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        h2 {
-            text-align: center;
-            margin: 0 0 12px 0;
-            font-size: 18px;
-        }
-
+        .container { max-width: 500px; margin: 0 auto; }
+        h2 { text-align: center; margin: 0 0 12px 0; font-size: 18px; }
         .reminder-box {
             background: linear-gradient(135deg, #f39c12, #d35400);
             color: #fff;
@@ -48,7 +37,6 @@
             gap: 8px;
             font-weight: 500;
         }
-
         .status-banner {
             display: flex;
             justify-content: space-between;
@@ -60,42 +48,13 @@
             font-weight: bold;
             font-size: 13px;
         }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-        }
-
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; }
         .badge.ok { background-color: rgba(46, 204, 113, 0.2); color: var(--accent-green); }
         .badge.alert { background-color: rgba(231, 76, 60, 0.2); color: var(--accent-red); }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 14px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .card h3 {
-            margin: 0 0 6px 0;
-            font-size: 12px;
-            opacity: 0.7;
-        }
-
-        .card .value {
-            font-size: 22px;
-            font-weight: bold;
-        }
-
-        /* Unified Tray Position Card */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .card { background: var(--card-bg); padding: 14px; border-radius: 12px; text-align: center; }
+        .card h3 { margin: 0 0 6px 0; font-size: 12px; opacity: 0.7; }
+        .card .value { font-size: 22px; font-weight: bold; }
         .tray-pos-banner {
             background: var(--card-bg);
             padding: 14px 16px;
@@ -106,58 +65,17 @@
             align-items: center;
             border-left: 4px solid var(--button-color);
         }
-
-        .tray-pos-banner span {
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .tray-pos-banner strong {
-            font-size: 20px;
-            color: var(--button-color);
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin: 14px 0 8px 0;
-            opacity: 0.9;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 10px;
-        }
-
+        .tray-pos-banner span { font-size: 14px; font-weight: bold; }
+        .tray-pos-banner strong { font-size: 20px; color: var(--button-color); }
+        .section-title { font-size: 14px; font-weight: bold; margin: 14px 0 8px 0; opacity: 0.9; }
+        .tabs { display: flex; background: var(--card-bg); border-radius: 10px; padding: 4px; margin-bottom: 10px; }
         .tab-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 8px;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            border-radius: 8px;
-            color: var(--text-color);
+            flex: 1; background: none; border: none; padding: 8px; font-weight: bold;
+            font-size: 13px; cursor: pointer; border-radius: 8px; color: var(--text-color);
         }
-
-        .tab-btn.active {
-            background-color: var(--button-color);
-            color: var(--button-text);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
+        .tab-btn.active { background-color: var(--button-color); color: var(--button-text); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .info-card {
             background: var(--card-bg);
             padding: 12px 14px;
@@ -168,26 +86,12 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .btn {
-            background-color: var(--button-color);
-            color: var(--button-text);
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
+            background-color: var(--button-color); color: var(--button-text); border: none;
+            width: 100%; padding: 12px; border-radius: 10px; font-size: 14px;
+            font-weight: bold; cursor: pointer; margin-top: 10px;
         }
-
-        .sync-status {
-            text-align: center;
-            font-size: 11px;
-            opacity: 0.5;
-            margin-top: 12px;
-        }
+        .sync-status { text-align: center; font-size: 11px; opacity: 0.5; margin-top: 12px; }
     </style>
 </head>
 <body>
@@ -195,18 +99,15 @@
     <div class="container">
         <h2>🥚 RTN SMART Incubator</h2>
 
-        <!-- Reminder -->
         <div class="reminder-box">
             <span>🔔</span> <span id="reminderText">Loading reminders...</span>
         </div>
 
-        <!-- Power & Door -->
         <div class="status-banner">
             <div>Power: <span id="powerStatus" class="badge ok">Grid Normal</span></div>
             <div>Door: <span id="doorStatus" class="badge ok">CLOSED 🔒</span></div>
         </div>
 
-        <!-- Temp & Humidity -->
         <div class="grid-2">
             <div class="card">
                 <h3>Temperature</h3>
@@ -218,13 +119,11 @@
             </div>
         </div>
 
-        <!-- Unified Tray Position (All 3 Trays Together) -->
         <div class="tray-pos-banner">
             <span>📐 All Trays Angle (-45° / 0° / +45°)</span>
-            <strong id="trayPosVal">-45°</strong>
+            <strong id="trayPosVal">45°</strong>
         </div>
 
-        <!-- Egg Type Tabs (Chicken / Quail) -->
         <div class="section-title">Egg Categories</div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchEggTab('chicken', this)">🐔 Chicken</button>
@@ -245,7 +144,6 @@
             </div>
         </div>
 
-        <!-- Tray 1, 2, 3 Store Details Tabs -->
         <div class="section-title">Tray Store Details</div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTrayTab(1, this)">Tray 1</button>
@@ -272,7 +170,6 @@
             </div>
         </div>
 
-        <!-- Stores Summary -->
         <div class="section-title">Storage Batches</div>
         <div class="info-card">
             <div><strong id="store1Name">1st Store</strong><br><small id="store1Type">Type: --</small></div>
@@ -291,7 +188,8 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        const API_URL = "https://script.google.com/macros/s/AKfycbwURxBG6V8KiKjkPPbPVle8B7aUJohrQBo9cIKguoBw4pehLwSAAQETmXRzmvzh6brdsw/exec";
+        // ඔබ අලුතින් Deploy කරපු Google Apps Script Web App URL එක මෙතනට දාන්න
+        const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnSOOuve1gPWxSTDa-55-yMCNkyhsVGdI9c-6qKxjHAXpz8eiZNYOxpgZCyRAHms_2F0yjc5xmoygKGMwOmiYsvUGiImGepCyQcvtA33zrmamYEoaNQ2yqEvI7aqhhsYvbu2GdNpk8lk9UUQJWrUL_mp60eSkOncFdTANT_1Y5iXpSTwAdTk1_NbyUaS9fxaBpz2YpLPimQzEiv_bgD5ALCB4GdB-MG5Qu14ANa18p9bqQIIuRYKIDNlVt5fmHWoGahRt_QVnthLWwlh9UHqP24hZpuohQ&lib=Mv_FIuAE0wGS6pf4MIop1Q3xYo-w9YMoM";
 
         function switchEggTab(type, btn) {
             btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -332,7 +230,6 @@
                         document.getElementById('quailTray').innerText = data.quail.tray;
                     }
 
-                    // Tray 1, 2, 3 Store details
                     [1, 2, 3].forEach(n => {
                         let tData = data['tray' + n + 'Info'];
                         if (tData) {
@@ -342,7 +239,6 @@
                         }
                     });
 
-                    // Store 1 & 2
                     if (data.store1) {
                         document.getElementById('store1Name').innerText = data.store1.batch;
                         document.getElementById('store1Type').innerText = "Type: " + data.store1.eggType;
