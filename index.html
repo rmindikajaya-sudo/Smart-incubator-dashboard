@@ -98,13 +98,13 @@
             </div>
         </div>
 
-        <!-- Tray Angle & Next Turn -->
+        <!-- Tray Angle -->
         <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
             <div>
                 <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Current Tray Angle</div>
                 <div class="flex items-baseline space-x-2 mt-0.5">
                     <span id="tray-angle" class="text-2xl font-bold text-white">45°</span>
-                    <span id="next-turn" class="text-xs text-cyan-400 font-medium">(Auto-Turn Active)</span>
+                    <span class="text-xs text-cyan-400 font-medium">(Auto-Turn Active)</span>
                 </div>
             </div>
             <div class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
@@ -112,7 +112,7 @@
             </div>
         </div>
 
-        <!-- Heater Status (Dynamic Color & Animation) -->
+        <!-- Heater Status -->
         <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
                 <div id="heater-icon-box" class="p-2.5 rounded-xl bg-slate-800/80 text-slate-400">
@@ -123,28 +123,28 @@
                     <div class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
                 </div>
             </div>
-            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                OFF
+            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50">
+                ON
             </div>
         </div>
 
-        <!-- Circulation Fan (RPM & Rotating Fan Animation) -->
+        <!-- Circulation Fan -->
         <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="p-2.5 rounded-xl bg-slate-800/80 text-slate-500 text-xl">
-                    <i id="fan-icon" class="fa-solid fa-fan"></i>
+                <div id="fan-icon-container" class="p-2.5 rounded-xl bg-cyan-500/15 text-cyan-400 text-xl">
+                    <i id="fan-icon" class="fa-solid fa-fan animate-spin-custom"></i>
                 </div>
                 <div>
                     <div class="font-bold text-sm">Circulation Fan</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Speed: <span id="fan-rpm" class="font-bold text-slate-200">0</span> RPM</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">Speed: <span id="fan-rpm" class="font-bold text-slate-200">1450</span> RPM</div>
                 </div>
             </div>
-            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700/50 text-slate-400 border border-slate-600/30">
-                OFF
+            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                ON
             </div>
         </div>
 
-        <!-- Store / Tray Buttons (Opens Read-Only Detailed Modal) -->
+        <!-- Store / Tray Buttons -->
         <div class="grid grid-cols-2 gap-3 pt-1">
             <button onclick="openStoreModal(1)" class="bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white p-3.5 rounded-2xl font-semibold shadow-lg shadow-blue-900/30 flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95 border border-blue-400/20">
                 <i class="fa-solid fa-layer-group text-lg"></i>
@@ -156,7 +156,6 @@
             </button>
         </div>
 
-        <!-- Footer Bot Info -->
         <div class="text-center pt-2 text-[11px] text-slate-500 font-medium">
             Synced via Telegram Bot • @EGG85_bot
         </div>
@@ -167,18 +166,17 @@
     <div id="store-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             
-            <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-lg">📦</span>
-                    <h3 id="modal-title" class="text-base font-bold text-cyan-400">1st Store Information</h3>
+                    <h3 id="modal-title" class="text-base font-bold text-cyan-400">1st Store Details</h3>
                 </div>
                 <button onclick="closeStoreModal()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-2 rounded-full w-8 h-8 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Read-Only Status Badge -->
+            <!-- Read-Only View Notice -->
             <div class="bg-slate-800/90 border border-slate-700/60 px-3 py-1.5 rounded-lg flex items-center justify-between text-[11px]">
                 <span class="text-slate-400"><i class="fa-solid fa-lock text-amber-400 mr-1.5"></i>Read-Only View</span>
                 <span class="text-cyan-400 font-medium">Synced from /places</span>
@@ -186,42 +184,37 @@
 
             <!-- Read-Only Info Display Cards -->
             <div class="space-y-2.5 text-xs">
-                
-                <!-- Egg Variety -->
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
                     <span class="text-slate-400">Egg Variety (වර්ගය):</span>
                     <span id="info-type" class="font-bold text-amber-400 text-right">--</span>
                 </div>
 
-                <!-- Tray 1, 2, 3 Breakdown -->
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 space-y-2">
                     <div class="flex justify-between items-center border-b border-slate-700/50 pb-1.5">
                         <span class="text-slate-400 font-medium">Tray Breakdown (ට්‍රේ විස්තර):</span>
-                        <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0</span>
+                        <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0 Eggs</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-center pt-0.5">
                         <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
                             <span class="text-[10px] text-slate-400 block">Tray 1</span>
-                            <span id="info-tray1" class="font-bold text-cyan-400 text-xs">0</span>
+                            <span id="info-tray1" class="font-bold text-cyan-400 text-xs">0 Eggs</span>
                         </div>
                         <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
                             <span class="text-[10px] text-slate-400 block">Tray 2</span>
-                            <span id="info-tray2" class="font-bold text-cyan-400 text-xs">0</span>
+                            <span id="info-tray2" class="font-bold text-cyan-400 text-xs">0 Eggs</span>
                         </div>
                         <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
                             <span class="text-[10px] text-slate-400 block">Tray 3</span>
-                            <span id="info-tray3" class="font-bold text-cyan-400 text-xs">0</span>
+                            <span id="info-tray3" class="font-bold text-cyan-400 text-xs">0 Eggs</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Stored Date -->
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
                     <span class="text-slate-400">Stored Date (දැමූ දිනය):</span>
                     <span id="info-date" class="font-bold text-purple-400 text-right">--</span>
                 </div>
 
-                <!-- Elapsed & Remaining Days -->
                 <div class="grid grid-cols-2 gap-2">
                     <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
                         <span class="text-[10px] text-slate-400 block">Elapsed Days (ගත වූ):</span>
@@ -233,14 +226,12 @@
                     </div>
                 </div>
 
-                <!-- Reminder Time -->
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
                     <span class="text-slate-400">Reminder Time (වේලාව):</span>
                     <span id="info-reminder" class="font-bold text-rose-400 text-right">--</span>
                 </div>
             </div>
 
-            <!-- Close Button -->
             <div class="pt-1">
                 <button onclick="closeStoreModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
                     Close
@@ -250,12 +241,11 @@
     </div>
 
     <script>
-        // Telegram WebApp Initialization
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Store Data Object (Firebase / Bot /places command මඟින් යාවත්කාලීන වන දත්ත)
-        let incubatorStoresData = {
+        // Store Data mapping for 1st & 2nd store matching the screenshot view
+        const incubatorStoresData = {
             1: {
                 type: "Chicken Eggs (රටකිකිළි)",
                 tray1: 15,
@@ -268,9 +258,9 @@
             },
             2: {
                 type: "Quail Eggs (වටුවන්)",
-                tray1: 40,
-                tray2: 40,
-                tray3: 40,
+                tray1: 12,
+                tray2: 0,
+                tray3: 0,
                 date: "2026-11-03",
                 elapsed: 10,
                 remaining: 7,
@@ -278,10 +268,9 @@
             }
         };
 
-        // Open Read-Only Store Modal
         function openStoreModal(storeId) {
             const store = incubatorStoresData[storeId];
-            const totalEggs = (Number(store.tray1) || 0) + (Number(store.tray2) || 0) + (Number(store.tray3) || 0);
+            const totalEggs = store.tray1 + store.tray2 + store.tray3;
             
             document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Details`;
             document.getElementById('info-type').innerText = store.type;
@@ -297,99 +286,19 @@
             document.getElementById('store-modal').classList.remove('hidden');
         }
 
-        // Close Store Modal
         function closeStoreModal() {
             document.getElementById('store-modal').classList.add('hidden');
         }
 
-        // Main Telemetry UI Updater (Firebase / ESP32 JSON දත්ත සඳහා)
+        // Live telemetry UI update handler
         function updateIncubatorUI(data) {
             if(data.temp !== undefined) document.getElementById('temp-val').innerText = data.temp + " °C";
             if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity + " %";
             if(data.trayAngle !== undefined) document.getElementById('tray-angle').innerText = data.trayAngle + "°";
             if(data.syncTime !== undefined) document.getElementById('sync-time').innerText = "Synced: " + data.syncTime;
-
-            // Power Status Update
-            const powerBadge = document.getElementById('power-status');
-            if (data.power === "OFF" || data.power === "Battery") {
-                powerBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse";
-                powerBadge.innerText = "Battery Backup ⚡";
-            } else {
-                powerBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                powerBadge.innerText = "Grid Normal";
-            }
-
-            // Door Status Update
-            const doorBadge = document.getElementById('door-status');
-            if (data.door === "OPEN") {
-                doorBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse";
-                doorBadge.innerText = "OPEN 🔓";
-            } else {
-                doorBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                doorBadge.innerText = "CLOSED 🔒";
-            }
-
-            // Top Alert Banner Logic
-            const alertBanner = document.getElementById('alert-banner');
-            const alertText = document.getElementById('alert-text');
-            if (data.door === "OPEN" || data.power === "OFF") {
-                alertBanner.className = "bg-red-500/20 border border-red-500/50 text-red-400 p-2.5 rounded-xl text-center text-xs font-bold flex items-center justify-center space-x-2 animate-pulse";
-                alertText.innerText = data.door === "OPEN" ? "WARNING: Incubator Door is OPEN!" : "ALERT: Main Power Lost (On Battery)!";
-            } else {
-                alertBanner.className = "bg-amber-500/10 border border-amber-500/30 text-amber-400 p-2.5 rounded-xl text-center text-xs font-semibold flex items-center justify-center space-x-2 shadow-inner";
-                alertText.innerText = "System Active - Monitoring Incubator";
-            }
-
-            // Heater Control UI Animation & Colors (ON = Red Pulse, OFF = Green)
-            const heaterCard = document.getElementById('heater-card');
-            const heaterBadge = document.getElementById('heater-badge');
-            const heaterIconBox = document.getElementById('heater-icon-box');
-            if (data.heaterStatus === "ON") {
-                heaterCard.className = "bg-cardbg p-4 rounded-2xl border flex items-center justify-between shadow-md heater-on-anim transition-all";
-                heaterIconBox.className = "p-2.5 rounded-xl bg-red-500/20 text-red-400";
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50";
-                heaterBadge.innerText = "ON";
-            } else {
-                heaterCard.className = "bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all";
-                heaterIconBox.className = "p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400";
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                heaterBadge.innerText = "OFF";
-            }
-
-            // Circulation Fan Animation & RPM (ON = Spin Animation, OFF = Static)
-            const fanCard = document.getElementById('fan-card');
-            const fanIcon = document.getElementById('fan-icon');
-            const fanIconContainer = document.getElementById('fan-icon-container');
-            const fanBadge = document.getElementById('fan-badge');
-            document.getElementById('fan-rpm').innerText = data.fanRpm || 0;
-
-            if (data.fanStatus === "ON") {
-                fanCard.className = "bg-cardbg p-4 rounded-2xl border border-cyan-500/40 flex items-center justify-between shadow-md fan-on-glow transition-all";
-                fanIcon.className = "fa-solid fa-fan animate-spin-custom text-cyan-400";
-                fanIconContainer.className = "p-2.5 rounded-xl bg-cyan-500/15 text-cyan-400 text-xl";
-                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
-                fanBadge.innerText = "ON";
-            } else {
-                fanCard.className = "bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all";
-                fanIcon.className = "fa-solid fa-fan text-slate-500";
-                fanIconContainer.className = "p-2.5 rounded-xl bg-slate-800/80 text-slate-500 text-xl";
-                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700/50 text-slate-400 border border-slate-600/30";
-                fanBadge.innerText = "OFF";
-            }
         }
 
-        // Initial Demo State (Firebase සම්බන්ධ කළ පසු මෙම පේළිය ඉවත් කර Firebase listener එක මඟින් updateIncubatorUI() call කරන්න)
-        updateIncubatorUI({
-            temp: 37.5,
-            humidity: 62,
-            power: "ON",
-            door: "CLOSED",
-            trayAngle: 45,
-            heaterStatus: "ON",
-            fanStatus: "ON",
-            fanRpm: 1450,
-            syncTime: "07:40 PM"
-        });
+        updateIncubatorUI({ temp: 37.5, humidity: 62, trayAngle: 45, syncTime: "7:55 PM" });
     </script>
 </body>
 </html>
