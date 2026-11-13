@@ -39,6 +39,7 @@
         .heater-on { background-color: #ef4444; color: white; }   /* Red for ON */
         .heater-off { background-color: #22c55e; color: white; }  /* Green for OFF */
         .fan-on { background-color: #3b82f6; color: white; }
+        .fan-off { background-color: #64748b; color: white; }
         
         @keyframes spin {
             0% { transform: rotate(0deg); }
@@ -46,6 +47,10 @@
         }
         .rotating-fan {
             animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        .stopped-fan {
+            animation: none;
             display: inline-block;
         }
         .grid-2 {
@@ -73,7 +78,7 @@
         </div>
     </div>
 
-    <!-- Tray Angle -->
+    <!-- Current Tray Angle (Single clear value instead of 3 angles) -->
     <div class="card">
         <div>
             <small>Current Tray Angle</small>
@@ -90,21 +95,21 @@
         <div id="heaterBadge" class="status-badge heater-off">OFF</div>
     </div>
 
-    <!-- Fan Status & RPM with Animation -->
+    <!-- Fan Status & RPM with Rotating Animation -->
     <div class="card">
         <div>
             <strong>Circulation Fan</strong><br>
             <small>RPM: <span id="fanRpm">0</span></small>
         </div>
-        <div>
+        <div style="display: flex; align-items: center; gap: 10px;">
             <span id="fanIcon" class="rotating-fan" style="font-size: 24px;">🌀</span>
-            <div id="fanBadge" class="status-badge fan-on" style="margin-top: 5px; font-size: 12px;">ON</div>
+            <div id="fanBadge" class="status-badge fan-on">ON</div>
         </div>
     </div>
 </div>
 
 <script>
-    // Firebase REST API URL (ඔයාගේ රියල්ටයිම් ඩේටාබෙස් ලින්ක් එක මෙතැනට දෙන්න)
+    // Firebase REST API URL
     const firebaseURL = "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app/incubator/live.json";
 
     async function fetchData() {
@@ -112,11 +117,14 @@
             let response = await fetch(firebaseURL);
             let data = await response.json();
             if(data) {
-                document.getElementById("temp").innerText = data.temp + " °C";
-                document.getElementById("humidity").innerText = data.humidity + " %";
-                document.getElementById("trayAngle").innerText = data.angle + "°";
+                // Temperature & Humidity
+                document.getElementById("temp").innerText = (data.temp || 0.0) + " °C";
+                document.getElementById("humidity").innerText = (data.humidity || 0) + " %";
                 
-                // Heater Color Update (ON = Red, OFF = Green)
+                // Current Tray Angle (Degrees)
+                document.getElementById("trayAngle").innerText = (data.angle !== undefined ? data.angle : 45) + "°";
+                
+                // Heater Status (ON = Red, OFF = Green)
                 let heaterBadge = document.getElementById("heaterBadge");
                 if(data.heater === "ON") {
                     heaterBadge.innerText = "ON";
@@ -126,8 +134,21 @@
                     heaterBadge.className = "status-badge heater-off";
                 }
 
-                // Fan RPM & Animation Update
-                document.getElementById("fanRpm").innerText = data.rpm || 1200;
+                // Fan Status, RPM & Rotating Animation
+                let fanBadge = document.getElementById("fanBadge");
+                let fanIcon = document.getElementById("fanIcon");
+                let rpmVal = data.rpm || 0;
+                document.getElementById("fanRpm").innerText = rpmVal;
+
+                if(data.fan === "ON" || rpmVal > 0) {
+                    fanBadge.innerText = "ON";
+                    fanBadge.className = "status-badge fan-on";
+                    fanIcon.className = "rotating-fan"; // Rotate animation active
+                } else {
+                    fanBadge.innerText = "OFF";
+                    fanBadge.className = "status-badge fan-off";
+                    fanIcon.className = "stopped-fan";  // Stop animation
+                }
             }
         } catch (error) {
             console.error("Error fetching data:", error);
