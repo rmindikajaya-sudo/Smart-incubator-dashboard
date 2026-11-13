@@ -1,256 +1,406 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTN Smart Incubator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>RTN SMART Incubator</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkbg: '#0f172a',
-                        cardbg: '#1e293b',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @keyframes spin-fast {
+        body {
+            background-color: #0b1329;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+        .header-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+        }
+        .alert-box {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .status-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .status-card {
+            background-color: #162238;
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #1e293b;
+        }
+        .badge-grid {
+            background-color: #22c55e;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-door {
+            background-color: #22c55e;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .metric-box {
+            background-color: #162238;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #1e293b;
+        }
+        .metric-box small {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .metric-box h2 {
+            margin: 5px 0 0 0;
+            font-size: 24px;
+            color: #ffffff;
+        }
+        .card {
+            background-color: #162238;
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            border: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .heater-on { background-color: #ef4444; color: white; }
+        .heater-off { background-color: #22c55e; color: white; }
+        .fan-on { background-color: #3b82f6; color: white; }
+        .fan-off { background-color: #64748b; color: white; }
+
+        @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .animate-spin-custom {
-            animation: spin-fast 0.6s linear infinite;
+        .rotating-fan {
+            animation: spin 1s linear infinite;
+            display: inline-block;
         }
-        @keyframes pulse-red {
-            0%, 100% { background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.8); }
-            50% { background-color: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 1); }
+        .stopped-fan {
+            animation: none;
+            display: inline-block;
         }
-        .heater-on-anim {
-            animation: pulse-red 1.5s infinite;
+        .store-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .store-btn-1 {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .store-btn-2 {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        /* Popup Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #162238;
+            border: 1px solid #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            width: 85%;
+            max-width: 340px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            color: #f8fafc;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .modal-header h3 {
+            margin: 0;
+            color: #38bdf8;
+            font-size: 18px;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-body p {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+        .modal-body span {
+            color: #94a3b8;
+        }
+        .modal-body strong {
+            color: #ffffff;
+            text-align: right;
+        }
+        .close-modal-btn {
+            background-color: #1e293b;
+            color: white;
+            border: 1px solid #334155;
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .footer-text {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 15px;
         }
     </style>
 </head>
-<body class="bg-darkbg text-slate-100 font-sans p-4 pb-12 select-none">
+<body>
 
-    <div class="max-w-md mx-auto space-y-4">
-        
-        <!-- App Header -->
-        <div class="flex items-center justify-between bg-cardbg p-3 rounded-2xl shadow-lg border border-slate-800">
-            <div class="flex items-center space-x-2">
-                <span class="text-2xl">🥚</span>
-                <h1 class="font-bold text-lg tracking-wide">RTN SMART Incubator</h1>
-            </div>
-            <span id="sync-time" class="text-xs text-slate-400">Synced: --:--</span>
-        </div>
+<div class="container">
+    <div class="header-title">🥚 RTN SMART Incubator</div>
 
-        <!-- System Active Banner -->
-        <div class="bg-amber-500/10 border border-amber-500/30 text-amber-400 p-2.5 rounded-xl text-center text-sm font-medium flex items-center justify-center space-x-2 shadow-inner">
-            <i class="fa-solid fa-bell animate-bounce"></i>
-            <span>System Active - Monitoring Incubator</span>
-        </div>
-
-        <!-- Power & Door Status Row -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-cardbg p-3 rounded-xl border border-slate-800 flex items-center justify-between">
-                <span class="text-sm text-slate-400 font-medium">Power:</span>
-                <span id="power-status" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Grid Normal</span>
-            </div>
-            <div class="bg-cardbg p-3 rounded-xl border border-slate-800 flex items-center justify-between">
-                <span class="text-sm text-slate-400 font-medium">Door:</span>
-                <span id="door-status" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CLOSED 🔒</span>
-            </div>
-        </div>
-
-        <!-- Temp & Humidity Row -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
-                <div class="text-xs text-slate-400 mb-1 uppercase tracking-wider">Temperature</div>
-                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">37.5 °C</div>
-            </div>
-            <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
-                <div class="text-xs text-slate-400 mb-1 uppercase tracking-wider">Humidity</div>
-                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">62 %</div>
-            </div>
-        </div>
-
-        <!-- Tray Angle -->
-        <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
-            <div>
-                <div class="text-xs text-slate-400 uppercase tracking-wider">Current Tray Angle</div>
-                <div id="tray-angle" class="text-2xl font-bold mt-0.5">45°</div>
-            </div>
-            <div class="text-cyan-400 text-2xl p-2 bg-slate-800/60 rounded-xl">
-                <i class="fa-solid fa-rotate"></i>
-            </div>
-        </div>
-
-        <!-- Heater Status -->
-        <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border flex items-center justify-between shadow-md heater-on-anim">
-            <div>
-                <div class="font-bold text-base flex items-center space-x-2">
-                    <i class="fa-solid fa-fire text-amber-500"></i>
-                    <span>Heater Status</span>
-                </div>
-                <div class="text-xs text-slate-400 mt-0.5">Automatic Relay Control</div>
-            </div>
-            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50">
-                ON
-            </div>
-        </div>
-
-        <!-- Circulation Fan -->
-        <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
-            <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="text-cyan-400 text-2xl">
-                    <i id="fan-icon" class="fa-solid fa-fan animate-spin-custom"></i>
-                </div>
-                <div>
-                    <div class="font-bold text-base">Circulation Fan</div>
-                    <div class="text-xs text-slate-400 mt-0.5">RPM: <span id="fan-rpm" class="font-semibold text-slate-200">1450</span></div>
-                </div>
-            </div>
-            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                ON
-            </div>
-        </div>
-
-        <!-- Store / Tray Buttons -->
-        <div class="grid grid-cols-2 gap-3 pt-2">
-            <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span>1st Store Details</span>
-            </button>
-            <button onclick="openStoreModal(2)" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span>2nd Store Details</span>
-            </button>
-        </div>
-
-        <div class="text-center pt-2 text-xs text-slate-500">
-            @EGG85_bot
-        </div>
-
+    <div class="alert-box">
+        🔔 System Active - Monitoring Incubator
     </div>
 
-    <!-- Store Setup & Details Modal (Interactive Setup Tab) -->
-    <div id="store-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-                <h3 id="modal-title" class="text-lg font-bold text-cyan-400">1st Store Setup</h3>
-                <button onclick="closeStoreModal()" class="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full w-8 h-8 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="space-y-3 pt-1">
-                <!-- Egg Type Selection -->
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Egg Variety (බිත්තර වර්ගය):</label>
-                    <input type="text" id="setup-type" placeholder="e.g. Chicken / Quail Eggs" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
-                </div>
-
-                <!-- Egg Count -->
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Egg Count (බිත්තර ගණන):</label>
-                    <input type="number" id="setup-count" placeholder="e.g. 50" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
-                </div>
-
-                <!-- Tray Number -->
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Tray Number (ට්‍රේ අංකය):</label>
-                    <input type="text" id="setup-tray" placeholder="e.g. Tray 1" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
-                </div>
-
-                <!-- Days Info -->
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                        <span class="text-[10px] text-slate-400 block">Elapsed Days (ගත වූ):</span>
-                        <input type="number" id="setup-elapsed" class="w-full bg-transparent text-emerald-400 font-bold text-sm focus:outline-none mt-1">
-                    </div>
-                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                        <span class="text-[10px] text-slate-400 block">Remaining (ඉතිරි):</span>
-                        <input type="number" id="setup-remaining" class="w-full bg-transparent text-blue-400 font-bold text-sm focus:outline-none mt-1">
-                    </div>
-                </div>
-
-                <!-- Reminder Time -->
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Reminder Time (මතක් කළ යුතු වේලාව):</label>
-                    <input type="time" id="setup-reminder" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
-                </div>
-            </div>
-
-            <div class="flex space-x-2 pt-2">
-                <button onclick="saveStoreData()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">
-                    Save Changes
-                </button>
-                <button onclick="closeStoreModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold text-xs transition">
-                    Cancel
-                </button>
-            </div>
+    <!-- Power & Door Status Row -->
+    <div class="status-row">
+        <div class="status-card">
+            <span>Power:</span>
+            <span class="badge-grid">Grid Normal</span>
+        </div>
+        <div class="status-card">
+            <span>Door:</span>
+            <span id="doorBadge" class="badge-door">CLOSED 🔒</span>
         </div>
     </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+    <!-- Temperature & Humidity Cards -->
+    <div class="metrics-grid">
+        <div class="metric-box">
+            <small>Temperature</small>
+            <h2 id="temp">0.0 °C</h2>
+        </div>
+        <div class="metric-box">
+            <small>Humidity</small>
+            <h2 id="humidity">0 %</h2>
+        </div>
+    </div>
 
-        let currentActiveStore = 1;
+    <!-- Current Tray Angle -->
+    <div class="card">
+        <div>
+            <small style="color: #94a3b8;">Current Tray Angle</small>
+            <div style="font-size: 18px; font-weight: bold; margin-top: 3px;" id="trayAngle">45°</div>
+        </div>
+        <span style="font-size: 22px;">📐</span>
+    </div>
 
-        // Default Store Data Storage (LocalStorage මඟින් Save වේ)
-        function getStoresData() {
-            let data = localStorage.getItem('incubator_stores');
-            if (!data) {
-                return {
-                    1: { type: "Chicken Eggs (රටකිකිළි)", count: 50, tray: "Tray 1", elapsed: 12, remaining: 9, reminder: "18:00" },
-                    2: { type: "Quail Eggs (වටුවන්)", count: 120, tray: "Tray 2", elapsed: 10, remaining: 7, reminder: "08:00" }
-                };
+    <!-- Heater Status Card -->
+    <div class="card">
+        <div>
+            <strong>Heater Status</strong><br>
+            <small style="color: #94a3b8;">Automatic Relay Control</small>
+        </div>
+        <div id="heaterBadge" class="status-badge heater-off">OFF</div>
+    </div>
+
+    <!-- Circulation Fan Card -->
+    <div class="card">
+        <div>
+            <strong>Circulation Fan</strong><br>
+            <small style="color: #94a3b8;">RPM: <span id="fanRpm">0</span></small>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span id="fanIcon" class="rotating-fan" style="font-size: 22px;">🌀</span>
+            <div id="fanBadge" class="status-badge fan-on">ON</div>
+        </div>
+    </div>
+
+    <!-- Store Info Buttons -->
+    <div class="store-btn-row">
+        <button class="store-btn-1" onclick="openStoreModal(1)">📦 1st Store Details</button>
+        <button class="store-btn-2" onclick="openStoreModal(2)">📦 2nd Store Details</button>
+    </div>
+
+    <div class="footer-text" id="syncTime">Last synced: --:--:--</div>
+    <div class="footer-text" style="margin-top: 5px;">@EGG85_bot</div>
+</div>
+
+<!-- Store Info Modal Popup -->
+<div id="storeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">1st Store Information</h3>
+            <button class="close-btn" onclick="closeStoreModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p><span>Egg Type / Variety:</span> <strong id="mEggType">--</strong></p>
+            <p><span>Total Egg Count:</span> <strong id="mEggCount">0 Units</strong></p>
+            <p><span>Elapsed Days (ගත වූ දින):</span> <strong id="mPassedDays" style="color: #22c55e;">0 Days</strong></p>
+            <p><span>Remaining Days (ඉතිරි දින):</span> <strong id="mRemDays" style="color: #38bdf8;">21 Days</strong></p>
+            <p><span>Hatching Reminder Time:</span> <strong id="mReminderTime" style="color: #c084fc;">--:--</strong></p>
+        </div>
+        <button class="close-modal-btn" onclick="closeStoreModal()">Close</button>
+    </div>
+</div>
+
+<script>
+    const firebaseURL = "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app/incubator.json";
+    let globalData = null;
+
+    async function fetchData() {
+        try {
+            let response = await fetch(firebaseURL);
+            let data = await response.json();
+            if(data) {
+                globalData = data;
+                let live = data.live || {};
+                
+                document.getElementById("temp").innerText = (live.temp !== undefined ? live.temp : 0.0) + " °C";
+                document.getElementById("humidity").innerText = (live.humidity !== undefined ? live.humidity : 0) + " %";
+                document.getElementById("trayAngle").innerText = (live.angle !== undefined ? live.angle : 45) + "°";
+                
+                if(live.door) document.getElementById("doorBadge").innerText = live.door;
+
+                let heaterBadge = document.getElementById("heaterBadge");
+                if(live.heater === "ON") {
+                    heaterBadge.innerText = "ON";
+                    heaterBadge.className = "status-badge heater-on";
+                } else {
+                    heaterBadge.innerText = "OFF";
+                    heaterBadge.className = "status-badge heater-off";
+                }
+
+                let fanBadge = document.getElementById("fanBadge");
+                let fanIcon = document.getElementById("fanIcon");
+                let rpmVal = live.rpm || 0;
+                document.getElementById("fanRpm").innerText = rpmVal;
+
+                if(live.fan === "ON" || rpmVal > 0) {
+                    fanBadge.innerText = "ON";
+                    fanBadge.className = "status-badge fan-on";
+                    fanIcon.className = "rotating-fan";
+                } else {
+                    fanBadge.innerText = "OFF";
+                    fanBadge.className = "status-badge fan-off";
+                    fanIcon.className = "stopped-fan";
+                }
+
+                let now = new Date();
+                document.getElementById("syncTime").innerText = "Last synced: " + now.toLocaleTimeString();
             }
-            return JSON.parse(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    function openStoreModal(storeNo) {
+        if (!globalData || !globalData.stores) {
+            alert("No data available yet or store is empty.");
+            return;
         }
 
-        function openStoreModal(storeId) {
-            currentActiveStore = storeId;
-            let stores = getStoresData();
-            let store = stores[storeId];
+        let storeKey = "store" + storeNo;
+        let storeInfo = globalData.stores[storeKey];
 
-            document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Setup`;
-            document.getElementById('setup-type').value = store.type;
-            document.getElementById('setup-count').value = store.count;
-            document.getElementById('setup-tray').value = store.tray;
-            document.getElementById('setup-elapsed').value = store.elapsed;
-            document.getElementById('setup-remaining').value = store.remaining;
-            document.getElementById('setup-reminder').value = store.reminder;
-
-            document.getElementById('store-modal').classList.remove('hidden');
+        if (!storeInfo || !storeInfo.active) {
+            alert(storeNo + "st/nd Store is currently EMPTY.");
+            return;
         }
 
-        function closeStoreModal() {
-            document.getElementById('store-modal').classList.add('hidden');
-        }
+        document.getElementById("modalTitle").innerText = storeNo + "st Store Information";
+        document.getElementById("mEggType").innerText = storeInfo.eggType || "--";
+        document.getElementById("mEggCount").innerText = (storeInfo.quantity || 0) + " Units";
+        document.getElementById("mPassedDays").innerText = (storeInfo.passedDays || 0) + " Days";
+        document.getElementById("mRemDays").innerText = (storeInfo.remainingDays || 21) + " Days";
+        document.getElementById("mReminderTime").innerText = storeInfo.reminderTime || "--:--";
 
-        function saveStoreData() {
-            let stores = getStoresData();
-            stores[currentActiveStore] = {
-                type: document.getElementById('setup-type').value,
-                count: document.getElementById('setup-count').value,
-                tray: document.getElementById('setup-tray').value,
-                elapsed: document.getElementById('setup-elapsed').value,
-                remaining: document.getElementById('setup-remaining').value,
-                reminder: document.getElementById('setup-reminder').value
-            };
+        document.getElementById("storeModal").style.display = "flex";
+    }
 
-            localStorage.setItem('incubator_stores', JSON.stringify(stores));
-            alert('Store details successfully updated & saved!');
-            closeStoreModal();
-        }
-    </script>
+    function closeStoreModal() {
+        document.getElementById("storeModal").style.display = "none";
+    }
+
+    setInterval(fetchData, 2000);
+    fetchData();
+</script>
+
 </body>
 </html>
