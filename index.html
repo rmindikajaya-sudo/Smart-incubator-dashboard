@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTN SMART Incubator</title>
+    <title>RTN SMART Incubator Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            background-color: #0b1329;
+            background-color: #0f172a;
             color: #f8fafc;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 12px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,100 +20,27 @@
             width: 100%;
             max-width: 400px;
         }
-        .header-title {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            color: #e2e8f0;
-        }
-        .alert-box {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
-        .status-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .status-card {
-            background-color: #162238;
-            border-radius: 10px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 500;
-            border: 1px solid #1e293b;
-        }
-        .badge-grid {
-            background-color: #22c55e;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .badge-door {
-            background-color: #22c55e;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .metric-box {
-            background-color: #162238;
+        .card {
+            background-color: #1e293b;
             border-radius: 12px;
             padding: 15px;
-            text-align: center;
-            border: 1px solid #1e293b;
-        }
-        .metric-box small {
-            color: #94a3b8;
-            font-size: 12px;
-        }
-        .metric-box h2 {
-            margin: 5px 0 0 0;
-            font-size: 24px;
-            color: #ffffff;
-        }
-        .card {
-            background-color: #162238;
-            border-radius: 12px;
-            padding: 12px 15px;
             margin-bottom: 12px;
-            border: 1px solid #1e293b;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .status-badge {
-            padding: 5px 12px;
-            border-radius: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
         }
         .heater-on { background-color: #ef4444; color: white; }   /* Red for ON */
         .heater-off { background-color: #22c55e; color: white; }  /* Green for OFF */
         .fan-on { background-color: #3b82f6; color: white; }
         .fan-off { background-color: #64748b; color: white; }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -126,79 +53,59 @@
             animation: none;
             display: inline-block;
         }
-        .footer-text {
-            text-align: center;
-            color: #64748b;
-            font-size: 12px;
-            margin-top: 15px;
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-title">🥚 RTN SMART Incubator</div>
+    <h2>🥚 RTN SMART Incubator</h2>
 
-    <div class="alert-box">
-        🔔 System Active - Monitoring Incubator
-    </div>
-
-    <!-- Power & Door Status Row -->
-    <div class="status-row">
-        <div class="status-card">
-            <span>Power:</span>
-            <span class="badge-grid">Grid Normal</span>
-        </div>
-        <div class="status-card">
-            <span>Door:</span>
-            <span id="doorBadge" class="badge-door">CLOSED 🔒</span>
-        </div>
-    </div>
-
-    <!-- Temperature & Humidity Cards -->
-    <div class="metrics-grid">
-        <div class="metric-box">
+    <!-- Temperature & Humidity -->
+    <div class="grid-2">
+        <div class="card" style="flex-direction: column; align-items: flex-start;">
             <small>Temperature</small>
-            <h2 id="temp">0.0 °C</h2>
+            <h3 id="temp">0.0 °C</h3>
         </div>
-        <div class="metric-box">
+        <div class="card" style="flex-direction: column; align-items: flex-start;">
             <small>Humidity</small>
-            <h2 id="humidity">0 %</h2>
+            <h3 id="humidity">0 %</h3>
         </div>
     </div>
 
-    <!-- Current Tray Angle (Clean single value as requested) -->
+    <!-- Current Tray Angle (Single clear value instead of 3 angles) -->
     <div class="card">
         <div>
-            <small style="color: #94a3b8;">Current Tray Angle</small>
-            <div style="font-size: 18px; font-weight: bold; margin-top: 3px;" id="trayAngle">45°</div>
+            <small>Current Tray Angle</small>
+            <h3 id="trayAngle">45°</h3>
         </div>
-        <span style="font-size: 22px;">📐</span>
+        <span style="font-size: 24px;">📐</span>
     </div>
 
-    <!-- Heater Status Card (Red for ON, Green for OFF) -->
+    <!-- Heater Status (Red for ON, Green for OFF) -->
     <div class="card">
         <div>
-            <strong>Heater Status</strong><br>
-            <small style="color: #94a3b8;">Automatic Relay Control</small>
+            <strong>Heater Status</strong>
         </div>
         <div id="heaterBadge" class="status-badge heater-off">OFF</div>
     </div>
 
-    <!-- Circulation Fan Card with RPM & Rotating Animation -->
+    <!-- Fan Status & RPM with Rotating Animation -->
     <div class="card">
         <div>
             <strong>Circulation Fan</strong><br>
-            <small style="color: #94a3b8;">RPM: <span id="fanRpm">0</span></small>
+            <small>RPM: <span id="fanRpm">0</span></small>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
-            <span id="fanIcon" class="rotating-fan" style="font-size: 22px;">🌀</span>
+            <span id="fanIcon" class="rotating-fan" style="font-size: 24px;">🌀</span>
             <div id="fanBadge" class="status-badge fan-on">ON</div>
         </div>
     </div>
-
-    <div class="footer-text" id="syncTime">Last synced: --:--:--</div>
-    <div class="footer-text" style="margin-top: 5px;">@EGG85_bot</div>
 </div>
 
 <script>
@@ -210,18 +117,13 @@
             let response = await fetch(firebaseURL);
             let data = await response.json();
             if(data) {
-                // Temp & Humidity
-                document.getElementById("temp").innerText = (data.temp !== undefined ? data.temp : 0.0) + " °C";
-                document.getElementById("humidity").innerText = (data.humidity !== undefined ? data.humidity : 0) + " %";
+                // Temperature & Humidity
+                document.getElementById("temp").innerText = (data.temp || 0.0) + " °C";
+                document.getElementById("humidity").innerText = (data.humidity || 0) + " %";
                 
-                // Current Tray Angle
+                // Current Tray Angle (Degrees)
                 document.getElementById("trayAngle").innerText = (data.angle !== undefined ? data.angle : 45) + "°";
                 
-                // Door Status
-                if(data.door) {
-                    document.getElementById("doorBadge").innerText = data.door;
-                }
-
                 // Heater Status (ON = Red, OFF = Green)
                 let heaterBadge = document.getElementById("heaterBadge");
                 if(data.heater === "ON") {
@@ -232,7 +134,7 @@
                     heaterBadge.className = "status-badge heater-off";
                 }
 
-                // Fan Status, RPM & Animation
+                // Fan Status, RPM & Rotating Animation
                 let fanBadge = document.getElementById("fanBadge");
                 let fanIcon = document.getElementById("fanIcon");
                 let rpmVal = data.rpm || 0;
@@ -241,16 +143,12 @@
                 if(data.fan === "ON" || rpmVal > 0) {
                     fanBadge.innerText = "ON";
                     fanBadge.className = "status-badge fan-on";
-                    fanIcon.className = "rotating-fan"; // Spin animation
+                    fanIcon.className = "rotating-fan"; // Rotate animation active
                 } else {
                     fanBadge.innerText = "OFF";
                     fanBadge.className = "status-badge fan-off";
                     fanIcon.className = "stopped-fan";  // Stop animation
                 }
-
-                // Sync time update
-                let now = new Date();
-                document.getElementById("syncTime").innerText = "Last synced: " + now.toLocaleTimeString();
             }
         } catch (error) {
             console.error("Error fetching data:", error);
