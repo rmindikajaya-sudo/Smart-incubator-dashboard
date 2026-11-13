@@ -266,3 +266,84 @@
     </script>
 </body>
 </html>
+<!-- Q&A / History Section (මෙය ඔබේ Mini App එකේ අගට එකතු කරගත හැක) -->
+<div class="bg-cardbg p-4 rounded-2xl border border-slate-800 space-y-3 shadow-md mt-4">
+    <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+        <h3 class="font-bold text-sm text-cyan-400 flex items-center space-x-2">
+            <i class="fa-solid fa-clipboard-question"></i>
+            <span>Q&A / Incubator Logs</span>
+        </h3>
+        <span class="text-xs text-slate-400">Saved Entries</span>
+    </div>
+
+    <!-- Input form to add records directly from Mini App or sync with /places command -->
+    <div class="space-y-2">
+        <input type="text" id="qa-question" placeholder="Enter Question / Note (e.g. Batch 1 Status)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+        <input type="text" id="qa-answer" placeholder="Enter Answer / Value" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+        <button onclick="saveQALog()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-xl text-xs transition">
+            Save & Sync Record
+        </button>
+    </div>
+
+    <!-- Saved List Display -->
+    <div id="qa-list" class="space-y-2 max-h-40 overflow-y-auto pt-2">
+        <!-- Dynamic items will appear here -->
+    </div>
+</div>
+
+<script>
+    // Q&A Save and Load functions
+    function loadQALogs() {
+        let logs = JSON.parse(localStorage.getItem('incubator_qa') || '[]');
+        let listContainer = document.getElementById('qa-list');
+        listContainer.innerHTML = '';
+
+        if(logs.length === 0) {
+            listContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No records found. Use /places or add above.</div>';
+            return;
+        }
+
+        logs.forEach((item, index) => {
+            listContainer.innerHTML += `
+                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50 flex justify-between items-start text-xs">
+                    <div>
+                        <div class="font-bold text-amber-400">Q: ${item.q}</div>
+                        <div class="text-slate-300 mt-0.5">A: ${item.ans}</div>
+                    </div>
+                    <button onclick="deleteQALog(${index})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+        });
+    }
+
+    function saveQALog() {
+        let q = document.getElementById('qa-question').value;
+        let ans = document.getElementById('qa-answer').value;
+
+        if(!q || !ans) {
+            alert('කරුණාකර ප්‍රශ්නය සහ පිළිතුර ඇතුළත් කරන්න!');
+            return;
+        }
+
+        let logs = JSON.parse(localStorage.getItem('incubator_qa') || '[]');
+        logs.unshift({ q, ans, time: new Date().toLocaleTimeString() });
+        localStorage.setItem('incubator_qa', JSON.stringify(logs));
+
+        document.getElementById('qa-question').value = '';
+        document.getElementById('qa-answer').value = '';
+        loadQALogs();
+    }
+
+    function deleteQALog(index) {
+        let logs = JSON.parse(localStorage.getItem('incubator_qa') || '[]');
+        logs.splice(index, 1);
+        localStorage.setItem('incubator_qa', JSON.stringify(logs));
+        loadQALogs();
+    }
+
+    // Page Load එකේදී දත්ත පෙන්වීම
+    window.onload = function() {
+        if(typeof tg !== 'undefined') tg.expand();
+        loadQALogs();
+    }
+</script>
