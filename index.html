@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTN Smart Incubator</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
@@ -40,9 +37,9 @@
         }
     </style>
 </head>
-<body class="bg-darkbg text-slate-100 font-sans min-p-4 pb-12 select-none">
+<body class="bg-darkbg text-slate-100 font-sans p-4 pb-12 select-none">
 
-    <div class="max-w-md mx-auto p-4 space-y-4">
+    <div class="max-w-md mx-auto space-y-4">
         
         <!-- App Header -->
         <div class="flex items-center justify-between bg-cardbg p-3 rounded-2xl shadow-lg border border-slate-800">
@@ -75,11 +72,11 @@
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
                 <div class="text-xs text-slate-400 mb-1 uppercase tracking-wider">Temperature</div>
-                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">0 °C</div>
+                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">37.5 °C</div>
             </div>
             <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
                 <div class="text-xs text-slate-400 mb-1 uppercase tracking-wider">Humidity</div>
-                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">0 %</div>
+                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">62 %</div>
             </div>
         </div>
 
@@ -94,8 +91,8 @@
             </div>
         </div>
 
-        <!-- Heater Status (Dynamic Color & Animation) -->
-        <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
+        <!-- Heater Status -->
+        <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border flex items-center justify-between shadow-md heater-on-anim">
             <div>
                 <div class="font-bold text-base flex items-center space-x-2">
                     <i class="fa-solid fa-fire text-amber-500"></i>
@@ -103,28 +100,28 @@
                 </div>
                 <div class="text-xs text-slate-400 mt-0.5">Automatic Relay Control</div>
             </div>
-            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                OFF
+            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50">
+                ON
             </div>
         </div>
 
-        <!-- Circulation Fan (RPM & Rotating Fan Animation) -->
+        <!-- Circulation Fan -->
         <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
             <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="text-slate-500 text-2xl">
-                    <i id="fan-icon" class="fa-solid fa-fan"></i>
+                <div id="fan-icon-container" class="text-cyan-400 text-2xl">
+                    <i id="fan-icon" class="fa-solid fa-fan animate-spin-custom"></i>
                 </div>
                 <div>
                     <div class="font-bold text-base">Circulation Fan</div>
-                    <div class="text-xs text-slate-400 mt-0.5">RPM: <span id="fan-rpm" class="font-semibold text-slate-200">0</span></div>
+                    <div class="text-xs text-slate-400 mt-0.5">RPM: <span id="fan-rpm" class="font-semibold text-slate-200">1450</span></div>
                 </div>
             </div>
-            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700/50 text-slate-400 border border-slate-600/30">
-                OFF
+            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                ON
             </div>
         </div>
 
-        <!-- Store / Tray Buttons (Opens Detailed Tab/Modal) -->
+        <!-- Store / Tray Buttons -->
         <div class="grid grid-cols-2 gap-3 pt-2">
             <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95">
                 <i class="fa-solid fa-layer-group text-lg"></i>
@@ -136,83 +133,101 @@
             </button>
         </div>
 
-        <!-- Footer Bot Info -->
         <div class="text-center pt-2 text-xs text-slate-500">
             @EGG85_bot
         </div>
 
     </div>
 
-    <!-- Store Details Modal / Tab View -->
+    <!-- Store Setup & Details Modal (Interactive Setup Tab) -->
     <div id="store-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+        <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between border-b border-slate-700 pb-3">
-                <h3 id="modal-title" class="text-lg font-bold text-cyan-400">1st Store Information</h3>
+                <h3 id="modal-title" class="text-lg font-bold text-cyan-400">1st Store Setup</h3>
                 <button onclick="closeStoreModal()" class="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full w-8 h-8 flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             <div class="space-y-3 pt-1">
-                <div class="bg-slate-800/60 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-sm text-slate-400">Egg Type / Variety:</span>
-                    <span id="modal-type" class="font-bold text-amber-400">Chicken Eggs</span>
+                <!-- Egg Type Selection -->
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Egg Variety (බිත්තර වර්ගය):</label>
+                    <input type="text" id="setup-type" placeholder="e.g. Chicken / Quail Eggs" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
                 </div>
-                <div class="bg-slate-800/60 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-sm text-slate-400">Total Egg Count:</span>
-                    <span id="modal-count" class="font-bold text-white text-base">45 Units</span>
+
+                <!-- Egg Count -->
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Egg Count (බිත්තර ගණන):</label>
+                    <input type="number" id="setup-count" placeholder="e.g. 50" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
                 </div>
-                <div class="bg-slate-800/60 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-sm text-slate-400">Elapsed Days (ගත වූ දින):</span>
-                    <span id="modal-elapsed" class="font-bold text-emerald-400">12 Days</span>
+
+                <!-- Tray Number -->
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Tray Number (ට්‍රේ අංකය):</label>
+                    <input type="text" id="setup-tray" placeholder="e.g. Tray 1" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
                 </div>
-                <div class="bg-slate-800/60 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-sm text-slate-400">Remaining Days (ඉතිරි දින):</span>
-                    <span id="modal-remaining" class="font-bold text-blue-400">9 Days</span>
+
+                <!-- Days Info -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-[10px] text-slate-400 block">Elapsed Days (ගත වූ):</span>
+                        <input type="number" id="setup-elapsed" class="w-full bg-transparent text-emerald-400 font-bold text-sm focus:outline-none mt-1">
+                    </div>
+                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-[10px] text-slate-400 block">Remaining (ඉතිරි):</span>
+                        <input type="number" id="setup-remaining" class="w-full bg-transparent text-blue-400 font-bold text-sm focus:outline-none mt-1">
+                    </div>
                 </div>
-                <div class="bg-slate-800/60 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-sm text-slate-400">Hatching Reminder Time:</span>
-                    <span id="modal-reminder" class="font-bold text-purple-400">06:00 PM</span>
+
+                <!-- Reminder Time -->
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Reminder Time (මතක් කළ යුතු වේලාව):</label>
+                    <input type="time" id="setup-reminder" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-semibold">
                 </div>
             </div>
 
-            <button onclick="closeStoreModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold transition">
-                Close
-            </button>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="saveStoreData()" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">
+                    Save Changes
+                </button>
+                <button onclick="closeStoreModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-xl font-bold text-xs transition">
+                    Cancel
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Telegram WebApp Init
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Sample Data for Stores (මෙය ඔබට අවශ්‍ය පරිදි වෙනස් කරගත හැක)
-        const storeData = {
-            1: {
-                type: "Chicken Eggs (රටකිකිළි බිත්තර)",
-                count: 50,
-                elapsed: 14,
-                remaining: 7,
-                reminder: "08:00 AM"
-            },
-            2: {
-                type: "Quail Eggs (වැඩ වටුවන් බිත්තර)",
-                count: 120,
-                elapsed: 10,
-                remaining: 7,
-                reminder: "06:00 PM"
+        let currentActiveStore = 1;
+
+        // Default Store Data Storage (LocalStorage මඟින් Save වේ)
+        function getStoresData() {
+            let data = localStorage.getItem('incubator_stores');
+            if (!data) {
+                return {
+                    1: { type: "Chicken Eggs (රටකිකිළි)", count: 50, tray: "Tray 1", elapsed: 12, remaining: 9, reminder: "18:00" },
+                    2: { type: "Quail Eggs (වටුවන්)", count: 120, tray: "Tray 2", elapsed: 10, remaining: 7, reminder: "08:00" }
+                };
             }
-        };
+            return JSON.parse(data);
+        }
 
         function openStoreModal(storeId) {
-            const data = storeData[storeId];
-            document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Information`;
-            document.getElementById('modal-type').innerText = data.type;
-            document.getElementById('modal-count').innerText = data.count + " Units";
-            document.getElementById('modal-elapsed').innerText = data.elapsed + " Days";
-            document.getElementById('modal-remaining').innerText = data.remaining + " Days";
-            document.getElementById('modal-reminder').innerText = data.reminder;
+            currentActiveStore = storeId;
+            let stores = getStoresData();
+            let store = stores[storeId];
+
+            document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Setup`;
+            document.getElementById('setup-type').value = store.type;
+            document.getElementById('setup-count').value = store.count;
+            document.getElementById('setup-tray').value = store.tray;
+            document.getElementById('setup-elapsed').value = store.elapsed;
+            document.getElementById('setup-remaining').value = store.remaining;
+            document.getElementById('setup-reminder').value = store.reminder;
 
             document.getElementById('store-modal').classList.remove('hidden');
         }
@@ -221,129 +236,21 @@
             document.getElementById('store-modal').classList.add('hidden');
         }
 
-        // ESP32 දත්ත යාවත්කාලීන කිරීම සඳහා වන Function එක (ඔබේ ESP32 කෝඩ් එක වෙනස් නොකර දත්ත ලබා ගැනීමට මෙය පාවිච්චි කළ හැක)
-        function updateIncubatorUI(data) {
-            // data = { temp, humidity, power, door, trayAngle, heaterStatus, fanStatus, fanRpm, syncTime }
-            if(data.temp !== undefined) document.getElementById('temp-val').innerText = data.temp + " °C";
-            if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity + " %";
-            if(data.trayAngle !== undefined) document.getElementById('tray-angle').innerText = data.trayAngle + "°";
-            if(data.syncTime !== undefined) document.getElementById('sync-time').innerText = "Synced: " + data.syncTime;
+        function saveStoreData() {
+            let stores = getStoresData();
+            stores[currentActiveStore] = {
+                type: document.getElementById('setup-type').value,
+                count: document.getElementById('setup-count').value,
+                tray: document.getElementById('setup-tray').value,
+                elapsed: document.getElementById('setup-elapsed').value,
+                remaining: document.getElementById('setup-remaining').value,
+                reminder: document.getElementById('setup-reminder').value
+            };
 
-            // Heater Control UI Animation & Colors
-            const heaterCard = document.getElementById('heater-card');
-            const heaterBadge = document.getElementById('heater-badge');
-            if (data.heaterStatus === "ON") {
-                heaterCard.className = "bg-cardbg p-4 rounded-2xl border flex items-center justify-between shadow-md heater-on-anim";
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50";
-                heaterBadge.innerText = "ON";
-            } else {
-                heaterCard.className = "bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md";
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                heaterBadge.innerText = "OFF";
-            }
-
-            // Circulation Fan Animation & RPM
-            const fanIcon = document.getElementById('fan-icon');
-            const fanIconContainer = document.getElementById('fan-icon-container');
-            const fanBadge = document.getElementById('fan-badge');
-            document.getElementById('fan-rpm').innerText = data.fanRpm || 0;
-
-            if (data.fanStatus === "ON") {
-                fanIcon.className = "fa-solid fa-fan animate-spin-custom text-cyan-400";
-                fanIconContainer.className = "text-cyan-400 text-2xl";
-                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-lg shadow-cyan-500/20";
-                fanBadge.innerText = "ON";
-            } else {
-                fanIcon.className = "fa-solid fa-fan text-slate-500";
-                fanIconContainer.className = "text-slate-500 text-2xl";
-                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700/50 text-slate-400 border border-slate-600/30";
-                fanBadge.innerText = "OFF";
-            }
+            localStorage.setItem('incubator_stores', JSON.stringify(stores));
+            alert('Store details successfully updated & saved!');
+            closeStoreModal();
         }
-
-        // උදාහරණයක් ලෙස Test කිරීමට (මෙය පසුව ESP32 දත්ත ලැබෙන ආකාරයට සකස් කරගත හැක)
-        // updateIncubatorUI({ temp: 37.5, humidity: 62, trayAngle: 45, heaterStatus: "ON", fanStatus: "ON", fanRpm: 1450, syncTime: "2:15 PM" });
     </script>
 </body>
 </html>
-<!-- Q&A / History Section (මෙය ඔබේ Mini App එකේ අගට එකතු කරගත හැක) -->
-<div class="bg-cardbg p-4 rounded-2xl border border-slate-800 space-y-3 shadow-md mt-4">
-    <div class="flex items-center justify-between border-b border-slate-700 pb-2">
-        <h3 class="font-bold text-sm text-cyan-400 flex items-center space-x-2">
-            <i class="fa-solid fa-clipboard-question"></i>
-            <span>Q&A / Incubator Logs</span>
-        </h3>
-        <span class="text-xs text-slate-400">Saved Entries</span>
-    </div>
-
-    <!-- Input form to add records directly from Mini App or sync with /places command -->
-    <div class="space-y-2">
-        <input type="text" id="qa-question" placeholder="Enter Question / Note (e.g. Batch 1 Status)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-        <input type="text" id="qa-answer" placeholder="Enter Answer / Value" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
-        <button onclick="saveQALog()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-xl text-xs transition">
-            Save & Sync Record
-        </button>
-    </div>
-
-    <!-- Saved List Display -->
-    <div id="qa-list" class="space-y-2 max-h-40 overflow-y-auto pt-2">
-        <!-- Dynamic items will appear here -->
-    </div>
-</div>
-
-<script>
-    // Q&A Save and Load functions
-    function loadQALogs() {
-        let logs = JSON.parse(localStorage.getItem('incubator_qa') || '[]');
-        let listContainer = document.getElementById('qa-list');
-        listContainer.innerHTML = '';
-
-        if(logs.length === 0) {
-            listContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-2">No records found. Use /places or add above.</div>';
-            return;
-        }
-
-        logs.forEach((item, index) => {
-            listContainer.innerHTML += `
-                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50 flex justify-between items-start text-xs">
-                    <div>
-                        <div class="font-bold text-amber-400">Q: ${item.q}</div>
-                        <div class="text-slate-300 mt-0.5">A: ${item.ans}</div>
-                    </div>
-                    <button onclick="deleteQALog(${index})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `;
-        });
-    }
-
-    function saveQALog() {
-        let q = document.getElementById('qa-question').value;
-        let ans = document.getElementById('qa-answer').value;
-
-        if(!q || !ans) {
-            alert('කරුණාකර ප්‍රශ්නය සහ පිළිතුර ඇතුළත් කරන්න!');
-            return;
-        }
-
-        let logs = JSON.parse(localStorage.getItem('incubator_qa') || '[]');
-        logs.unshift({ q, ans, time: new Date().toLocaleTimeString() });
-        localStorage.setItem('incubator_qa', JSON.stringify(logs));
-
-        document.getElementById('qa-question').value = '';
-        document.getElementById('qa-answer').value = '';
-        loadQALogs();
-    }
-
-    function deleteQALog(index) {
-        let logs = JSON.parse(localStorage.getItem('incubator_qa') || '[]');
-        logs.splice(index, 1);
-        localStorage.setItem('incubator_qa', JSON.stringify(logs));
-        loadQALogs();
-    }
-
-    // Page Load එකේදී දත්ත පෙන්වීම
-    window.onload = function() {
-        if(typeof tg !== 'undefined') tg.expand();
-        loadQALogs();
-    }
-</script>
