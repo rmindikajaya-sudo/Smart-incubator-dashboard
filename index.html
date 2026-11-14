@@ -23,22 +23,6 @@
             }
         }
     </script>
-    <style>
-        @keyframes spin-fast {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .animate-spin-custom {
-            animation: spin-fast 0.6s linear infinite;
-        }
-        @keyframes pulse-red {
-            0%, 100% { background-color: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.7); }
-            50% { background-color: rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 1); }
-        }
-        .heater-on-anim {
-            animation: pulse-red 1.5s infinite;
-        }
-    </style>
 </head>
 <body class="bg-darkbg text-slate-100 font-sans p-4 pb-12 select-none">
 
@@ -81,11 +65,11 @@
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
                 <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Temperature</div>
-                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">0 °C</div>
+                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">37.8 °C</div>
             </div>
             <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
                 <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Humidity</div>
-                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">0 %</div>
+                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">55 %</div>
             </div>
         </div>
 
@@ -97,38 +81,6 @@
             </div>
             <div class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
                 <i class="fa-solid fa-rotate"></i>
-            </div>
-        </div>
-
-        <!-- Heater Status -->
-        <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all">
-            <div class="flex items-center space-x-3">
-                <div class="p-2.5 rounded-xl bg-slate-800/80 text-amber-500">
-                    <i class="fa-solid fa-fire text-xl"></i>
-                </div>
-                <div>
-                    <div class="font-bold text-sm">Heater Status</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
-                </div>
-            </div>
-            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                OFF
-            </div>
-        </div>
-
-        <!-- Circulation Fan -->
-        <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all">
-            <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="p-2.5 rounded-xl bg-slate-800/80 text-slate-500 text-xl">
-                    <i id="fan-icon" class="fa-solid fa-fan"></i>
-                </div>
-                <div>
-                    <div class="font-bold text-sm">Circulation Fan</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Speed: <span id="fan-rpm" class="font-bold text-slate-200">0</span> RPM</div>
-                </div>
-            </div>
-            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700/50 text-slate-400 border border-slate-600/30">
-                OFF
             </div>
         </div>
 
@@ -188,24 +140,19 @@
                 </div>
 
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
-                    <span class="text-slate-400">Stored Date:</span>
-                    <span id="info-date" class="font-bold text-purple-400">--</span>
+                    <span class="text-slate-400">Stored Tray No:</span>
+                    <span id="info-tray-no" class="font-bold text-purple-400">--</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
                         <span class="text-[10px] text-slate-400 block">Elapsed Days:</span>
-                        <span id="info-elapsed" class="font-bold text-emerald-400 text-sm mt-0.5 block">--</span>
+                        <span id="info-elapsed" class="font-bold text-emerald-400 text-sm mt-0.5 block">0 Days</span>
                     </div>
                     <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
                         <span class="text-[10px] text-slate-400 block">Remaining:</span>
-                        <span id="info-remaining" class="font-bold text-blue-400 text-sm mt-0.5 block">--</span>
+                        <span id="info-remaining" class="font-bold text-blue-400 text-sm mt-0.5 block">21 Days</span>
                     </div>
-                </div>
-
-                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
-                    <span class="text-slate-400">Reminder Time:</span>
-                    <span id="info-reminder" class="font-bold text-rose-400">--</span>
                 </div>
             </div>
 
@@ -233,32 +180,20 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let liveStoresData = { 1: {}, 2: {} };
+        let liveStoresData = { 1: { active: false }, 2: { active: false } };
 
-        // Firebase Realtime Listeners for Live Sync
-        db.ref('incubator/telemetry').on('snapshot', (snapshot) => {}); // placeholder
-        db.ref('incubator/telemetry').on('value', (snapshot) => {
+        // Firebase Realtime Listener for Telemetry
+        db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
 
             if(data.temperature !== undefined) document.getElementById('temp-val').innerText = data.temperature.toFixed(1) + " °C";
             if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity.toFixed(1) + " %";
             if(data.trayAngle !== undefined) document.getElementById('tray-angle').innerText = data.trayAngle + "°";
-            if(data.fanRpm !== undefined) document.getElementById('fan-rpm').innerText = data.fanRpm;
-
-            // Door status
-            const doorBadge = document.getElementById('door-status');
-            if(data.door === "OPEN") {
-                doorBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse";
-                doorBadge.innerText = "OPEN 🔓";
-            } else {
-                doorBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                doorBadge.innerText = "CLOSED 🔒";
-            }
         });
 
         // Store 1 & Store 2 Realtime Listeners
-        db.ref('incubator/stores').on('value', (snapshot) => {
+        db.ref('incubators/device_01/stores').on('value', (snapshot) => {
             const stores = snapshot.val();
             if(stores) {
                 if(stores.store1) liveStoresData[1] = stores.store1;
@@ -267,19 +202,38 @@
         });
 
         function openStoreModal(storeId) {
-            const store = liveStoresData[storeId] || { type: "EMPTY", tray1: 0, tray2: 0, tray3: 0, date: "--", elapsed: 0, remaining: 0, reminder: "--" };
-            const totalEggs = (Number(store.tray1) || 0) + (Number(store.tray2) || 0) + (Number(store.tray3) || 0);
+            const store = liveStoresData[storeId];
             
             document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Details`;
-            document.getElementById('info-type').innerText = store.type;
-            document.getElementById('info-total-qty').innerText = `Total: ${totalEggs} Eggs`;
-            document.getElementById('info-tray1').innerText = `${store.tray1 || 0} Eggs`;
-            document.getElementById('info-tray2').innerText = `${store.tray2 || 0} Eggs`;
-            document.getElementById('info-tray3').innerText = `${store.tray3 || 0} Eggs`;
-            document.getElementById('info-date').innerText = store.date || "--";
-            document.getElementById('info-elapsed').innerText = `${store.elapsed || 0} Days`;
-            document.getElementById('info-remaining').innerText = `${store.remaining || 0} Days`;
-            document.getElementById('info-reminder').innerText = store.reminder || "--";
+
+            if (!store || !store.active) {
+                document.getElementById('info-type').innerText = "EMPTY ⚪";
+                document.getElementById('info-total-qty').innerText = "Total: 0 Eggs";
+                document.getElementById('info-tray1').innerText = "0";
+                document.getElementById('info-tray2').innerText = "0";
+                document.getElementById('info-tray3').innerText = "0";
+                document.getElementById('info-tray-no').innerText = "--";
+                document.getElementById('info-elapsed').innerText = "0 Days";
+                document.getElementById('info-remaining').innerText = "21 Days";
+            } else {
+                let qty = store.qty || 0;
+                let trayNum = store.tray || 1;
+                let type = store.type || "Unknown";
+                let daysPassed = store.daysPassed || 0;
+                let remainingDays = 21 - daysPassed;
+
+                document.getElementById('info-type').innerText = type;
+                document.getElementById('info-total-qty').innerText = `Total: ${qty} Eggs`;
+                
+                // Tray breakdown mapping
+                document.getElementById('info-tray1').innerText = (trayNum === 1) ? `${qty} Eggs` : "0";
+                document.getElementById('info-tray2').innerText = (trayNum === 2) ? `${qty} Eggs` : "0";
+                document.getElementById('info-tray3').innerText = (trayNum === 3) ? `${qty} Eggs` : "0";
+
+                document.getElementById('info-tray-no').innerText = `Tray No ${trayNum}`;
+                document.getElementById('info-elapsed').innerText = `${daysPassed} Days`;
+                document.getElementById('info-remaining').innerText = `${remainingDays} Days`;
+            }
 
             document.getElementById('store-modal').classList.remove('hidden');
         }
