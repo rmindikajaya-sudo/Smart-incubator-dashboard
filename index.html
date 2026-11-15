@@ -117,11 +117,11 @@
         <!-- Circulation Fan Card (Spinning Animation & RPM) -->
         <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="text-cyan-400 text-2xl">
+                <div id="fan-icon-container" class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
                     <i id="fan-icon" class="fa-solid fa-fan"></i>
                 </div>
                 <div>
-                    <div class="font-bold text-sm">Circulation Fan</div>
+                    <div class="font-bold text-sm text-white">Circulation Fan</div>
                     <div class="text-[11px] text-slate-400 mt-0.5">RPM: <span id="fan-rpm" class="font-bold text-slate-200">0</span></div>
                 </div>
             </div>
@@ -152,7 +152,7 @@
             <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-lg">📦</span>
-                    <h3 id="modal-title" class="text-base font-bold text-cyan-400">1st Store Details</h3>
+                    <h3 id="modal-title" class="text-base font-bold text-cyan-400">Store Details</h3>
                 </div>
                 <button onclick="closeStoreModal()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-2 rounded-full w-8 h-8 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark"></i>
@@ -177,7 +177,7 @@
                         <span class="text-slate-400 font-medium">Tray Breakdown (ට්‍රේ විස්තර):</span>
                         <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0 Eggs</span>
                     </div>
-                    <!-- Tray Breakdown Grid (Dynamically adapts for Store 1: Trays 1&2 | Store 2: Trays 3&4) -->
+                    <!-- Tray Breakdown Grid (Store 1: Trays 1&2 | Store 2: Trays 3&4) -->
                     <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center pt-0.5">
                         <!-- Populated via JavaScript -->
                     </div>
@@ -258,15 +258,16 @@
             }
 
             // Circulation Fan Status, RPM & Spinning Animation
-            if(data.fanActive !== undefined) {
+            if(data.fanActive !== undefined || data.rpm !== undefined) {
                 const fanBadge = document.getElementById('fan-badge');
                 const fanIcon = document.getElementById('fan-icon');
                 const fanRpmText = document.getElementById('fan-rpm');
                 
-                let rpmVal = data.rpm || 1450;
-                fanRpmText.innerText = data.fanActive ? rpmVal : 0;
+                let isFanOn = data.fanActive === true;
+                let rpmVal = data.rpm !== undefined ? data.rpm : (isFanOn ? 1450 : 0);
+                fanRpmText.innerText = rpmVal;
 
-                if(data.fanActive) {
+                if(isFanOn) {
                     fanBadge.innerText = "ON";
                     fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
                     fanIcon.className = "fa-solid fa-fan text-cyan-400 animate-spin-custom";
