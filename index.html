@@ -123,7 +123,6 @@
                         <span class="text-slate-400 font-medium">Tray Breakdown:</span>
                         <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0</span>
                     </div>
-                    <!-- Dynamic Grid for Store 1 (Trays 1 & 2) and Store 2 (Trays 3 & 4) -->
                     <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center">
                         <!-- Populated dynamically -->
                     </div>
@@ -151,18 +150,9 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ==========================================
-        // ⚠️ අත්‍යවශ්‍යයි: ඔබේ Firebase අක්තපත්‍ර මෙහි නිවැරදිව යොදන්න!
-        // ==========================================
+        // Firebase Configuration (ඔබගේ නිවැරදි Database URL එක මෙහි ඇත)
         const firebaseConfig = {
-  apiKey: "AIzaSyAHLG4Gf2Vkw2ZAcAFanJ0hXB7Q-Ie1Tis",
-  authDomain: "eggbotrm.firebaseapp.com",
-  databaseURL: "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "eggbotrm",
-  storageBucket: "eggbotrm.firebasestorage.app",
-  messagingSenderId: "426516036023",
-  appId: "1:426516036023:web:e078cc97752bbfb325d032"
-};
+            databaseURL: "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -170,7 +160,7 @@
 
         let liveStoresData = { 1: { active: false }, 2: { active: false } };
 
-        // Firebase Realtime Listener for Telemetry
+        // 1. Firebase Realtime Listener for Telemetry
         db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
@@ -179,7 +169,6 @@
             if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity.toFixed(1) + " %";
             if(data.trayAngle !== undefined) document.getElementById('tray-angle').innerText = data.trayAngle + "°";
             
-            // Power and Door status updates
             if(data.doorOpen !== undefined) {
                 const doorEl = document.getElementById('door-status');
                 doorEl.innerText = data.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
@@ -187,9 +176,10 @@
             }
         });
 
-        // Store 1 & Store 2 Realtime Listeners
+        // 2. Store 1 & Store 2 Realtime Listeners
         db.ref('incubators/device_01/stores').on('value', (snapshot) => {
             const stores = snapshot.val();
+            console.log("Stores data received from Firebase:", stores);
             if(stores) {
                 if(stores.store1) liveStoresData[1] = stores.store1;
                 if(stores.store2) liveStoresData[2] = stores.store2;
@@ -203,7 +193,6 @@
             const grid = document.getElementById('tray-breakdown-grid');
             grid.innerHTML = '';
 
-            // පරීක්ෂා කිරීම: Store එක Active ද නැතහොත් Qty එක 0ට වැඩිද කියා
             const hasEggs = store && (store.active === true || store.qty > 0 || (store.type && store.type !== ""));
 
             if (!hasEggs) {
