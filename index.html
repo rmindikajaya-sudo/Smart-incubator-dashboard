@@ -23,6 +23,22 @@
             }
         }
     </script>
+    <style>
+        @keyframes spin-fast {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .animate-spin-custom {
+            animation: spin-fast 0.6s linear infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.8); }
+            50% { background-color: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 1); }
+        }
+        .heater-on-anim {
+            animation: pulse-red 1.5s infinite;
+        }
+    </style>
 </head>
 <body class="bg-darkbg text-slate-100 font-sans p-4 pb-12 select-none">
 
@@ -84,41 +100,43 @@
             </div>
         </div>
 
-        <!-- Heater Status Card -->
+        <!-- Heater Status Card (Red when ON) -->
         <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
-            <div class="flex items-center space-x-3">
-                <div class="text-amber-500 text-xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
-                    <i class="fa-solid fa-fire"></i>
+            <div>
+                <div class="font-bold text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span>Heater Status</span>
                 </div>
-                <div>
-                    <div class="font-bold text-sm text-white">Heater Status</div>
-                    <div class="text-[11px] text-slate-400">Automatic Relay Control</div>
-                </div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
             </div>
-            <span id="heater-badge" class="px-3 py-1 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 border border-slate-700">OFF</span>
+            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700">
+                OFF
+            </div>
         </div>
 
-        <!-- Circulation Fan Card -->
-        <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
+        <!-- Circulation Fan Card (Spinning Animation & RPM) -->
+        <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
-                <div class="text-cyan-400 text-xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
+                <div id="fan-icon-container" class="text-cyan-400 text-2xl">
                     <i id="fan-icon" class="fa-solid fa-fan"></i>
                 </div>
                 <div>
-                    <div class="font-bold text-sm text-white">Circulation Fan</div>
-                    <div id="fan-rpm-text" class="text-[11px] text-slate-400">RPM: 0</div>
+                    <div class="font-bold text-sm">Circulation Fan</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">RPM: <span id="fan-rpm" class="font-bold text-slate-200">0</span></div>
                 </div>
             </div>
-            <span id="fan-badge" class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ON</span>
+            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700">
+                OFF
+            </div>
         </div>
 
         <!-- Store Buttons -->
         <div class="grid grid-cols-2 gap-3 pt-1">
-            <button onclick="openStoreModal(1)" class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
+            <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
                 <i class="fa-solid fa-layer-group text-lg"></i>
                 <span class="text-xs">1st Store Details</span>
             </button>
-            <button onclick="openStoreModal(2)" class="bg-gradient-to-br from-purple-600 to-pink-700 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
+            <button onclick="openStoreModal(2)" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
                 <i class="fa-solid fa-layer-group text-lg"></i>
                 <span class="text-xs">2nd Store Details</span>
             </button>
@@ -127,59 +145,71 @@
         <div class="text-center pt-2 text-[11px] text-slate-500">@EGG85_bot</div>
     </div>
 
-    <!-- Read-Only Store Modal -->
+    <!-- Read-Only Store Details Modal -->
     <div id="store-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
             <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-lg">📦</span>
-                    <h3 id="modal-title" class="text-base font-bold text-cyan-400">Store Details</h3>
+                    <h3 id="modal-title" class="text-base font-bold text-cyan-400">1st Store Details</h3>
                 </div>
-                <button onclick="closeStoreModal()" class="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full w-8 h-8 flex items-center justify-center">
+                <button onclick="closeStoreModal()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-2 rounded-full w-8 h-8 flex items-center justify-center transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
+            <!-- Read-Only View Notice -->
+            <div class="bg-slate-800/90 border border-slate-700/60 px-3 py-1.5 rounded-lg flex items-center justify-between text-[11px]">
+                <span class="text-slate-400"><i class="fa-solid fa-lock text-amber-400 mr-1.5"></i>Read-Only View</span>
+                <span class="text-cyan-400 font-medium">Synced from Firebase</span>
+            </div>
+
+            <!-- Read-Only Info Display Cards -->
             <div class="space-y-2.5 text-xs">
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
                     <span class="text-slate-400">Egg Variety (වර්ගය):</span>
-                    <span id="info-type" class="font-bold text-amber-400">--</span>
+                    <span id="info-type" class="font-bold text-amber-400 text-right">--</span>
                 </div>
 
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 space-y-2">
                     <div class="flex justify-between items-center border-b border-slate-700/50 pb-1.5">
-                        <span class="text-slate-400 font-medium">Tray Breakdown:</span>
-                        <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0</span>
+                        <span class="text-slate-400 font-medium">Tray Breakdown (ට්‍රේ විස්තර):</span>
+                        <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0 Eggs</span>
                     </div>
-                    <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center">
-                        <!-- Populated dynamically -->
+                    <!-- Tray Breakdown Grid (Dynamically adapts for Store 1: Trays 1&2 | Store 2: Trays 3&4) -->
+                    <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center pt-0.5">
+                        <!-- Populated via JavaScript -->
                     </div>
                 </div>
 
-                <!-- Reminder Times Card -->
-                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 space-y-1.5">
-                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Reminder Schedule (දැනුම් දෙන වේලාවන්):</div>
-                    <div class="flex justify-between items-center">
-                        <span id="info-freq" class="text-slate-300 font-medium">Daily Frequency: --</span>
-                        <span id="info-times" class="font-bold text-cyan-400">--</span>
-                    </div>
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                    <span class="text-slate-400">Stored Date (දැමූ දිනය):</span>
+                    <span id="info-date" class="font-bold text-purple-400 text-right">--</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                        <span class="text-[10px] text-slate-400 block">Elapsed Days:</span>
+                        <span class="text-[10px] text-slate-400 block">Elapsed Days (ගත වූ):</span>
                         <span id="info-elapsed" class="font-bold text-emerald-400 text-sm mt-0.5 block">0 Days</span>
                     </div>
                     <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                        <span class="text-[10px] text-slate-400 block">Remaining:</span>
+                        <span class="text-[10px] text-slate-400 block">Remaining (ඉතිරි):</span>
                         <span id="info-remaining" class="font-bold text-blue-400 text-sm mt-0.5 block">21 Days</span>
                     </div>
                 </div>
+
+                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
+                    <span class="text-slate-400">Reminder Time (වේලාව):</span>
+                    <span id="info-reminder" class="font-bold text-rose-400 text-right">--</span>
+                </div>
             </div>
 
-            <button onclick="closeStoreModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-xs">
-                Close
-            </button>
+            <div class="pt-1">
+                <button onclick="closeStoreModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 
@@ -196,7 +226,7 @@
 
         let liveStoresData = { 1: { active: false }, 2: { active: false } };
 
-        // 1. Firebase Realtime Listener for Telemetry (Temp, Humidity, Heater, Fan, Door, etc.)
+        // 1. Firebase Realtime Listener for Telemetry (Temp, Hum, Door, Heater, Fan, RPM)
         db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
@@ -209,20 +239,20 @@
             if(data.doorOpen !== undefined) {
                 const doorEl = document.getElementById('door-status');
                 doorEl.innerText = data.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
-                doorEl.className = data.doorOpen ? "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30" : "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                doorEl.className = data.doorOpen ? "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse" : "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
             }
 
-            // Heater Status & Dynamic Card Styling
+            // Heater Status & Dynamic Red Animation Card
             if(data.heaterActive !== undefined) {
                 const heaterBadge = document.getElementById('heater-badge');
                 const heaterCard = document.getElementById('heater-card');
                 if(data.heaterActive) {
                     heaterBadge.innerText = "ON";
-                    heaterBadge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-red-500 text-white shadow-lg shadow-red-500/50 animate-pulse";
-                    heaterCard.className = "bg-red-950/20 p-4 rounded-2xl border border-red-500/40 flex items-center justify-between shadow-md transition-all duration-300";
+                    heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50";
+                    heaterCard.className = "bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md heater-on-anim transition-all duration-300";
                 } else {
                     heaterBadge.innerText = "OFF";
-                    heaterBadge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 border border-slate-700";
+                    heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700";
                     heaterCard.className = "bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300";
                 }
             }
@@ -231,19 +261,19 @@
             if(data.fanActive !== undefined) {
                 const fanBadge = document.getElementById('fan-badge');
                 const fanIcon = document.getElementById('fan-icon');
-                const fanRpmText = document.getElementById('fan-rpm-text');
+                const fanRpmText = document.getElementById('fan-rpm');
                 
-                let rpmVal = data.rpm || 1450; // Default RPM if active
-                fanRpmText.innerText = `RPM: ${data.fanActive ? rpmVal : 0}`;
+                let rpmVal = data.rpm || 1450;
+                fanRpmText.innerText = data.fanActive ? rpmVal : 0;
 
                 if(data.fanActive) {
                     fanBadge.innerText = "ON";
-                    fanBadge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-                    fanIcon.classList.add('fa-spin'); // Fan spinning animation
+                    fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+                    fanIcon.className = "fa-solid fa-fan text-cyan-400 animate-spin-custom";
                 } else {
                     fanBadge.innerText = "OFF";
-                    fanBadge.className = "px-3 py-1 text-xs font-bold rounded-lg bg-slate-800 text-slate-400 border border-slate-700";
-                    fanIcon.classList.remove('fa-spin'); // Stop spinning
+                    fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700";
+                    fanIcon.className = "fa-solid fa-fan text-slate-400";
                 }
             }
         });
@@ -251,7 +281,6 @@
         // 2. Store 1 & Store 2 Realtime Listeners
         db.ref('incubators/device_01/stores').on('value', (snapshot) => {
             const stores = snapshot.val();
-            console.log("Stores data received from Firebase:", stores);
             if(stores) {
                 if(stores.store1) liveStoresData[1] = stores.store1;
                 if(stores.store2) liveStoresData[2] = stores.store2;
@@ -270,10 +299,10 @@
             if (!hasEggs) {
                 document.getElementById('info-type').innerText = "EMPTY ⚪";
                 document.getElementById('info-total-qty').innerText = "Total: 0 Eggs";
+                document.getElementById('info-date').innerText = "--";
                 document.getElementById('info-elapsed').innerText = "0 Days";
                 document.getElementById('info-remaining').innerText = "21 Days";
-                document.getElementById('info-freq').innerText = "Frequency: --";
-                document.getElementById('info-times').innerText = "No schedule";
+                document.getElementById('info-reminder').innerText = "No schedule";
 
                 if (storeId === 1) {
                     grid.innerHTML = `
@@ -303,17 +332,18 @@
                 let type = store.type || "Chicken/Quail";
                 let daysPassed = store.daysPassed || 0;
                 let remainingDays = Math.max(0, 21 - daysPassed);
+                let storedDate = store.date || "Today";
                 let alertFreq = store.alertFreq || 2;
                 let time1 = store.time1 || "07:15";
                 let time2 = store.time2 || "19:55";
+                let reminderStr = alertFreq === 1 ? time1 : `${time1}, ${time2}`;
 
                 document.getElementById('info-type').innerText = type;
                 document.getElementById('info-total-qty').innerText = `Total: ${qty} Eggs`;
+                document.getElementById('info-date').innerText = storedDate;
                 document.getElementById('info-elapsed').innerText = `${daysPassed} Days`;
                 document.getElementById('info-remaining').innerText = `${remainingDays} Days`;
-                
-                document.getElementById('info-freq').innerText = `Frequency: ${alertFreq} time(s)/day`;
-                document.getElementById('info-times').innerText = alertFreq === 1 ? time1 : `${time1} & ${time2}`;
+                document.getElementById('info-reminder').innerText = reminderStr;
 
                 if (storeId === 1) {
                     let t1 = store.tray1Qty || 0;
