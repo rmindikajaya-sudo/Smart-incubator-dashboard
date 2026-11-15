@@ -65,11 +65,11 @@
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
                 <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Temperature</div>
-                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">37.8 °C</div>
+                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">-- °C</div>
             </div>
             <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
                 <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Humidity</div>
-                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">55 %</div>
+                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">-- %</div>
             </div>
         </div>
 
@@ -123,25 +123,10 @@
                         <span class="text-slate-400 font-medium">Tray Breakdown:</span>
                         <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 1</span>
-                            <span id="info-tray1" class="font-bold text-cyan-400 text-xs">0</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 2</span>
-                            <span id="info-tray2" class="font-bold text-cyan-400 text-xs">0</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 3</span>
-                            <span id="info-tray3" class="font-bold text-cyan-400 text-xs">0</span>
-                        </div>
+                    <!-- Dynamic Grid for Store 1 (Trays 1 & 2) and Store 2 (Trays 3 & 4) -->
+                    <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center">
+                        <!-- Populated dynamically -->
                     </div>
-                </div>
-
-                <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
-                    <span class="text-slate-400">Stored Tray No:</span>
-                    <span id="info-tray-no" class="font-bold text-purple-400">--</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -166,7 +151,7 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Firebase Configuration (ඔබගේ Firebase Web App Config එක මෙහි ඇතුළත් කරන්න)
+        // Firebase Configuration (ඔබගේ Firebase Realtime Database විස්තර මෙහි නිවැරදිව ඇතැයි සලකමු)
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -205,34 +190,76 @@
             const store = liveStoresData[storeId];
             
             document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Details`;
+            const grid = document.getElementById('tray-breakdown-grid');
+            grid.innerHTML = '';
 
-            if (!store || !store.active) {
+            if (!store || !store.active || !store.type) {
                 document.getElementById('info-type').innerText = "EMPTY ⚪";
                 document.getElementById('info-total-qty').innerText = "Total: 0 Eggs";
-                document.getElementById('info-tray1').innerText = "0";
-                document.getElementById('info-tray2').innerText = "0";
-                document.getElementById('info-tray3').innerText = "0";
-                document.getElementById('info-tray-no').innerText = "--";
                 document.getElementById('info-elapsed').innerText = "0 Days";
                 document.getElementById('info-remaining').innerText = "21 Days";
+
+                if (storeId === 1) {
+                    grid.innerHTML = `
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 1</span>
+                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 2</span>
+                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML = `
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 3</span>
+                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 4</span>
+                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
+                        </div>
+                    `;
+                }
             } else {
                 let qty = store.qty || 0;
-                let trayNum = store.tray || 1;
                 let type = store.type || "Unknown";
                 let daysPassed = store.daysPassed || 0;
-                let remainingDays = 21 - daysPassed;
+                let remainingDays = Math.max(0, 21 - daysPassed);
 
                 document.getElementById('info-type').innerText = type;
                 document.getElementById('info-total-qty').innerText = `Total: ${qty} Eggs`;
-                
-                // Tray breakdown mapping
-                document.getElementById('info-tray1').innerText = (trayNum === 1) ? `${qty} Eggs` : "0";
-                document.getElementById('info-tray2').innerText = (trayNum === 2) ? `${qty} Eggs` : "0";
-                document.getElementById('info-tray3').innerText = (trayNum === 3) ? `${qty} Eggs` : "0";
-
-                document.getElementById('info-tray-no').innerText = `Tray No ${trayNum}`;
                 document.getElementById('info-elapsed').innerText = `${daysPassed} Days`;
                 document.getElementById('info-remaining').innerText = `${remainingDays} Days`;
+
+                if (storeId === 1) {
+                    let t1 = store.tray1Qty || 0;
+                    let t2 = store.tray2Qty || 0;
+                    grid.innerHTML = `
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 1</span>
+                            <span class="font-bold text-cyan-400 text-xs">${t1} Eggs</span>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 2</span>
+                            <span class="font-bold text-cyan-400 text-xs">${t2} Eggs</span>
+                        </div>
+                    `;
+                } else {
+                    let t3 = store.tray3Qty || 0;
+                    let t4 = store.tray4Qty || 0;
+                    grid.innerHTML = `
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 3</span>
+                            <span class="font-bold text-cyan-400 text-xs">${t3} Eggs</span>
+                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
+                            <span class="text-[10px] text-slate-400 block">Tray 4</span>
+                            <span class="font-bold text-cyan-400 text-xs">${t4} Eggs</span>
+                        </div>
+                    `;
+                }
             }
 
             document.getElementById('store-modal').classList.remove('hidden');
