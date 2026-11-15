@@ -151,15 +151,17 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Firebase Configuration (ඔබගේ Firebase Realtime Database විස්තර මෙහි නිවැරදිව ඇතැයි සලකමු)
+        // ==========================================
+        // ⚠️ අත්‍යවශ්‍යයි: ඔබේ Firebase අක්තපත්‍ර මෙහි නිවැරදිව යොදන්න!
+        // ==========================================
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://your-incubator-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
+            apiKey: "AIzaSyA-YqnX5PJFpubMmNuSsBbx5RKhWf_2SOY",
+            authDomain: "eggbot-da012.firebaseapp.com",
+            databaseURL: "https://eggbot-da012-default-rtdb.firebaseio.com", 
+            projectId: "eggbot-da012",
+            storageBucket: "eggbot-da012.firebasestorage.app",
+            messagingSenderId: "492904993773",
+            appId: "1:492904993773:web:1c8bd79c32dd449416cde4"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -175,6 +177,13 @@
             if(data.temperature !== undefined) document.getElementById('temp-val').innerText = data.temperature.toFixed(1) + " °C";
             if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity.toFixed(1) + " %";
             if(data.trayAngle !== undefined) document.getElementById('tray-angle').innerText = data.trayAngle + "°";
+            
+            // Power and Door status updates
+            if(data.doorOpen !== undefined) {
+                const doorEl = document.getElementById('door-status');
+                doorEl.innerText = data.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
+                doorEl.className = data.doorOpen ? "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30" : "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+            }
         });
 
         // Store 1 & Store 2 Realtime Listeners
@@ -193,7 +202,10 @@
             const grid = document.getElementById('tray-breakdown-grid');
             grid.innerHTML = '';
 
-            if (!store || !store.active || !store.type) {
+            // පරීක්ෂා කිරීම: Store එක Active ද නැතහොත් Qty එක 0ට වැඩිද කියා
+            const hasEggs = store && (store.active === true || store.qty > 0 || (store.type && store.type !== ""));
+
+            if (!hasEggs) {
                 document.getElementById('info-type').innerText = "EMPTY ⚪";
                 document.getElementById('info-total-qty').innerText = "Total: 0 Eggs";
                 document.getElementById('info-elapsed').innerText = "0 Days";
@@ -224,7 +236,7 @@
                 }
             } else {
                 let qty = store.qty || 0;
-                let type = store.type || "Unknown";
+                let type = store.type || "Chicken/Quail";
                 let daysPassed = store.daysPassed || 0;
                 let remainingDays = Math.max(0, 21 - daysPassed);
 
