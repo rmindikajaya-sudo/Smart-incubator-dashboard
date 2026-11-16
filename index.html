@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTN Smart Incubator</title>
+    <title>RTN Smart Incubator Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <!-- Firebase App & Database SDKs -->
@@ -29,14 +29,14 @@
             100% { transform: rotate(360deg); }
         }
         .animate-spin-custom {
-            animation: spin-fast 0.6s linear infinite;
+            animation: spin-fast 0.5s linear infinite;
         }
         @keyframes pulse-red {
-            0%, 100% { background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.8); }
-            50% { background-color: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 1); }
+            0%, 100% { background-color: rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.9); box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+            50% { background-color: rgba(239, 68, 68, 0.6); border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.7); }
         }
         .heater-on-anim {
-            animation: pulse-red 1.5s infinite;
+            animation: pulse-red 1.2s infinite;
         }
     </style>
 </head>
@@ -89,40 +89,42 @@
             </div>
         </div>
 
-        <!-- Tray Angle -->
+        <!-- Tray Angle (Visual Rotation Indicator) -->
         <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
             <div>
                 <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Current Tray Angle</div>
                 <div id="tray-angle" class="text-2xl font-bold text-white mt-0.5">45°</div>
             </div>
-            <div class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
-                <i class="fa-solid fa-rotate"></i>
+            <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700/50 flex items-center justify-center w-12 h-12">
+                <i id="tray-angle-icon" class="fa-solid fa-rotate text-cyan-400 text-xl transition-transform duration-500"></i>
             </div>
         </div>
 
-        <!-- Heater Status Card (Red when ON) -->
+        <!-- Heater Status Card (Red Pulsing Animation when ON) -->
         <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
-            <div>
-                <div class="font-bold text-sm flex items-center space-x-2">
-                    <i class="fa-solid fa-fire text-amber-500"></i>
-                    <span>Heater Status</span>
+            <div class="flex items-center space-x-3">
+                <div class="text-amber-500 text-xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
+                    <i class="fa-solid fa-fire"></i>
                 </div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
+                <div>
+                    <div class="font-bold text-sm text-white">Heater Status</div>
+                    <div class="text-[11px] text-slate-400">Automatic Relay Control</div>
+                </div>
             </div>
             <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700">
                 OFF
             </div>
         </div>
 
-        <!-- Circulation Fan Card (Spinning Animation & RPM) -->
+        <!-- Circulation Fan Card (Spinning Animation & Large RPM Display) -->
         <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
+                <div class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
                     <i id="fan-icon" class="fa-solid fa-fan"></i>
                 </div>
                 <div>
                     <div class="font-bold text-sm text-white">Circulation Fan</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">RPM: <span id="fan-rpm" class="font-bold text-slate-200">0</span></div>
+                    <div class="text-xs text-cyan-400 font-extrabold mt-0.5">RPM: <span id="fan-rpm" class="text-base">0</span></div>
                 </div>
             </div>
             <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-800 text-slate-400 border border-slate-700">
@@ -130,16 +132,26 @@
             </div>
         </div>
 
-        <!-- Store Buttons -->
+        <!-- Store Management Buttons (View Details & Setup) -->
         <div class="grid grid-cols-2 gap-3 pt-1">
-            <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span class="text-xs">1st Store Details</span>
-            </button>
-            <button onclick="openStoreModal(2)" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span class="text-xs">2nd Store Details</span>
-            </button>
+            <div class="space-y-1.5">
+                <button onclick="openStoreModal(1)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95">
+                    <i class="fa-solid fa-layer-group text-base"></i>
+                    <span class="text-xs">1st Store Details</span>
+                </button>
+                <button onclick="openSetupModal(1)" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 py-1.5 rounded-xl text-[11px] font-bold flex items-center justify-center space-x-1.5 transition">
+                    <i class="fa-solid fa-plus-circle"></i><span>Setup / Add Eggs</span>
+                </button>
+            </div>
+            <div class="space-y-1.5">
+                <button onclick="openStoreModal(2)" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-3 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95">
+                    <i class="fa-solid fa-layer-group text-base"></i>
+                    <span class="text-xs">2nd Store Details</span>
+                </button>
+                <button onclick="openSetupModal(2)" class="w-full bg-slate-800 hover:bg-slate-700 text-pink-400 border border-pink-500/30 py-1.5 rounded-xl text-[11px] font-bold flex items-center justify-center space-x-1.5 transition">
+                    <i class="fa-solid fa-plus-circle"></i><span>Setup / Add Eggs</span>
+                </button>
+            </div>
         </div>
 
         <div class="text-center pt-2 text-[11px] text-slate-500">@EGG85_bot</div>
@@ -159,13 +171,6 @@
                 </button>
             </div>
 
-            <!-- Read-Only View Notice -->
-            <div class="bg-slate-800/90 border border-slate-700/60 px-3 py-1.5 rounded-lg flex items-center justify-between text-[11px]">
-                <span class="text-slate-400"><i class="fa-solid fa-lock text-amber-400 mr-1.5"></i>Read-Only View</span>
-                <span class="text-cyan-400 font-medium">Synced from Firebase</span>
-            </div>
-
-            <!-- Read-Only Info Display Cards -->
             <div class="space-y-2.5 text-xs">
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
                     <span class="text-slate-400">Egg Variety (වර්ගය):</span>
@@ -177,7 +182,6 @@
                         <span class="text-slate-400 font-medium">Tray Breakdown (ට්‍රේ විස්තර):</span>
                         <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0 Eggs</span>
                     </div>
-                    <!-- Tray Breakdown Grid (Store 1: Trays 1&2 | Store 2: Trays 3&4) -->
                     <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center pt-0.5">
                         <!-- Populated via JavaScript -->
                     </div>
@@ -200,7 +204,7 @@
                 </div>
 
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
-                    <span class="text-slate-400">Reminder Time (වේලාව):</span>
+                    <span class="text-slate-400">Reminder Times (වේලාවන්):</span>
                     <span id="info-reminder" class="font-bold text-rose-400 text-right">--</span>
                 </div>
             </div>
@@ -208,6 +212,80 @@
             <div class="pt-1">
                 <button onclick="closeStoreModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-xs transition shadow-md">
                     Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Setup / Add Eggs Modal -->
+    <div id="setup-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">⚙️</span>
+                    <h3 id="setup-modal-title" class="text-base font-bold text-cyan-400">Store Setup</h3>
+                </div>
+                <button onclick="closeSetupModal()" class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-2 rounded-full w-8 h-8 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <!-- Egg Type Selection -->
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">Egg Variety (බිත්තර වර්ගය):</label>
+                    <select id="setup-type" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                        <option value="Quail">Quail (වටු බිත්තර)</option>
+                        <option value="Chicken">Chicken (කුකුළු බිත්තර)</option>
+                    </select>
+                </div>
+
+                <!-- Quantity Input -->
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">Total Quantity (මුළු ප්‍රමාණය):</label>
+                    <input type="number" id="setup-qty" value="30" min="1" max="80" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <!-- Tray Breakdown Input -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label id="label-tray-a" class="block text-slate-400 mb-1 font-medium">Tray 1 Qty:</label>
+                        <input type="number" id="setup-traya" value="30" min="0" max="40" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div>
+                        <label id="label-tray-b" class="block text-slate-400 mb-1 font-medium">Tray 2 Qty:</label>
+                        <input type="number" id="setup-trayb" value="0" min="0" max="40" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <!-- Reminder Frequency & Times -->
+                <div>
+                    <label class="block text-slate-400 mb-1 font-medium">Daily Reminders (දිනකට වාර ගණන):</label>
+                    <select id="setup-freq" onchange="toggleReminderTimes()" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                        <option value="2">2 Times Daily (දිනකට 2 වතාවක්)</option>
+                        <option value="1">1 Time Daily (දිනකට 1 වතාවක්)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2" id="reminder-times-container">
+                    <div>
+                        <label class="block text-slate-400 mb-1 font-medium">Time 1:</label>
+                        <input type="text" id="setup-time1" value="07:15" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div id="time2-wrapper">
+                        <label class="block text-slate-400 mb-1 font-medium">Time 2:</label>
+                        <input type="text" id="setup-time2" value="19:55" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex space-x-2">
+                <button onclick="closeSetupModal()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">
+                    Cancel
+                </button>
+                <button onclick="saveStoreSetup()" class="w-1/2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">
+                    Save to Firebase
                 </button>
             </div>
         </div>
@@ -225,15 +303,28 @@
         const db = firebase.database();
 
         let liveStoresData = { 1: { active: false }, 2: { active: false } };
+        let activeSetupStoreId = 1;
 
-        // 1. Firebase Realtime Listener for Telemetry (Temp, Hum, Door, Heater, Fan, RPM)
+        // 1. Firebase Realtime Listener for Telemetry
         db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if(!data) return;
 
             if(data.temperature !== undefined) document.getElementById('temp-val').innerText = data.temperature.toFixed(1) + " °C";
             if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity.toFixed(1) + " %";
-            if(data.trayAngle !== undefined) document.getElementById('tray-angle').innerText = data.trayAngle + "°";
+            
+            // Tray Angle & Visual Rotation
+            if(data.trayAngle !== undefined) {
+                document.getElementById('tray-angle').innerText = data.trayAngle + "°";
+                const angleIcon = document.getElementById('tray-angle-icon');
+                if(data.trayAngle === 0) {
+                    angleIcon.style.transform = "rotate(0deg)";
+                } else if(data.trayAngle === 45) {
+                    angleIcon.style.transform = "rotate(45deg)";
+                } else {
+                    angleIcon.style.transform = `rotate(${data.trayAngle}deg)`;
+                }
+            }
             
             // Door Status
             if(data.doorOpen !== undefined) {
@@ -242,7 +333,7 @@
                 doorEl.className = data.doorOpen ? "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse" : "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
             }
 
-            // Heater Status & Dynamic Red Animation Card
+            // Heater Status & Red Pulsing Animation Card
             if(data.heaterActive !== undefined) {
                 const heaterBadge = document.getElementById('heater-badge');
                 const heaterCard = document.getElementById('heater-card');
@@ -290,7 +381,6 @@
 
         function openStoreModal(storeId) {
             const store = liveStoresData[storeId];
-            
             document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Details`;
             const grid = document.getElementById('tray-breakdown-grid');
             grid.innerHTML = '';
@@ -307,25 +397,13 @@
 
                 if (storeId === 1) {
                     grid.innerHTML = `
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 1</span>
-                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 2</span>
-                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
-                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 1</span><span class="font-bold text-cyan-400 text-xs">0 Eggs</span></div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 2</span><span class="font-bold text-cyan-400 text-xs">0 Eggs</span></div>
                     `;
                 } else {
                     grid.innerHTML = `
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 3</span>
-                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 4</span>
-                            <span class="font-bold text-cyan-400 text-xs">0 Eggs</span>
-                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 3</span><span class="font-bold text-cyan-400 text-xs">0 Eggs</span></div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 4</span><span class="font-bold text-cyan-400 text-xs">0 Eggs</span></div>
                     `;
                 }
             } else {
@@ -350,27 +428,15 @@
                     let t1 = store.tray1Qty || 0;
                     let t2 = store.tray2Qty || 0;
                     grid.innerHTML = `
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 1</span>
-                            <span class="font-bold text-cyan-400 text-xs">${t1} Eggs</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 2</span>
-                            <span class="font-bold text-cyan-400 text-xs">${t2} Eggs</span>
-                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 1</span><span class="font-bold text-cyan-400 text-xs">${t1} Eggs</span></div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 2</span><span class="font-bold text-cyan-400 text-xs">${t2} Eggs</span></div>
                     `;
                 } else {
                     let t3 = store.tray3Qty || 0;
                     let t4 = store.tray4Qty || 0;
                     grid.innerHTML = `
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 3</span>
-                            <span class="font-bold text-cyan-400 text-xs">${t3} Eggs</span>
-                        </div>
-                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40">
-                            <span class="text-[10px] text-slate-400 block">Tray 4</span>
-                            <span class="font-bold text-cyan-400 text-xs">${t4} Eggs</span>
-                        </div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 3</span><span class="font-bold text-cyan-400 text-xs">${t3} Eggs</span></div>
+                        <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40"><span class="text-[10px] text-slate-400 block">Tray 4</span><span class="font-bold text-cyan-400 text-xs">${t4} Eggs</span></div>
                     `;
                 }
             }
@@ -380,6 +446,68 @@
 
         function closeStoreModal() {
             document.getElementById('store-modal').classList.add('hidden');
+        }
+
+        // Setup / Add Eggs Modal Functions
+        function openSetupModal(storeId) {
+            activeSetupStoreId = storeId;
+            document.getElementById('setup-modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Setup`;
+            
+            document.getElementById('label-tray-a').innerText = storeId === 1 ? 'Tray 1 Qty:' : 'Tray 3 Qty:';
+            document.getElementById('label-tray-b').innerText = storeId === 1 ? 'Tray 2 Qty:' : 'Tray 4 Qty:';
+
+            document.getElementById('setup-modal').classList.remove('hidden');
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setup-modal').classList.add('hidden');
+        }
+
+        function toggleReminderTimes() {
+            const freq = document.getElementById('setup-freq').value;
+            const time2Wrapper = document.getElementById('time2-wrapper');
+            if(freq === '1') {
+                time2Wrapper.style.display = 'none';
+            } else {
+                time2Wrapper.style.display = 'block';
+            }
+        }
+
+        function saveStoreSetup() {
+            let type = document.getElementById('setup-type').value;
+            let qtyA = parseInt(document.getElementById('setup-traya').value) || 0;
+            let qtyB = parseInt(document.getElementById('setup-trayb').value) || 0;
+            let totalQty = qtyA + qtyB;
+            let freq = parseInt(document.getElementById('setup-freq').value) || 2;
+            let time1 = document.getElementById('setup-time1').value || "07:15";
+            let time2 = document.getElementById('setup-time2').value || "19:55";
+
+            let storePath = activeSetupStoreId === 1 ? 'incubators/device_01/stores/store1' : 'incubators/device_01/stores/store2';
+
+            let storeData = {
+                active: true,
+                type: type,
+                qty: totalQty,
+                tray1Qty: activeSetupStoreId === 1 ? qtyA : 0,
+                tray2Qty: activeSetupStoreId === 1 ? qtyB : 0,
+                tray3Qty: activeSetupStoreId === 2 ? qtyA : 0,
+                tray4Qty: activeSetupStoreId === 2 ? qtyB : 0,
+                daysPassed: 0,
+                date: new Date().toISOString().split('T')[0],
+                alertFreq: freq,
+                time1: time1,
+                time2: freq === 2 ? time2 : "--"
+            };
+
+            db.ref(storePath).set(storeData).then(() => {
+                if(tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');[cite: 15]
+                }
+                alert('Store setup updated successfully and synced to Firebase!');
+                closeSetupModal();
+            }).catch((err) => {
+                alert('Error updating store: ' + err.message);
+            });
         }
     </script>
 </body>
