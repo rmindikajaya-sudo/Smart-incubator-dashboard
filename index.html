@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <!-- Tray Angle (Visual Rotation Indicator) -->
+        <!-- Tray Angle -->
         <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
             <div>
                 <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Current Tray Angle</div>
@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <!-- Heater Status Card (Red Pulsing Animation when ON) -->
+        <!-- Heater Status Card -->
         <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
                 <div class="text-amber-500 text-xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
@@ -116,7 +116,7 @@
             </div>
         </div>
 
-        <!-- Circulation Fan Card (Spinning Animation & Large RPM Display) -->
+        <!-- Circulation Fan Card -->
         <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
                 <div class="text-cyan-400 text-2xl p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/50">
@@ -132,7 +132,7 @@
             </div>
         </div>
 
-        <!-- Store Management Buttons (View Details & Setup) -->
+        <!-- Store Management Buttons -->
         <div class="grid grid-cols-2 gap-3 pt-1">
             <div class="space-y-1.5">
                 <button onclick="openStoreModal(1)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-3 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1 transition transform active:scale-95">
@@ -154,13 +154,22 @@
             </div>
         </div>
 
+        <!-- Security Clear & Reset Actions Row -->
+        <div class="grid grid-cols-2 gap-3 pt-1">
+            <button onclick="openPasswordModal('clear')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 p-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition">
+                <i class="fa-solid fa-trash-can"></i><span>Clear Batch</span>
+            </button>
+            <button onclick="openPasswordModal('reset')" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/40 p-2.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition">
+                <i class="fa-solid fa-triangle-exclamation"></i><span>Reset All Data</span>
+            </button>
+        </div>
+
         <div class="text-center pt-2 text-[11px] text-slate-500">@EGG85_bot</div>
     </div>
 
     <!-- Read-Only Store Details Modal -->
     <div id="store-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            
             <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-lg">📦</span>
@@ -182,9 +191,7 @@
                         <span class="text-slate-400 font-medium">Tray Breakdown (ට්‍රේ විස්තර):</span>
                         <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0 Eggs</span>
                     </div>
-                    <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center pt-0.5">
-                        <!-- Populated via JavaScript -->
-                    </div>
+                    <div id="tray-breakdown-grid" class="grid grid-cols-2 gap-2 text-center pt-0.5"></div>
                 </div>
 
                 <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50 flex justify-between items-center">
@@ -220,7 +227,6 @@
     <!-- Interactive Setup / Add Eggs Modal -->
     <div id="setup-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            
             <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
                 <div class="flex items-center space-x-2">
                     <span class="text-lg">⚙️</span>
@@ -240,18 +246,13 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-slate-400 mb-1 font-medium">Total Quantity (මුළු ප්‍රමාණය):</label>
-                    <input type="number" id="setup-qty" value="30" min="1" max="80" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
-                </div>
-
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label id="label-tray-a" class="block text-slate-400 mb-1 font-medium">Tray 1 Qty:</label>
-                        <input type="number" id="setup-traya" value="30" min="0" max="40" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
+                        <label id="label-tray-a" class="block text-slate-400 mb-1 font-medium">Tray 1 Qty (Max 40):</label>
+                        <input type="number" id="setup-traya" value="40" min="0" max="40" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
                     </div>
                     <div>
-                        <label id="label-tray-b" class="block text-slate-400 mb-1 font-medium">Tray 2 Qty:</label>
+                        <label id="label-tray-b" class="block text-slate-400 mb-1 font-medium">Tray 2 Qty (Max 40):</label>
                         <input type="number" id="setup-trayb" value="0" min="0" max="40" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
@@ -287,6 +288,35 @@
         </div>
     </div>
 
+    <!-- Password Protected Action Modal (Clear / Reset) -->
+    <div id="password-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-lg">🔒</span>
+                    <h3 id="pwd-modal-title" class="text-base font-bold text-amber-400">Security Password Required</h3>
+                </div>
+                <button onclick="closePasswordModal()" class="text-slate-400 hover:text-white bg-slate-800 p-2 rounded-full w-8 h-8 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <p id="pwd-modal-desc" class="text-slate-300">Enter device password to proceed:</p>
+                <input type="password" id="security-pwd-input" placeholder="Enter Password (default: 1234)" class="w-full bg-slate-800 border border-slate-700 text-white p-3 rounded-xl font-medium focus:outline-none focus:border-amber-500 text-center tracking-widest text-sm">
+            </div>
+
+            <div class="pt-2 flex space-x-2">
+                <button onclick="closePasswordModal()" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl font-bold text-xs transition">
+                    Cancel
+                </button>
+                <button onclick="executeSecureAction()" class="w-1/2 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white py-3 rounded-xl font-bold text-xs transition shadow-lg">
+                    Confirm & Execute
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
@@ -300,6 +330,7 @@
 
         let liveStoresData = { 1: { active: false }, 2: { active: false } };
         let activeSetupStoreId = 1;
+        let pendingSecureAction = null; // 'clear' or 'reset'
 
         // 1. Firebase Realtime Listener for Telemetry
         db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
@@ -309,27 +340,18 @@
             if(data.temperature !== undefined) document.getElementById('temp-val').innerText = data.temperature.toFixed(1) + " °C";
             if(data.humidity !== undefined) document.getElementById('hum-val').innerText = data.humidity.toFixed(1) + " %";
             
-            // Tray Angle & Visual Rotation
             if(data.trayAngle !== undefined) {
                 document.getElementById('tray-angle').innerText = data.trayAngle + "°";
                 const angleIcon = document.getElementById('tray-angle-icon');
-                if(data.trayAngle === 0) {
-                    angleIcon.style.transform = "rotate(0deg)";
-                } else if(data.trayAngle === 45) {
-                    angleIcon.style.transform = "rotate(45deg)";
-                } else {
-                    angleIcon.style.transform = `rotate(${data.trayAngle}deg)`;
-                }
+                angleIcon.style.transform = `rotate(${data.trayAngle}deg)`;
             }
             
-            // Door Status
             if(data.doorOpen !== undefined) {
                 const doorEl = document.getElementById('door-status');
                 doorEl.innerText = data.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
                 doorEl.className = data.doorOpen ? "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse" : "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
             }
 
-            // Heater Status & Red Pulsing Animation Card
             if(data.heaterActive !== undefined) {
                 const heaterBadge = document.getElementById('heater-badge');
                 const heaterCard = document.getElementById('heater-card');
@@ -344,7 +366,6 @@
                 }
             }
 
-            // Circulation Fan Status, RPM & Spinning Animation
             if(data.fanActive !== undefined || data.rpm !== undefined) {
                 const fanBadge = document.getElementById('fan-badge');
                 const fanIcon = document.getElementById('fan-icon');
@@ -447,10 +468,8 @@
         function openSetupModal(storeId) {
             activeSetupStoreId = storeId;
             document.getElementById('setup-modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Setup`;
-            
-            document.getElementById('label-tray-a').innerText = storeId === 1 ? 'Tray 1 Qty:' : 'Tray 3 Qty:';
-            document.getElementById('label-tray-b').innerText = storeId === 1 ? 'Tray 2 Qty:' : 'Tray 4 Qty:';
-
+            document.getElementById('label-tray-a').innerText = storeId === 1 ? 'Tray 1 Qty (Max 40):' : 'Tray 3 Qty (Max 40):';
+            document.getElementById('label-tray-b').innerText = storeId === 1 ? 'Tray 2 Qty (Max 40):' : 'Tray 4 Qty (Max 40):';
             document.getElementById('setup-modal').classList.remove('hidden');
         }
 
@@ -461,11 +480,7 @@
         function toggleReminderTimes() {
             const freq = document.getElementById('setup-freq').value;
             const time2Wrapper = document.getElementById('time2-wrapper');
-            if(freq === '1') {
-                time2Wrapper.style.display = 'none';
-            } else {
-                time2Wrapper.style.display = 'block';
-            }
+            time2Wrapper.style.display = (freq === '1') ? 'none' : 'block';
         }
 
         function saveStoreSetup() {
@@ -480,7 +495,7 @@
             let storePath = activeSetupStoreId === 1 ? 'incubators/device_01/stores/store1' : 'incubators/device_01/stores/store2';
 
             let storeData = {
-                active: true,
+                active: (totalQty > 0),
                 type: type,
                 qty: totalQty,
                 tray1Qty: activeSetupStoreId === 1 ? qtyA : 0,
@@ -495,14 +510,55 @@
             };
 
             db.ref(storePath).set(storeData).then(() => {
-                if(tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');
-                }
-                alert('Store setup updated successfully and synced to Firebase!');
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                alert('Store setup updated successfully and synced with Telegram & ESP32!');
                 closeSetupModal();
             }).catch((err) => {
                 alert('Error updating store: ' + err.message);
             });
+        }
+
+        // Security Password Modal Functions for Clear & Reset
+        function openPasswordModal(actionType) {
+            pendingSecureAction = actionType;
+            document.getElementById('security-pwd-input').value = '';
+            document.getElementById('pwd-modal-title').innerText = actionType === 'clear' ? '🔒 Clear Store Batch' : '⚠️ Reset All Data';
+            document.getElementById('pwd-modal-desc').innerText = actionType === 'clear' ? 'Enter device password (default: 1234) to clear batch:' : 'Enter device password (default: 1234) to reset all incubator data:';
+            document.getElementById('password-modal').classList.remove('hidden');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+            pendingSecureAction = null;
+        }
+
+        function executeSecureAction() {
+            let pwd = document.getElementById('security-pwd-input').value;
+            if(pwd !== "1234") {
+                alert("❌ Incorrect Password!");
+                return;
+            }
+
+            if(pendingSecureAction === 'clear') {
+                // Prompt user whether store1 or store2 to clear
+                let storeChoice = prompt("Enter Store number to clear (1 for 1st Store, 2 for 2nd Store):", "1");
+                if(storeChoice === "1" || storeChoice === "2") {
+                    let path = storeChoice === "1" ? 'incubators/device_01/stores/store1' : 'incubators/device_01/stores/store2';
+                    db.ref(path).set({ active: false, type: "", qty: 0, tray1Qty: 0, tray2Qty: 0, tray3Qty: 0, tray4Qty: 0, daysPassed: 0 }).then(() => {
+                        alert(`✅ Store ${storeChoice} successfully cleared!`);
+                        closePasswordModal();
+                    });
+                }
+            } else if(pendingSecureAction === 'reset') {
+                let resetData = {
+                    store1: { active: false, type: "", qty: 0, tray1Qty: 0, tray2Qty: 0, daysPassed: 0 },
+                    store2: { active: false, type: "", qty: 0, tray3Qty: 0, tray4Qty: 0, daysPassed: 0 }
+                };
+                db.ref('incubators/device_01/stores').set(resetData).then(() => {
+                    alert("✅ All Incubator data successfully reset!");
+                    closePasswordModal();
+                });
+            }
         }
     </script>
 </body>
