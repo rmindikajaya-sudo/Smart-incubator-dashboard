@@ -232,7 +232,6 @@
             </div>
 
             <div class="space-y-3 text-xs">
-                <!-- Egg Type Selection -->
                 <div>
                     <label class="block text-slate-400 mb-1 font-medium">Egg Variety (බිත්තර වර්ගය):</label>
                     <select id="setup-type" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
@@ -241,13 +240,11 @@
                     </select>
                 </div>
 
-                <!-- Quantity Input -->
                 <div>
                     <label class="block text-slate-400 mb-1 font-medium">Total Quantity (මුළු ප්‍රමාණය):</label>
                     <input type="number" id="setup-qty" value="30" min="1" max="80" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
                 </div>
 
-                <!-- Tray Breakdown Input -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label id="label-tray-a" class="block text-slate-400 mb-1 font-medium">Tray 1 Qty:</label>
@@ -259,7 +256,6 @@
                     </div>
                 </div>
 
-                <!-- Reminder Frequency & Times -->
                 <div>
                     <label class="block text-slate-400 mb-1 font-medium">Daily Reminders (දිනකට වාර ගණන):</label>
                     <select id="setup-freq" onchange="toggleReminderTimes()" class="w-full bg-slate-800 border border-slate-700 text-white p-2.5 rounded-xl font-medium focus:outline-none focus:border-cyan-500">
@@ -448,7 +444,6 @@
             document.getElementById('store-modal').classList.add('hidden');
         }
 
-        // Setup / Add Eggs Modal Functions
         function openSetupModal(storeId) {
             activeSetupStoreId = storeId;
             document.getElementById('setup-modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Setup`;
@@ -501,7 +496,7 @@
 
             db.ref(storePath).set(storeData).then(() => {
                 if(tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('success');[cite: 15]
+                    tg.HapticFeedback.notificationOccurred('success');
                 }
                 alert('Store setup updated successfully and synced to Firebase!');
                 closeSetupModal();
