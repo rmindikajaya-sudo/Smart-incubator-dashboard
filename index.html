@@ -30,12 +30,20 @@
         .animate-spin-custom {
             animation: spin-fast 0.8s linear infinite;
         }
-        @keyframes pulse-red {
-            0%, 100% { background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.8); }
-            50% { background-color: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 1); }
+        @keyframes pulse-red-card {
+            0%, 100% {
+                background-color: rgba(220, 38, 38, 0.25) !important;
+                border-color: rgba(239, 68, 68, 0.85) !important;
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.35) !important;
+            }
+            50% {
+                background-color: rgba(220, 38, 38, 0.65) !important;
+                border-color: #ff4d4d !important;
+                box-shadow: 0 0 24px rgba(239, 68, 68, 0.85) !important;
+            }
         }
         .heater-on-anim {
-            animation: pulse-red 1.5s infinite;
+            animation: pulse-red-card 1.1s infinite ease-in-out !important;
         }
     </style>
 </head>
@@ -112,21 +120,21 @@
             </button>
         </div>
 
-        <!-- Heater Status -->
+        <!-- Heater Status (Flashes Red Across Entire Card When ON) -->
         <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div>
                 <div class="font-bold text-sm flex items-center space-x-2">
-                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <i id="heater-icon" class="fa-solid fa-fire text-amber-500"></i>
                     <span>Heater Status</span>
                 </div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
+                <div id="heater-subtext" class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
             </div>
             <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                 OFF
             </div>
         </div>
 
-        <!-- Circulation Fan -->
+        <!-- Circulation Fan (Keeps Existing Elements + Adds 4-Digit RPM) -->
         <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
                 <div id="fan-icon-container" class="text-cyan-400 text-2xl">
@@ -134,7 +142,11 @@
                 </div>
                 <div>
                     <div class="font-bold text-sm">Circulation Fan</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">Airflow: <span id="fan-rpm" class="font-bold text-slate-200">Active</span></div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">
+                        Airflow: <span id="fan-airflow" class="font-bold text-slate-200">Active</span>
+                        <span class="mx-1 text-slate-600">|</span>
+                        RPM: <span id="fan-rpm" class="font-mono font-bold text-cyan-400">1450</span>
+                    </div>
                 </div>
             </div>
             <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
@@ -229,10 +241,34 @@
                 </div>
             </div>
 
-            <!-- TAB 2: ADD / PLACE EGGS (Syncs to ESP32 & Telegram) -->
+            <!-- TAB 2: ADD / PLACE EGGS WITH LIVE CAPACITY & MERGE CONFIRMATION -->
             <div id="modal-tab-add" class="space-y-3 text-xs hidden">
+                
+                <!-- Live Tray Capacity & Current Contents Box -->
+                <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-2.5 space-y-2">
+                    <div class="text-[10px] uppercase tracking-wider text-cyan-400 font-bold flex items-center justify-between">
+                        <span><i class="fa-solid fa-circle-info mr-1"></i>Current Tray Space (Max 40/Tray)</span>
+                        <span id="cap-store-total" class="text-emerald-400">Free: 80</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-[11px]">
+                        <div class="bg-slate-800/90 p-2 rounded-lg border border-slate-700/60">
+                            <div id="cap-tray-a-title" class="font-bold text-slate-300">Tray 1</div>
+                            <div id="cap-tray-a-type" class="text-amber-400 font-semibold text-[10px]">EMPTY</div>
+                            <div id="cap-tray-a-qty" class="text-slate-400 text-[10px]">Has: 0 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
+                        </div>
+                        <div class="bg-slate-800/90 p-2 rounded-lg border border-slate-700/60">
+                            <div id="cap-tray-b-title" class="font-bold text-slate-300">Tray 2</div>
+                            <div id="cap-tray-b-type" class="text-amber-400 font-semibold text-[10px]">EMPTY</div>
+                            <div id="cap-tray-b-qty" class="text-slate-400 text-[10px]">Has: 0 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="text-slate-400 block mb-1">Egg Type (බිත්තර වර්ගය):</label>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-slate-400">Egg Type (බිත්තර වර්ගය):</label>
+                        <span id="egg-type-lock-hint" class="text-[10px] text-amber-400 font-semibold hidden">🔒 Locked to existing batch</span>
+                    </div>
                     <select id="form-egg-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
                         <option value="Chicken">Chicken (කුකුල් බිත්තර - 21 Days)</option>
                         <option value="Quail">Quail (වටු බිත්තර - 17 Days)</option>
@@ -242,16 +278,19 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-slate-400 block mb-1">Target Tray:</label>
-                        <select id="form-tray-num" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+                        <select id="form-tray-num" onchange="onTargetTrayOrQtyChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
                             <option value="1">Tray 1</option>
                             <option value="2">Tray 2</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-slate-400 block mb-1">Quantity (Max 80):</label>
-                        <input id="form-qty" type="number" min="1" max="80" placeholder="e.g. 30" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+                        <label id="lbl-qty-max" class="text-slate-400 block mb-1">Quantity (Free: 40):</label>
+                        <input id="form-qty" oninput="onTargetTrayOrQtyChange()" type="number" min="1" max="80" placeholder="e.g. 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
                     </div>
                 </div>
+
+                <!-- Live Preview / Merge Warning Banner -->
+                <div id="live-qty-preview" class="hidden p-2.5 rounded-xl text-[11px] font-medium"></div>
 
                 <div>
                     <label class="text-slate-400 block mb-1">Daily Alerts Frequency:</label>
@@ -277,7 +316,20 @@
                     <input id="form-add-pwd" type="password" placeholder="Enter password (default: 1234)" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl p-2.5 text-white">
                 </div>
 
-                <button id="btn-submit-place" onclick="submitPlaceEggs()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">
+                <!-- Merge Confirmation Dialog (Shown when exceeding 40 and sibling tray has space) -->
+                <div id="merge-confirm-box" class="hidden bg-amber-500/15 border border-amber-500/50 p-3 rounded-xl space-y-2.5">
+                    <div id="merge-confirm-text" class="text-amber-200 text-[11px] leading-relaxed font-medium"></div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="executePlaceEggs()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-bold text-[11px] shadow">
+                            ✅ Yes, Merge & Save
+                        </button>
+                        <button onclick="cancelMergePrompt()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-2 rounded-lg font-bold text-[11px]">
+                            ❌ Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <button id="btn-submit-place" onclick="handlePlaceSubmitClick()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">
                     ✅ Save & Sync to ESP32
                 </button>
             </div>
@@ -349,32 +401,47 @@
                 document.getElementById('tray-angle').innerText = data.trayAngle + "°";
             }
 
-            // Heater UI
+            // Heater UI (Flashes Red Across Entire Card When ON)
             const heaterBadge = document.getElementById('heater-badge');
             const heaterCard = document.getElementById('heater-card');
+            const heaterIcon = document.getElementById('heater-icon');
+            const heaterSub = document.getElementById('heater-subtext');
+
             if (data.heaterActive) {
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-500 text-white shadow-lg shadow-red-500/50";
-                heaterBadge.innerText = "ON";
+                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-600 text-white shadow-lg shadow-red-600/60 border border-red-400";
+                heaterBadge.innerText = "ON 🔥";
                 heaterCard.classList.add('heater-on-anim');
+                heaterIcon.className = "fa-solid fa-fire text-red-400 animate-bounce";
+                heaterSub.className = "text-[11px] text-red-200 font-semibold mt-0.5";
+                heaterSub.innerText = "Heating Element Active";
             } else {
                 heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                 heaterBadge.innerText = "OFF";
                 heaterCard.classList.remove('heater-on-anim');
+                heaterIcon.className = "fa-solid fa-fire text-amber-500";
+                heaterSub.className = "text-[11px] text-slate-400 mt-0.5";
+                heaterSub.innerText = "Automatic Relay Control";
             }
 
-            // Fan UI
+            // Fan UI (Keeps Airflow + Adds 4-Digit RPM)
             const fanBadge = document.getElementById('fan-badge');
             const fanIcon = document.getElementById('fan-icon');
-            const fanRpm = document.getElementById('fan-rpm');
+            const fanAirflow = document.getElementById('fan-airflow');
+            const fanRpmEl = document.getElementById('fan-rpm');
+            const rawRpm = data.fanRpm !== undefined ? Number(data.fanRpm) : (data.fanActive !== false ? 1450 : 0);
+            const formatted4DigitRpm = String(Math.max(0, Math.min(9999, Math.round(rawRpm)))).padStart(4, '0');
+
             if (data.fanActive !== false) {
                 fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
                 fanBadge.innerText = "ON";
-                fanRpm.innerText = "Active";
+                fanAirflow.innerText = "Active";
+                fanRpmEl.innerText = formatted4DigitRpm;
                 fanIcon.classList.add('animate-spin-custom');
             } else {
                 fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700 text-slate-400";
                 fanBadge.innerText = "OFF";
-                fanRpm.innerText = "Stopped";
+                fanAirflow.innerText = "Stopped";
+                fanRpmEl.innerText = "0000";
                 fanIcon.classList.remove('animate-spin-custom');
             }
 
@@ -420,10 +487,11 @@
 
             if (!document.getElementById('store-modal').classList.contains('hidden')) {
                 renderStoreModalData(activeModalStoreId);
+                updateAddFormCapacityUI();
             }
         });
 
-        // 3. Command Result Listener (Shows confirmation from ESP32)
+        // 3. Command Result Listener
         db.ref('incubators/device_01/commands/appActionResult').on('value', (snapshot) => {
             const res = snapshot.val();
             if (!res || !res.cmdId) return;
@@ -433,6 +501,8 @@
             if (res.status === "SUCCESS") {
                 fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 fbEl.innerText = "✅ " + res.message;
+                document.getElementById('form-qty').value = "";
+                cancelMergePrompt();
                 setTimeout(() => {
                     switchModalTab('view');
                     fbEl.classList.add('hidden');
@@ -463,8 +533,9 @@
             activeModalStoreId = storeId;
             document.getElementById('modal-title').innerText = `${storeId === 1 ? '1st' : '2nd'} Store Details`;
             document.getElementById('modal-feedback').classList.add('hidden');
+            document.getElementById('form-qty').value = "";
+            cancelMergePrompt();
 
-            // Configure Tray Options for Add/Clear forms
             const traySelect = document.getElementById('form-tray-num');
             if (storeId === 1) {
                 traySelect.innerHTML = `<option value="1">Tray 1</option><option value="2">Tray 2</option>`;
@@ -477,8 +548,181 @@
             }
 
             renderStoreModalData(storeId);
+            updateAddFormCapacityUI();
             switchModalTab('view');
             document.getElementById('store-modal').classList.remove('hidden');
+        }
+
+        function getStoreTrayMetrics(storeId) {
+            const store = liveStoresData[storeId] || {};
+            if (storeId === 1) {
+                return {
+                    tA: { num: 1, active: !!store.tray1Active, type: store.tray1Type || "EMPTY", qty: Number(store.tray1Qty) || 0, free: Math.max(0, 40 - (Number(store.tray1Qty) || 0)) },
+                    tB: { num: 2, active: !!store.tray2Active, type: store.tray2Type || "EMPTY", qty: Number(store.tray2Qty) || 0, free: Math.max(0, 40 - (Number(store.tray2Qty) || 0)) }
+                };
+            } else {
+                return {
+                    tA: { num: 3, active: !!store.tray3Active, type: store.tray3Type || "EMPTY", qty: Number(store.tray3Qty) || 0, free: Math.max(0, 40 - (Number(store.tray3Qty) || 0)) },
+                    tB: { num: 4, active: !!store.tray4Active, type: store.tray4Type || "EMPTY", qty: Number(store.tray4Qty) || 0, free: Math.max(0, 40 - (Number(store.tray4Qty) || 0)) }
+                };
+            }
+        }
+
+        function updateAddFormCapacityUI() {
+            const m = getStoreTrayMetrics(activeModalStoreId);
+            document.getElementById('cap-tray-a-title').innerText = `Tray ${m.tA.num}`;
+            document.getElementById('cap-tray-a-type').innerText = m.tA.active ? `${m.tA.type} Eggs` : "EMPTY";
+            document.getElementById('cap-tray-a-qty').innerHTML = `Has: ${m.tA.qty}/40 | <span class="text-emerald-400 font-bold">Free: ${m.tA.free}</span>`;
+
+            document.getElementById('cap-tray-b-title').innerText = `Tray ${m.tB.num}`;
+            document.getElementById('cap-tray-b-type').innerText = m.tB.active ? `${m.tB.type} Eggs` : "EMPTY";
+            document.getElementById('cap-tray-b-qty').innerHTML = `Has: ${m.tB.qty}/40 | <span class="text-emerald-400 font-bold">Free: ${m.tB.free}</span>`;
+
+            document.getElementById('cap-store-total').innerText = `Total Free: ${m.tA.free + m.tB.free} Eggs`;
+            onTargetTrayOrQtyChange();
+        }
+
+        function onTargetTrayOrQtyChange() {
+            cancelMergePrompt();
+            const m = getStoreTrayMetrics(activeModalStoreId);
+            const selectedTrayNum = Number(document.getElementById('form-tray-num').value);
+            const selTray = (selectedTrayNum === m.tA.num) ? m.tA : m.tB;
+            const otherTray = (selectedTrayNum === m.tA.num) ? m.tB : m.tA;
+
+            const eggSelect = document.getElementById('form-egg-type');
+            const lockHint = document.getElementById('egg-type-lock-hint');
+
+            // Lock egg type to match existing tray batch if active
+            if (selTray.active && (selTray.type === "Chicken" || selTray.type === "Quail")) {
+                eggSelect.value = selTray.type;
+                eggSelect.disabled = true;
+                eggSelect.classList.add('opacity-75');
+                lockHint.classList.remove('hidden');
+            } else {
+                eggSelect.disabled = false;
+                eggSelect.classList.remove('opacity-75');
+                lockHint.classList.add('hidden');
+            }
+
+            document.getElementById('lbl-qty-max').innerText = `Quantity (Tray Free: ${selTray.free}):`;
+
+            const qtyVal = Number(document.getElementById('form-qty').value);
+            const previewEl = document.getElementById('live-qty-preview');
+            if (!qtyVal || qtyVal <= 0) {
+                previewEl.classList.add('hidden');
+                return;
+            }
+
+            const chosenType = eggSelect.value;
+            previewEl.classList.remove('hidden');
+
+            if (qtyVal <= selTray.free) {
+                if (selTray.qty > 0) {
+                    previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-cyan-500/15 border border-cyan-500/40 text-cyan-200";
+                    previewEl.innerText = `ℹ️ Tray ${selTray.num} හි දැනට ඇති ${selTray.type} බිත්තර ${selTray.qty} ට අලුත් ${qtyVal} එකතු වී මුළු ප්‍රමාණය ${selTray.qty + qtyVal}/40ක් වේ.`;
+                } else {
+                    previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-emerald-500/15 border border-emerald-500/40 text-emerald-200";
+                    previewEl.innerText = `✅ Tray ${selTray.num} හි ${chosenType} බිත්තර ${qtyVal}ක් තැබීමට ඉඩ ඇත (ඉතිරි ඉඩ: ${selTray.free - qtyVal}).`;
+                }
+            } else {
+                const overflow = qtyVal - selTray.free;
+                const canMergeOther = (!otherTray.active || otherTray.type === chosenType) && (overflow <= otherTray.free);
+                if (canMergeOther) {
+                    previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-amber-500/15 border border-amber-500/40 text-amber-200";
+                    previewEl.innerText = `⚠️ Tray ${selTray.num} හි ඉඩ ඇත්තේ ${selTray.free}කට පමණි! ඉතිරි ${overflow} Tray ${otherTray.num} වෙත Merge කිරීමට පහත Save ඔබන්න.`;
+                } else {
+                    previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-red-500/20 border border-red-500/40 text-red-300";
+                    previewEl.innerText = `❌ ප්‍රමාණය වැඩියි! මෙම Store එකේ තැබිය හැකි උපරිම බිත්තර ප්‍රමාණය ${selTray.free + ((!otherTray.active || otherTray.type === chosenType) ? otherTray.free : 0)} කි.`;
+                }
+            }
+        }
+
+        function handlePlaceSubmitClick() {
+            const m = getStoreTrayMetrics(activeModalStoreId);
+            const selectedTrayNum = Number(document.getElementById('form-tray-num').value);
+            const selTray = (selectedTrayNum === m.tA.num) ? m.tA : m.tB;
+            const otherTray = (selectedTrayNum === m.tA.num) ? m.tB : m.tA;
+
+            const chosenType = document.getElementById('form-egg-type').value;
+            const qty = Number(document.getElementById('form-qty').value);
+            const password = document.getElementById('form-add-pwd').value;
+            const fbEl = document.getElementById('modal-feedback');
+
+            if (!qty || qty <= 0) {
+                fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                fbEl.innerText = "⚠️ කරුණාකර නිවැරදි බිත්තර ප්‍රමාණයක් ඇතුළත් කරන්න!";
+                fbEl.classList.remove('hidden');
+                return;
+            }
+            if (!password) {
+                fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                fbEl.innerText = "⚠️ Device Password ඇතුළත් කරන්න!";
+                fbEl.classList.remove('hidden');
+                return;
+            }
+
+            // Check if quantity exceeds selected tray's remaining space
+            if (qty > selTray.free) {
+                const overflow = qty - selTray.free;
+                if (otherTray.active && otherTray.type !== chosenType) {
+                    fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                    fbEl.innerText = `❌ Tray ${otherTray.num} හි ${otherTray.type} බිත්තර ඇති බැවින් Merge කළ නොහැක! (Max: ${selTray.free})`;
+                    fbEl.classList.remove('hidden');
+                    return;
+                }
+                if (overflow > otherTray.free) {
+                    fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                    fbEl.innerText = `❌ Store එකේ ඉඩ මදි! තැබිය හැකි උපරිම ප්‍රමාණය ${selTray.free + otherTray.free} කි.`;
+                    fbEl.classList.remove('hidden');
+                    return;
+                }
+
+                // Ask user explicitly before merging overflow into the other tray
+                fbEl.classList.add('hidden');
+                document.getElementById('btn-submit-place').classList.add('hidden');
+                const confirmBox = document.getElementById('merge-confirm-box');
+                const confirmText = document.getElementById('merge-confirm-text');
+                confirmText.innerHTML = `⚠️ <b>Tray ${selTray.num}</b> හි අලුතින් තැබිය හැක්කේ බිත්තර <b>${selTray.free}</b>ක් පමණි (උපරිම 40).<br>ඉතිරි බිත්තර <b>${overflow}</b> අනෙක් Tray එක වන <b>Tray ${otherTray.num}</b> (දැනට ${otherTray.qty}ක් ඇත → ${otherTray.qty + overflow}ක් වේ) වෙත <b>Merge</b> කිරීමට ඔබට අවශ්‍යද?`;
+                confirmBox.classList.remove('hidden');
+                return;
+            }
+
+            // Fits directly into selected tray
+            executePlaceEggs();
+        }
+
+        function cancelMergePrompt() {
+            document.getElementById('merge-confirm-box').classList.add('hidden');
+            document.getElementById('btn-submit-place').classList.remove('hidden');
+        }
+
+        function executePlaceEggs() {
+            cancelMergePrompt();
+            const eggType = document.getElementById('form-egg-type').value;
+            const tray = Number(document.getElementById('form-tray-num').value);
+            const qty = Number(document.getElementById('form-qty').value);
+            const freq = Number(document.getElementById('form-freq').value);
+            const time1 = document.getElementById('form-time1').value;
+            const time2 = document.getElementById('form-time2').value;
+            const password = document.getElementById('form-add-pwd').value;
+
+            const fbEl = document.getElementById('modal-feedback');
+            fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-cyan-500/20 text-cyan-400";
+            fbEl.innerText = "⏳ ESP32 වෙත යවමින් පවතී...";
+            fbEl.classList.remove('hidden');
+
+            db.ref('incubators/device_01/commands/appAction').set({
+                cmdId: "cmd_" + Date.now(),
+                action: "PLACE",
+                store: activeModalStoreId,
+                tray: tray,
+                eggType: eggType,
+                qty: qty,
+                alertFreq: freq,
+                time1: time1,
+                time2: time2,
+                password: password
+            });
         }
 
         function renderStoreModalData(storeId) {
@@ -527,6 +771,8 @@
 
             document.getElementById(`modal-tab-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-${tab}-btn`).className = "py-2 rounded-lg bg-cyan-600 text-white transition";
+
+            if (tab === 'add') updateAddFormCapacityUI();
         }
 
         function toggleTime2Input() {
@@ -534,47 +780,6 @@
             const t2Box = document.getElementById('time2-container');
             if (freq === "1") t2Box.classList.add('opacity-40', 'pointer-events-none');
             else t2Box.classList.remove('opacity-40', 'pointer-events-none');
-        }
-
-        function submitPlaceEggs() {
-            const eggType = document.getElementById('form-egg-type').value;
-            const tray = Number(document.getElementById('form-tray-num').value);
-            const qty = Number(document.getElementById('form-qty').value);
-            const freq = Number(document.getElementById('form-freq').value);
-            const time1 = document.getElementById('form-time1').value;
-            const time2 = document.getElementById('form-time2').value;
-            const password = document.getElementById('form-add-pwd').value;
-
-            const fbEl = document.getElementById('modal-feedback');
-            if (!qty || qty <= 0 || qty > 80) {
-                fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
-                fbEl.innerText = "⚠️ කරුණාකර නිවැරදි බිත්තර ප්‍රමාණයක් (1 - 80) ඇතුළත් කරන්න!";
-                fbEl.classList.remove('hidden');
-                return;
-            }
-            if (!password) {
-                fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
-                fbEl.innerText = "⚠️ Device Password ඇතුළත් කරන්න!";
-                fbEl.classList.remove('hidden');
-                return;
-            }
-
-            fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-cyan-500/20 text-cyan-400";
-            fbEl.innerText = "⏳ ESP32 වෙත යවමින් පවතී...";
-            fbEl.classList.remove('hidden');
-
-            db.ref('incubators/device_01/commands/appAction').set({
-                cmdId: "cmd_" + Date.now(),
-                action: "PLACE",
-                store: activeModalStoreId,
-                tray: tray,
-                eggType: eggType,
-                qty: qty,
-                alertFreq: freq,
-                time1: time1,
-                time2: time2,
-                password: password
-            });
         }
 
         function submitClearStore() {
