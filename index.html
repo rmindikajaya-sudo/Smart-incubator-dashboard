@@ -186,10 +186,11 @@
                 </button>
             </div>
 
-            <!-- Modal Navigation Tabs -->
-            <div class="grid grid-cols-3 gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-[11px] font-bold">
+            <!-- Modal Navigation Tabs (4 Tabs: Status, Add Eggs, Unlock, Clear) -->
+            <div class="grid grid-cols-4 gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
                 <button id="tab-view-btn" onclick="switchModalTab('view')" class="py-2 rounded-lg bg-cyan-600 text-white transition">📊 Status</button>
-                <button id="tab-add-btn" onclick="switchModalTab('add')" class="py-2 rounded-lg text-slate-400 hover:text-white transition">➕ Add Eggs</button>
+                <button id="tab-add-btn" onclick="switchModalTab('add')" class="py-2 rounded-lg text-slate-400 hover:text-white transition">➕ Add</button>
+                <button id="tab-unlock-btn" onclick="switchModalTab('unlock')" class="py-2 rounded-lg text-slate-400 hover:text-white transition">🔓 Unlock</button>
                 <button id="tab-clear-btn" onclick="switchModalTab('clear')" class="py-2 rounded-lg text-slate-400 hover:text-white transition">🗑️ Clear</button>
             </div>
 
@@ -206,14 +207,20 @@
                         <span id="info-total-qty" class="font-bold text-white bg-slate-700 px-2 py-0.5 rounded text-[11px]">Total: 0 Eggs</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-center pt-0.5">
-                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40 space-y-0.5">
-                            <span id="label-tray-a" class="text-[10px] text-slate-400 block">Tray 1</span>
-                            <span id="info-tray1" class="font-bold text-cyan-400 text-xs block">0 Eggs</span>
+                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40 space-y-1">
+                            <div class="flex items-center justify-center space-x-1">
+                                <span id="label-tray-a" class="text-[10px] text-slate-400">Tray 1</span>
+                                <span id="badge-lock-a" class="text-[9px] px-1.5 py-0.2 rounded hidden"></span>
+                            </div>
+                            <span id="info-tray1" class="font-bold text-cyan-400 text-xs block">0/40 Eggs</span>
                             <span id="info-tray1-sub" class="text-[10px] text-slate-500 block">EMPTY</span>
                         </div>
-                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40 space-y-0.5">
-                            <span id="label-tray-b" class="text-[10px] text-slate-400 block">Tray 2</span>
-                            <span id="info-tray2" class="font-bold text-cyan-400 text-xs block">0 Eggs</span>
+                        <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/40 space-y-1">
+                            <div class="flex items-center justify-center space-x-1">
+                                <span id="label-tray-b" class="text-[10px] text-slate-400">Tray 2</span>
+                                <span id="badge-lock-b" class="text-[9px] px-1.5 py-0.2 rounded hidden"></span>
+                            </div>
+                            <span id="info-tray2" class="font-bold text-cyan-400 text-xs block">0/40 Eggs</span>
                             <span id="info-tray2-sub" class="text-[10px] text-slate-500 block">EMPTY</span>
                         </div>
                     </div>
@@ -241,23 +248,29 @@
                 </div>
             </div>
 
-            <!-- TAB 2: ADD / PLACE EGGS WITH LIVE CAPACITY & MERGE CONFIRMATION -->
+            <!-- TAB 2: ADD / PLACE EGGS WITH LIVE CAPACITY, LOCK CHECK & SMART SPLIT/MERGE -->
             <div id="modal-tab-add" class="space-y-3 text-xs hidden">
                 
-                <!-- Live Tray Capacity & Current Contents Box -->
+                <!-- Live Tray Capacity & Lock Status Box -->
                 <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-2.5 space-y-2">
                     <div class="text-[10px] uppercase tracking-wider text-cyan-400 font-bold flex items-center justify-between">
-                        <span><i class="fa-solid fa-circle-info mr-1"></i>Current Tray Space (Max 40/Tray)</span>
+                        <span><i class="fa-solid fa-circle-info mr-1"></i>Current Tray Space (Max 40)</span>
                         <span id="cap-store-total" class="text-emerald-400">Free: 80</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-[11px]">
                         <div class="bg-slate-800/90 p-2 rounded-lg border border-slate-700/60">
-                            <div id="cap-tray-a-title" class="font-bold text-slate-300">Tray 1</div>
+                            <div class="flex justify-between items-center">
+                                <span id="cap-tray-a-title" class="font-bold text-slate-300">Tray 1</span>
+                                <span id="cap-tray-a-lock" class="text-[9px] font-bold"></span>
+                            </div>
                             <div id="cap-tray-a-type" class="text-amber-400 font-semibold text-[10px]">EMPTY</div>
                             <div id="cap-tray-a-qty" class="text-slate-400 text-[10px]">Has: 0 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
                         </div>
                         <div class="bg-slate-800/90 p-2 rounded-lg border border-slate-700/60">
-                            <div id="cap-tray-b-title" class="font-bold text-slate-300">Tray 2</div>
+                            <div class="flex justify-between items-center">
+                                <span id="cap-tray-b-title" class="font-bold text-slate-300">Tray 2</span>
+                                <span id="cap-tray-b-lock" class="text-[9px] font-bold"></span>
+                            </div>
                             <div id="cap-tray-b-type" class="text-amber-400 font-semibold text-[10px]">EMPTY</div>
                             <div id="cap-tray-b-qty" class="text-slate-400 text-[10px]">Has: 0 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
                         </div>
@@ -269,7 +282,7 @@
                         <label class="text-slate-400">Egg Type (බිත්තර වර්ගය):</label>
                         <span id="egg-type-lock-hint" class="text-[10px] text-amber-400 font-semibold hidden">🔒 Locked to existing batch</span>
                     </div>
-                    <select id="form-egg-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+                    <select id="form-egg-type" onchange="onTargetTrayOrQtyChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
                         <option value="Chicken">Chicken (කුකුල් බිත්තර - 21 Days)</option>
                         <option value="Quail">Quail (වටු බිත්තර - 17 Days)</option>
                     </select>
@@ -285,12 +298,21 @@
                     </div>
                     <div>
                         <label id="lbl-qty-max" class="text-slate-400 block mb-1">Quantity (Free: 40):</label>
-                        <input id="form-qty" oninput="onTargetTrayOrQtyChange()" type="number" min="1" max="80" placeholder="e.g. 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+                        <input id="form-qty" oninput="onTargetTrayOrQtyChange()" type="number" min="1" max="80" placeholder="e.g. 12" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
                     </div>
                 </div>
 
-                <!-- Live Preview / Merge Warning Banner -->
+                <!-- Live Preview / Warning Banner -->
                 <div id="live-qty-preview" class="hidden p-2.5 rounded-xl text-[11px] font-medium"></div>
+
+                <!-- Post-Placement Lock Choice -->
+                <div>
+                    <label class="text-slate-400 block mb-1">Reuse Tray Later? (නැවත බිත්තර දමනවාද?):</label>
+                    <select id="form-lock-after" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+                        <option value="false">🔓 Yes - Keep Unlocked (තව බිත්තර දමනවා)</option>
+                        <option value="true">🔒 No - Lock Tray Now (අවසන් - Lock කරන්න)</option>
+                    </select>
+                </div>
 
                 <div>
                     <label class="text-slate-400 block mb-1">Daily Alerts Frequency:</label>
@@ -316,14 +338,17 @@
                     <input id="form-add-pwd" type="password" placeholder="Enter password (default: 1234)" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl p-2.5 text-white">
                 </div>
 
-                <!-- Merge Confirmation Dialog (Shown when exceeding 40 and sibling tray has space) -->
-                <div id="merge-confirm-box" class="hidden bg-amber-500/15 border border-amber-500/50 p-3 rounded-xl space-y-2.5">
+                <!-- Smart Split vs Direct Sibling Placement Confirmation Box -->
+                <div id="merge-confirm-box" class="hidden bg-amber-500/15 border border-amber-500/50 p-3 rounded-xl space-y-2">
                     <div id="merge-confirm-text" class="text-amber-200 text-[11px] leading-relaxed font-medium"></div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="executePlaceEggs()" class="bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-bold text-[11px] shadow">
-                            ✅ Yes, Merge & Save
+                    <div class="space-y-1.5">
+                        <button id="btn-opt1-split" onclick="executePlaceEggs('SPLIT')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-2.5 rounded-lg font-bold text-[11px] shadow text-left">
+                            1️⃣ Split & Merge
                         </button>
-                        <button onclick="cancelMergePrompt()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 py-2 rounded-lg font-bold text-[11px]">
+                        <button id="btn-opt2-sibling" onclick="executePlaceEggs('SIBLING_ALL')" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 px-2.5 rounded-lg font-bold text-[11px] shadow text-left">
+                            2️⃣ Put All in Other Tray
+                        </button>
+                        <button onclick="cancelMergePrompt()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-1.5 rounded-lg font-bold text-[11px]">
                             ❌ Cancel
                         </button>
                     </div>
@@ -334,7 +359,29 @@
                 </button>
             </div>
 
-            <!-- TAB 3: CLEAR TRAY / STORE -->
+            <!-- TAB 3: UNLOCK LOCKED TRAY -->
+            <div id="modal-tab-unlock" class="space-y-3 text-xs hidden">
+                <div class="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-300 text-[11px]">
+                    🔓 Lock වී ඇති Tray එකකට නැවත බිත්තර එකතු කිරීමට අවශ්‍ය නම්, Device Password ඇතුළත් කර එය Unlock කරන්න.
+                </div>
+
+                <div>
+                    <label class="text-slate-400 block mb-1">Select Locked Tray:</label>
+                    <select id="form-unlock-tray" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-amber-400 block mb-1 font-semibold">🔑 Device Password:</label>
+                    <input id="form-unlock-pwd" type="password" placeholder="Enter password (default: 1234)" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl p-2.5 text-white">
+                </div>
+
+                <button id="btn-submit-unlock" onclick="submitUnlockTray()" class="w-full bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-bold text-xs shadow-lg transition">
+                    🔓 Unlock Selected Tray
+                </button>
+            </div>
+
+            <!-- TAB 4: CLEAR TRAY / STORE -->
             <div id="modal-tab-clear" class="space-y-3 text-xs hidden">
                 <div class="bg-red-500/10 border border-red-500/30 p-3 rounded-xl text-red-300 text-[11px]">
                     ⚠️ මෙමඟින් තෝරාගත් Tray එක හෝ මුළු Store එකම හිස් වී Telegram Bot එකද ස්වයංක්‍රීයව යාවත්කාලීන වේ.
@@ -423,7 +470,7 @@
                 heaterSub.innerText = "Automatic Relay Control";
             }
 
-            // Fan UI (Keeps Airflow + Adds 4-Digit RPM)
+            // Fan UI (Keeps Airflow + 4-Digit RPM)
             const fanBadge = document.getElementById('fan-badge');
             const fanIcon = document.getElementById('fan-icon');
             const fanAirflow = document.getElementById('fan-airflow');
@@ -488,6 +535,7 @@
             if (!document.getElementById('store-modal').classList.contains('hidden')) {
                 renderStoreModalData(activeModalStoreId);
                 updateAddFormCapacityUI();
+                updateUnlockFormUI();
             }
         });
 
@@ -549,6 +597,7 @@
 
             renderStoreModalData(storeId);
             updateAddFormCapacityUI();
+            updateUnlockFormUI();
             switchModalTab('view');
             document.getElementById('store-modal').classList.remove('hidden');
         }
@@ -557,28 +606,55 @@
             const store = liveStoresData[storeId] || {};
             if (storeId === 1) {
                 return {
-                    tA: { num: 1, active: !!store.tray1Active, type: store.tray1Type || "EMPTY", qty: Number(store.tray1Qty) || 0, free: Math.max(0, 40 - (Number(store.tray1Qty) || 0)) },
-                    tB: { num: 2, active: !!store.tray2Active, type: store.tray2Type || "EMPTY", qty: Number(store.tray2Qty) || 0, free: Math.max(0, 40 - (Number(store.tray2Qty) || 0)) }
+                    tA: { num: 1, active: !!store.tray1Active, type: store.tray1Type || "EMPTY", qty: Number(store.tray1Qty) || 0, locked: !!store.tray1Locked, free: Math.max(0, 40 - (Number(store.tray1Qty) || 0)) },
+                    tB: { num: 2, active: !!store.tray2Active, type: store.tray2Type || "EMPTY", qty: Number(store.tray2Qty) || 0, locked: !!store.tray2Locked, free: Math.max(0, 40 - (Number(store.tray2Qty) || 0)) }
                 };
             } else {
                 return {
-                    tA: { num: 3, active: !!store.tray3Active, type: store.tray3Type || "EMPTY", qty: Number(store.tray3Qty) || 0, free: Math.max(0, 40 - (Number(store.tray3Qty) || 0)) },
-                    tB: { num: 4, active: !!store.tray4Active, type: store.tray4Type || "EMPTY", qty: Number(store.tray4Qty) || 0, free: Math.max(0, 40 - (Number(store.tray4Qty) || 0)) }
+                    tA: { num: 3, active: !!store.tray3Active, type: store.tray3Type || "EMPTY", qty: Number(store.tray3Qty) || 0, locked: !!store.tray3Locked, free: Math.max(0, 40 - (Number(store.tray3Qty) || 0)) },
+                    tB: { num: 4, active: !!store.tray4Active, type: store.tray4Type || "EMPTY", qty: Number(store.tray4Qty) || 0, locked: !!store.tray4Locked, free: Math.max(0, 40 - (Number(store.tray4Qty) || 0)) }
                 };
+            }
+        }
+
+        function updateUnlockFormUI() {
+            const m = getStoreTrayMetrics(activeModalStoreId);
+            const unlockSel = document.getElementById('form-unlock-tray');
+            const unlockBtn = document.getElementById('btn-submit-unlock');
+            let opts = "";
+
+            if (m.tA.active && m.tA.locked) {
+                opts += `<option value="${m.tA.num}">Tray ${m.tA.num} (${m.tA.type} - ${m.tA.qty}/40 🔒 Locked)</option>`;
+            }
+            if (m.tB.active && m.tB.locked) {
+                opts += `<option value="${m.tB.num}">Tray ${m.tB.num} (${m.tB.type} - ${m.tB.qty}/40 🔒 Locked)</option>`;
+            }
+
+            if (opts === "") {
+                unlockSel.innerHTML = `<option value="">No Locked Trays in this Store 🔓</option>`;
+                unlockBtn.disabled = true;
+                unlockBtn.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                unlockSel.innerHTML = opts;
+                unlockBtn.disabled = false;
+                unlockBtn.classList.remove('opacity-40', 'pointer-events-none');
             }
         }
 
         function updateAddFormCapacityUI() {
             const m = getStoreTrayMetrics(activeModalStoreId);
             document.getElementById('cap-tray-a-title').innerText = `Tray ${m.tA.num}`;
+            document.getElementById('cap-tray-a-lock').innerHTML = m.tA.active ? (m.tA.locked ? `<span class="text-rose-400">🔒 LOCKED</span>` : `<span class="text-emerald-400">🔓 Open</span>`) : "";
             document.getElementById('cap-tray-a-type').innerText = m.tA.active ? `${m.tA.type} Eggs` : "EMPTY";
             document.getElementById('cap-tray-a-qty').innerHTML = `Has: ${m.tA.qty}/40 | <span class="text-emerald-400 font-bold">Free: ${m.tA.free}</span>`;
 
             document.getElementById('cap-tray-b-title').innerText = `Tray ${m.tB.num}`;
+            document.getElementById('cap-tray-b-lock').innerHTML = m.tB.active ? (m.tB.locked ? `<span class="text-rose-400">🔒 LOCKED</span>` : `<span class="text-emerald-400">🔓 Open</span>`) : "";
             document.getElementById('cap-tray-b-type').innerText = m.tB.active ? `${m.tB.type} Eggs` : "EMPTY";
             document.getElementById('cap-tray-b-qty').innerHTML = `Has: ${m.tB.qty}/40 | <span class="text-emerald-400 font-bold">Free: ${m.tB.free}</span>`;
 
-            document.getElementById('cap-store-total').innerText = `Total Free: ${m.tA.free + m.tB.free} Eggs`;
+            let usableFree = (m.tA.locked ? 0 : m.tA.free) + (m.tB.locked ? 0 : m.tB.free);
+            document.getElementById('cap-store-total').innerText = `Open Free: ${usableFree} Eggs`;
             onTargetTrayOrQtyChange();
         }
 
@@ -591,8 +667,8 @@
 
             const eggSelect = document.getElementById('form-egg-type');
             const lockHint = document.getElementById('egg-type-lock-hint');
+            const previewEl = document.getElementById('live-qty-preview');
 
-            // Lock egg type to match existing tray batch if active
             if (selTray.active && (selTray.type === "Chicken" || selTray.type === "Quail")) {
                 eggSelect.value = selTray.type;
                 eggSelect.disabled = true;
@@ -604,10 +680,16 @@
                 lockHint.classList.add('hidden');
             }
 
-            document.getElementById('lbl-qty-max').innerText = `Quantity (Tray Free: ${selTray.free}):`;
+            document.getElementById('lbl-qty-max').innerText = `Quantity (Free: ${selTray.locked ? 0 : selTray.free}):`;
+
+            if (selTray.active && selTray.locked) {
+                previewEl.classList.remove('hidden');
+                previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-rose-500/20 border border-rose-500/40 text-rose-300";
+                previewEl.innerText = `🔒 Tray ${selTray.num} Lock කර ඇත! මෙයට බිත්තර එකතු කළ නොහැක. (Unlock ටැබ් එකෙන් Unlock කරන්න, නැතිනම් අනෙක් Tray එක තෝරන්න).`;
+                return;
+            }
 
             const qtyVal = Number(document.getElementById('form-qty').value);
-            const previewEl = document.getElementById('live-qty-preview');
             if (!qtyVal || qtyVal <= 0) {
                 previewEl.classList.add('hidden');
                 return;
@@ -626,13 +708,16 @@
                 }
             } else {
                 const overflow = qtyVal - selTray.free;
-                const canMergeOther = (!otherTray.active || otherTray.type === chosenType) && (overflow <= otherTray.free);
-                if (canMergeOther) {
+                const siblingOk = (!otherTray.active || (otherTray.type === chosenType && !otherTray.locked));
+                const canSplit = siblingOk && (overflow <= otherTray.free);
+                const canAllSibling = siblingOk && (qtyVal <= otherTray.free);
+
+                if (canSplit || canAllSibling) {
                     previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-amber-500/15 border border-amber-500/40 text-amber-200";
-                    previewEl.innerText = `⚠️ Tray ${selTray.num} හි ඉඩ ඇත්තේ ${selTray.free}කට පමණි! ඉතිරි ${overflow} Tray ${otherTray.num} වෙත Merge කිරීමට පහත Save ඔබන්න.`;
+                    previewEl.innerText = `⚠️ Tray ${selTray.num} හි ඉඩ ඇත්තේ ${selTray.free}කට පමණි! Tray ${otherTray.num} වෙත යොමු කිරීමේ විකල්ප බැලීමට පහත Save ඔබන්න.`;
                 } else {
                     previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-red-500/20 border border-red-500/40 text-red-300";
-                    previewEl.innerText = `❌ ප්‍රමාණය වැඩියි! මෙම Store එකේ තැබිය හැකි උපරිම බිත්තර ප්‍රමාණය ${selTray.free + ((!otherTray.active || otherTray.type === chosenType) ? otherTray.free : 0)} කි.`;
+                    previewEl.innerText = `❌ ප්‍රමාණය වැඩියි හෝ අනෙක් Tray එක Lock වී / වෙනත් වර්ගයකි! (Max: ${selTray.free + (siblingOk ? otherTray.free : 0)}).`;
                 }
             }
         }
@@ -648,6 +733,12 @@
             const password = document.getElementById('form-add-pwd').value;
             const fbEl = document.getElementById('modal-feedback');
 
+            if (selTray.active && selTray.locked) {
+                fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                fbEl.innerText = `🔒 Tray ${selTray.num} Lock කර ඇත! Unlock ටැබ් එකෙන් Unlock කරන්න.`;
+                fbEl.classList.remove('hidden');
+                return;
+            }
             if (!qty || qty <= 0) {
                 fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
                 fbEl.innerText = "⚠️ කරුණාකර නිවැරදි බිත්තර ප්‍රමාණයක් ඇතුළත් කරන්න!";
@@ -661,12 +752,17 @@
                 return;
             }
 
-            // Check if quantity exceeds selected tray's remaining space
             if (qty > selTray.free) {
                 const overflow = qty - selTray.free;
+                if (otherTray.active && otherTray.locked) {
+                    fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                    fbEl.innerText = `🔒 අනෙක් Tray (${otherTray.num}) Lock කර ඇති බැවින් එයට දැමිය නොහැක!`;
+                    fbEl.classList.remove('hidden');
+                    return;
+                }
                 if (otherTray.active && otherTray.type !== chosenType) {
                     fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
-                    fbEl.innerText = `❌ Tray ${otherTray.num} හි ${otherTray.type} බිත්තර ඇති බැවින් Merge කළ නොහැක! (Max: ${selTray.free})`;
+                    fbEl.innerText = `❌ Tray ${otherTray.num} හි ${otherTray.type} බිත්තර ඇති බැවින් Merge කළ නොහැක!`;
                     fbEl.classList.remove('hidden');
                     return;
                 }
@@ -677,18 +773,32 @@
                     return;
                 }
 
-                // Ask user explicitly before merging overflow into the other tray
+                // Show Smart Split vs Direct Sibling Option Box
                 fbEl.classList.add('hidden');
                 document.getElementById('btn-submit-place').classList.add('hidden');
+
                 const confirmBox = document.getElementById('merge-confirm-box');
                 const confirmText = document.getElementById('merge-confirm-text');
-                confirmText.innerHTML = `⚠️ <b>Tray ${selTray.num}</b> හි අලුතින් තැබිය හැක්කේ බිත්තර <b>${selTray.free}</b>ක් පමණි (උපරිම 40).<br>ඉතිරි බිත්තර <b>${overflow}</b> අනෙක් Tray එක වන <b>Tray ${otherTray.num}</b> (දැනට ${otherTray.qty}ක් ඇත → ${otherTray.qty + overflow}ක් වේ) වෙත <b>Merge</b> කිරීමට ඔබට අවශ්‍යද?`;
+                const btnOpt1 = document.getElementById('btn-opt1-split');
+                const btnOpt2 = document.getElementById('btn-opt2-sibling');
+
+                btnOpt1.innerText = `1️⃣ Tray ${selTray.num} පුරවා (40) ඉතිරි ${overflow} Tray ${otherTray.num} වෙත Merge කරන්න`;
+                confirmText.innerHTML = `⚠️ <b>Tray ${selTray.num}</b> හි ඉඩ ඇත්තේ බිත්තර <b>${selTray.free}</b>කට පමණි. <b>Tray ${otherTray.num}</b> හි දැනට ${otherTray.qty}/40ක් ඇත.`;
+
+                if (qty <= otherTray.free) {
+                    btnOpt2.classList.remove('hidden');
+                    btnOpt2.innerText = otherTray.active
+                        ? `2️⃣ අලුත් බිත්තර ${qty}ම එකවර Tray ${otherTray.num} වෙත Merge කරන්න (${otherTray.qty + qty}/40)`
+                        : `2️⃣ Tray ${otherTray.num} හිස් බැවින් අලුත් බිත්තර ${qty}ම Tray ${otherTray.num} වෙත දමන්න`;
+                } else {
+                    btnOpt2.classList.add('hidden');
+                }
+
                 confirmBox.classList.remove('hidden');
                 return;
             }
 
-            // Fits directly into selected tray
-            executePlaceEggs();
+            executePlaceEggs('NORMAL');
         }
 
         function cancelMergePrompt() {
@@ -696,11 +806,16 @@
             document.getElementById('btn-submit-place').classList.remove('hidden');
         }
 
-        function executePlaceEggs() {
+        function executePlaceEggs(mode) {
             cancelMergePrompt();
+            const m = getStoreTrayMetrics(activeModalStoreId);
+            const selectedTrayNum = Number(document.getElementById('form-tray-num').value);
+            const otherTrayNum = (selectedTrayNum === m.tA.num) ? m.tB.num : m.tA.num;
+
             const eggType = document.getElementById('form-egg-type').value;
-            const tray = Number(document.getElementById('form-tray-num').value);
+            const targetTray = (mode === 'SIBLING_ALL') ? otherTrayNum : selectedTrayNum;
             const qty = Number(document.getElementById('form-qty').value);
+            const lockAfter = (document.getElementById('form-lock-after').value === "true");
             const freq = Number(document.getElementById('form-freq').value);
             const time1 = document.getElementById('form-time1').value;
             const time2 = document.getElementById('form-time2').value;
@@ -713,14 +828,41 @@
 
             db.ref('incubators/device_01/commands/appAction').set({
                 cmdId: "cmd_" + Date.now(),
-                action: "PLACE",
+                action: (mode === 'SIBLING_ALL') ? "PLACE_SIBLING" : "PLACE",
                 store: activeModalStoreId,
-                tray: tray,
+                tray: targetTray,
                 eggType: eggType,
                 qty: qty,
+                lockAfter: lockAfter,
                 alertFreq: freq,
                 time1: time1,
                 time2: time2,
+                password: password
+            });
+        }
+
+        function submitUnlockTray() {
+            const trayNum = Number(document.getElementById('form-unlock-tray').value);
+            const password = document.getElementById('form-unlock-pwd').value;
+            const fbEl = document.getElementById('modal-feedback');
+
+            if (!trayNum) return;
+            if (!password) {
+                fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
+                fbEl.innerText = "⚠️ Device Password ඇතුළත් කරන්න!";
+                fbEl.classList.remove('hidden');
+                return;
+            }
+
+            fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-cyan-500/20 text-cyan-400";
+            fbEl.innerText = "⏳ ESP32 වෙත යවමින් පවතී...";
+            fbEl.classList.remove('hidden');
+
+            db.ref('incubators/device_01/commands/appAction').set({
+                cmdId: "cmd_" + Date.now(),
+                action: "UNLOCK",
+                store: activeModalStoreId,
+                tray: trayNum,
                 password: password
             });
         }
@@ -729,26 +871,35 @@
             const store = liveStoresData[storeId] || { type: "EMPTY", active: false };
             document.getElementById('info-type').innerText = store.active ? (store.type || "EMPTY") : "EMPTY";
 
+            const badgeA = document.getElementById('badge-lock-a');
+            const badgeB = document.getElementById('badge-lock-b');
+
             if (storeId === 1) {
                 document.getElementById('label-tray-a').innerText = "Tray 1";
                 document.getElementById('label-tray-b').innerText = "Tray 2";
                 let t1 = Number(store.tray1Qty) || 0;
                 let t2 = Number(store.tray2Qty) || 0;
-                document.getElementById('info-tray1').innerText = t1 + " Eggs";
-                document.getElementById('info-tray2').innerText = t2 + " Eggs";
+                document.getElementById('info-tray1').innerText = `${t1}/40 Eggs`;
+                document.getElementById('info-tray2').innerText = `${t2}/40 Eggs`;
                 document.getElementById('info-tray1-sub').innerText = store.tray1Active ? `${store.tray1Type} (Day ${store.tray1Days || 0})` : "EMPTY";
                 document.getElementById('info-tray2-sub').innerText = store.tray2Active ? `${store.tray2Type} (Day ${store.tray2Days || 0})` : "EMPTY";
                 document.getElementById('info-total-qty').innerText = `Total: ${t1 + t2} Eggs`;
+
+                setTrayLockBadge(badgeA, store.tray1Active, store.tray1Locked);
+                setTrayLockBadge(badgeB, store.tray2Active, store.tray2Locked);
             } else {
                 document.getElementById('label-tray-a').innerText = "Tray 3";
                 document.getElementById('label-tray-b').innerText = "Tray 4";
                 let t3 = Number(store.tray3Qty) || 0;
                 let t4 = Number(store.tray4Qty) || 0;
-                document.getElementById('info-tray1').innerText = t3 + " Eggs";
-                document.getElementById('info-tray2').innerText = t4 + " Eggs";
+                document.getElementById('info-tray1').innerText = `${t3}/40 Eggs`;
+                document.getElementById('info-tray2').innerText = `${t4}/40 Eggs`;
                 document.getElementById('info-tray1-sub').innerText = store.tray3Active ? `${store.tray3Type} (Day ${store.tray3Days || 0})` : "EMPTY";
                 document.getElementById('info-tray2-sub').innerText = store.tray4Active ? `${store.tray4Type} (Day ${store.tray4Days || 0})` : "EMPTY";
                 document.getElementById('info-total-qty').innerText = `Total: ${t3 + t4} Eggs`;
+
+                setTrayLockBadge(badgeA, store.tray3Active, store.tray3Locked);
+                setTrayLockBadge(badgeB, store.tray4Active, store.tray4Locked);
             }
 
             document.getElementById('info-date').innerText = store.active ? (store.startDate || "--") : "--";
@@ -760,19 +911,32 @@
             document.getElementById('info-reminder').innerText = store.active ? (store.reminder || "--") : "--";
         }
 
-        function switchModalTab(tab) {
-            document.getElementById('modal-tab-view').classList.add('hidden');
-            document.getElementById('modal-tab-add').classList.add('hidden');
-            document.getElementById('modal-tab-clear').classList.add('hidden');
+        function setTrayLockBadge(el, active, locked) {
+            if (!active) {
+                el.classList.add('hidden');
+                return;
+            }
+            el.classList.remove('hidden');
+            if (locked) {
+                el.className = "text-[9px] px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-400 font-bold";
+                el.innerText = "🔒 Locked";
+            } else {
+                el.className = "text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-bold";
+                el.innerText = "🔓 Open";
+            }
+        }
 
-            document.getElementById('tab-view-btn').className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
-            document.getElementById('tab-add-btn').className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
-            document.getElementById('tab-clear-btn').className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+        function switchModalTab(tab) {
+            ['view', 'add', 'unlock', 'clear'].forEach(t => {
+                document.getElementById(`modal-tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}-btn`).className = "py-2 rounded-lg text-slate-400 hover:text-white transition";
+            });
 
             document.getElementById(`modal-tab-${tab}`).classList.remove('hidden');
             document.getElementById(`tab-${tab}-btn`).className = "py-2 rounded-lg bg-cyan-600 text-white transition";
 
             if (tab === 'add') updateAddFormCapacityUI();
+            if (tab === 'unlock') updateUnlockFormUI();
         }
 
         function toggleTime2Input() {
