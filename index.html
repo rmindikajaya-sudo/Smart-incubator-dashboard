@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTN Smart Incubator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -15,8 +15,8 @@
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0b111e',
-                        cardbg: '#131c2e',
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b',
                     }
                 }
             }
@@ -45,257 +45,131 @@
         .heater-on-anim {
             animation: pulse-red-card 1.1s infinite ease-in-out !important;
         }
-
-        /* Brown Quail Egg & White Chicken Egg Graphics */
-        .egg-shape {
-            width: 34px;
-            height: 44px;
-            border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
-            flex-shrink: 0;
-            position: relative;
-        }
-        .egg-brown {
-            background: radial-gradient(circle at 35% 30%, #e0a36c, #8c4a27 72%, #592a12);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4), inset -2px -3px 6px rgba(0, 0, 0, 0.35);
-        }
-        .egg-brown::after {
-            content: '';
-            position: absolute;
-            inset: 6px;
-            background-image:
-                radial-gradient(#3b1908 2px, transparent 2px),
-                radial-gradient(#4a200b 1.5px, transparent 1.5px);
-            background-size: 9px 9px;
-            background-position: 0 0, 4px 4px;
-            border-radius: 50%;
-            opacity: 0.65;
-        }
-        .egg-white {
-            background: radial-gradient(circle at 35% 28%, #ffffff, #f1f5f9 72%, #cbd5e1);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35), inset -2px -3px 6px rgba(148, 163, 184, 0.45);
-        }
-        .egg-empty {
-            background: rgba(255, 255, 255, 0.14);
-            border: 1.5px dashed rgba(255, 255, 255, 0.45);
-        }
     </style>
 </head>
-<body class="bg-darkbg text-slate-100 font-sans p-3.5 pb-14 select-none">
+<body class="bg-darkbg text-slate-100 font-sans p-4 pb-12 select-none">
 
-    <div class="max-w-md mx-auto space-y-3">
+    <div class="max-w-md mx-auto space-y-4">
 
-        <!-- 1st Card: App Header & Sync Status -->
-        <div class="flex items-center justify-between bg-cardbg p-3.5 rounded-2xl shadow-lg border border-cyan-900/60">
+        <!-- App Header -->
+        <div class="flex items-center justify-between bg-cardbg p-3.5 rounded-2xl shadow-lg border border-slate-800">
             <div class="flex items-center space-x-2.5">
                 <span class="text-2xl">🥚</span>
                 <div>
                     <h1 class="font-bold text-base tracking-wide leading-tight">RTN SMART Incubator</h1>
-                    <span class="text-[10px] text-cyan-400 font-semibold tracking-wider uppercase">Two-Way Live Sync</span>
+                    <span class="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Two-Way Live Sync</span>
                 </div>
             </div>
             <div class="text-right">
                 <span id="sync-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1"></span>
-                <span id="sync-time" class="text-xs text-slate-300 font-medium">Synced: Live</span>
+                <span id="sync-time" class="text-xs text-slate-400">Synced: Live</span>
             </div>
         </div>
 
-        <!-- 2nd Card: System Active Banner (Separated) -->
-        <div id="system-banner" class="bg-emerald-600/20 border border-emerald-500/50 text-emerald-300 p-3 rounded-2xl text-center text-xs font-bold flex items-center justify-center space-x-2 shadow-md">
-            <i class="fa-solid fa-bell text-emerald-400 animate-bounce"></i>
+        <!-- System Active Banner -->
+        <div id="system-banner" class="bg-amber-500/10 border border-amber-500/30 text-amber-400 p-2.5 rounded-xl text-center text-xs font-semibold flex items-center justify-center space-x-2 shadow-inner">
+            <i class="fa-solid fa-bell animate-bounce"></i>
             <span id="banner-text">System Active - Monitoring Incubator</span>
         </div>
 
-        <!-- 3rd Row: ESP32 & Door Status (Unchanged) -->
+        <!-- Power & Door Status Row -->
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-cardbg p-3 rounded-xl border border-slate-800 flex items-center justify-between shadow-sm">
-                <span class="text-xs text-slate-400 font-semibold">ESP32:</span>
+                <span class="text-xs text-slate-400 font-medium">ESP32:</span>
                 <span id="power-status" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Online</span>
             </div>
             <div class="bg-cardbg p-3 rounded-xl border border-slate-800 flex items-center justify-between shadow-sm">
-                <span class="text-xs text-slate-400 font-semibold">Door:</span>
+                <span class="text-xs text-slate-400 font-medium">Door:</span>
                 <span id="door-status" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CLOSED 🔒</span>
             </div>
         </div>
 
-        <!-- 4th Row: Temp & Humidity (Increased Height) -->
+        <!-- Temp & Humidity Row -->
         <div class="grid grid-cols-2 gap-3">
-            <div class="bg-cardbg min-h-[126px] p-5 rounded-2xl border border-teal-900/70 flex flex-col justify-center items-center text-center shadow-md">
-                <div class="text-[11px] text-cyan-400 mb-1.5 uppercase tracking-wider font-bold">Temperature</div>
-                <div id="temp-val" class="text-3xl font-extrabold text-white">-- °C</div>
+            <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
+                <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Temperature</div>
+                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">-- °C</div>
             </div>
-            <div class="bg-cardbg min-h-[126px] p-5 rounded-2xl border border-teal-900/70 flex flex-col justify-center items-center text-center shadow-md">
-                <div class="text-[11px] text-cyan-400 mb-1.5 uppercase tracking-wider font-bold">Humidity</div>
-                <div id="hum-val" class="text-3xl font-extrabold text-white">-- %</div>
+            <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
+                <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Humidity</div>
+                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">-- %</div>
             </div>
         </div>
 
-        <!-- 5th Row: Target Temp (Password Once) & Tray Angle (-45, 00 = Level 90°, +45) -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-md min-h-[116px]">
-                <div class="flex items-center justify-between">
-                    <span class="text-[11px] text-amber-400 uppercase tracking-wider font-bold">Target</span>
-                    <span id="setpoint-lock-icon" class="text-[10px] text-slate-400 font-semibold">🔒 Setpoint</span>
-                </div>
-                <div class="flex items-center justify-between mt-2 gap-1.5">
-                    <button onclick="requestTempAdjust(-0.1)" class="w-9 h-9 rounded-xl bg-emerald-700/40 hover:bg-emerald-700/60 border border-emerald-500/40 text-red-300 font-extrabold text-lg active:scale-90 transition">−</button>
-                    <span id="target-temp-display" class="text-base font-extrabold text-white">37.8 °C</span>
-                    <button onclick="requestTempAdjust(0.1)" class="w-9 h-9 rounded-xl bg-orange-600 hover:bg-orange-500 text-slate-950 font-extrabold text-lg active:scale-90 transition">+</button>
-                </div>
+        <!-- Target Temp Control (Normal Direct Control) -->
+        <div class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
+            <div>
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Target Setpoint</div>
+                <div id="target-temp-display" class="text-lg font-bold text-amber-400 mt-0.5">37.8 °C</div>
             </div>
-
-            <div class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-md min-h-[116px]">
-                <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-[11px] text-cyan-400 uppercase tracking-wider font-bold">Tray Angle</span>
-                    <span class="text-[10px] text-slate-400 font-semibold">00 = Level 90°</span>
-                </div>
-                <div class="grid grid-cols-3 gap-1 mb-2 text-center text-[11px] font-extrabold">
-                    <button id="ang-btn--45" onclick="selectTrayAngle(-45)" class="py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">-45</button>
-                    <button id="ang-btn-0" onclick="selectTrayAngle(0)" class="py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">00</button>
-                    <button id="ang-btn-45" onclick="selectTrayAngle(45)" class="py-1 rounded-lg bg-blue-900/70 border border-cyan-400 text-amber-300">+45</button>
-                </div>
-                <button id="manual-turn-btn" onclick="triggerManualTurn()" class="w-full bg-sky-600 hover:bg-sky-500 text-white py-1.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 active:scale-95 transition">
-                    <i id="turn-icon" class="fa-solid fa-rotate text-[11px]"></i>
-                    <span>Turn Eggs (<span id="tray-angle">+45</span>°)</span>
-                </button>
+            <div class="flex items-center space-x-2">
+                <button onclick="adjustTargetTemp(-0.1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 font-bold text-lg active:scale-90 transition">-</button>
+                <button onclick="adjustTargetTemp(0.1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 font-bold text-lg active:scale-90 transition">+</button>
             </div>
         </div>
 
-        <!-- 6th Row: Heater & Fan (Unchanged) -->
-        <div class="grid grid-cols-2 gap-3">
-            <div id="heater-card" class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-md transition-all duration-300 min-h-[92px]">
-                <div class="flex items-center justify-between">
-                    <div class="font-bold text-xs flex items-center space-x-1.5 text-amber-400">
-                        <i id="heater-icon" class="fa-solid fa-fire text-amber-500"></i>
-                        <span>HEATER</span>
-                    </div>
-                    <div id="heater-badge" class="px-2.5 py-0.5 rounded-xl font-bold text-[11px] bg-slate-800 text-slate-400 border border-slate-700">
-                        OFF
-                    </div>
-                </div>
-                <div id="heater-subtext" class="text-[11px] text-emerald-400 font-semibold mt-2">Auto Relay Normal</div>
+        <!-- Tray Angle & Manual Turn -->
+        <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
+            <div>
+                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Current Tray Angle</div>
+                <div id="tray-angle" class="text-2xl font-bold text-white mt-0.5">45°</div>
             </div>
-
-            <div id="fan-card" class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 flex flex-col justify-between shadow-md transition-all duration-300 min-h-[92px]">
-                <div class="flex items-center justify-between">
-                    <div class="font-bold text-xs flex items-center space-x-1.5 text-cyan-400">
-                        <i id="fan-icon" class="fa-solid fa-fan text-cyan-400 animate-spin-custom"></i>
-                        <span>FAN</span>
-                    </div>
-                    <div id="fan-badge" class="px-2.5 py-0.5 rounded-xl font-bold text-[11px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                        ON
-                    </div>
-                </div>
-                <div class="text-[11px] text-slate-300 font-semibold mt-2 flex items-center justify-between">
-                    <span id="fan-airflow" class="text-emerald-400">Active</span>
-                    <span class="font-mono text-amber-400">RPM: <span id="fan-rpm">1450</span></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- 7th Row: 1st & 2nd Store Cards (Taller + Larger Font + Brown/White Egg) -->
-        <div class="grid grid-cols-2 gap-3 pt-0.5">
-            <button onclick="openStoreModal(1)" class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white min-h-[118px] p-4 rounded-2xl shadow-lg flex items-center justify-between gap-2 text-left transition transform active:scale-95">
-                <div class="space-y-1.5">
-                    <div class="text-[15px] font-extrabold leading-tight">1st Store Details</div>
-                    <div id="btn-s1-sub" class="text-[14px] font-bold text-blue-100 leading-snug">EMPTY</div>
-                </div>
-                <div id="s1-egg-graphic" class="egg-shape egg-empty"></div>
-            </button>
-
-            <button onclick="openStoreModal(2)" class="bg-gradient-to-br from-fuchsia-600 to-pink-600 text-white min-h-[118px] p-4 rounded-2xl shadow-lg flex items-center justify-between gap-2 text-left transition transform active:scale-95">
-                <div class="space-y-1.5">
-                    <div class="text-[15px] font-extrabold leading-tight">2nd Store Details</div>
-                    <div id="btn-s2-sub" class="text-[14px] font-bold text-pink-100 leading-snug">EMPTY</div>
-                </div>
-                <div id="s2-egg-graphic" class="egg-shape egg-empty"></div>
+            <button id="manual-turn-btn" onclick="triggerManualTurn()" class="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center space-x-2 active:scale-95 transition">
+                <i id="turn-icon" class="fa-solid fa-rotate"></i>
+                <span>Turn Eggs</span>
             </button>
         </div>
 
-        <!-- 8th Card: App Login Card -->
-        <div class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 shadow-md space-y-2.5">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold text-cyan-400 uppercase tracking-wider">🔐 App Login</span>
-                <span id="app-auth-badge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">Locked</span>
+        <!-- Heater Status (Flashes Red Across Entire Card When ON) -->
+        <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
+            <div>
+                <div class="font-bold text-sm flex items-center space-x-2">
+                    <i id="heater-icon" class="fa-solid fa-fire text-amber-500"></i>
+                    <span>Heater Status</span>
+                </div>
+                <div id="heater-subtext" class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
             </div>
-            <div class="flex gap-2">
-                <input id="app-login-pwd" type="password" placeholder="Password (default: 1234)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-400">
-                <button id="app-login-btn" onclick="toggleAppLogin()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-xl text-xs font-extrabold active:scale-95 transition">Login</button>
+            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                OFF
             </div>
         </div>
 
-        <!-- 9th Card: Gear Wheel Settings Card (Bottom) -->
-        <button onclick="openSettingsModal()" class="w-full bg-cardbg hover:bg-slate-800/90 p-3.5 rounded-2xl border border-slate-800 shadow-md flex items-center justify-between text-left active:scale-[0.99] transition">
+        <!-- Circulation Fan (Keeps Existing Elements + Adds 4-Digit RPM) -->
+        <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-cyan-400 text-base">
-                    <i class="fa-solid fa-gear"></i>
+                <div id="fan-icon-container" class="text-cyan-400 text-2xl">
+                    <i id="fan-icon" class="fa-solid fa-fan animate-spin-custom"></i>
                 </div>
                 <div>
-                    <div class="text-sm font-extrabold text-white">Settings</div>
-                    <div class="text-[11px] text-slate-400">Password, Setpoint Auth & Store Quick Actions</div>
+                    <div class="font-bold text-sm">Circulation Fan</div>
+                    <div class="text-[11px] text-slate-400 mt-0.5">
+                        Airflow: <span id="fan-airflow" class="font-bold text-slate-200">Active</span>
+                        <span class="mx-1 text-slate-600">|</span>
+                        RPM: <span id="fan-rpm" class="font-mono font-bold text-cyan-400">1450</span>
+                    </div>
                 </div>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
-        </button>
-
-        <div class="text-center pt-1 text-[11px] text-slate-500">@EGG85_bot</div>
-    </div>
-
-    <!-- Setpoint Password Modal (Asked Once Until Unlocked/Logged In) -->
-    <div id="setpoint-pwd-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardbg border border-amber-500/50 w-full max-w-xs rounded-3xl p-5 space-y-3.5 shadow-2xl">
-            <div class="text-sm font-extrabold text-amber-400 flex items-center space-x-2">
-                <i class="fa-solid fa-lock"></i>
-                <span>Setpoint Password Required</span>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed">
-                Enter password once to adjust Target Temperature Setpoint:
-            </p>
-            <input id="sp-modal-pwd" type="password" placeholder="Enter password (default: 1234)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
-            <div id="sp-modal-err" class="text-xs text-red-400 font-bold hidden">❌ Incorrect password!</div>
-            <div class="flex gap-2 pt-1">
-                <button onclick="closeSetpointPwdModal()" class="flex-1 bg-slate-800 text-slate-300 py-2 rounded-xl text-xs font-bold">Cancel</button>
-                <button onclick="verifySetpointPwdModal()" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 py-2 rounded-xl text-xs font-extrabold">Unlock</button>
+            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                ON
             </div>
         </div>
-    </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardbg border border-slate-700 w-full max-w-sm rounded-3xl p-5 space-y-3.5 shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-gear text-cyan-400"></i>
-                    <h3 class="text-sm font-extrabold text-white">Incubator Settings</h3>
-                </div>
-                <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-xs space-y-2">
-                <div class="font-bold text-cyan-400">Setpoint Security Mode</div>
-                <div class="flex items-center justify-between">
-                    <span class="text-slate-300">Session Setpoint Unlock:</span>
-                    <span id="sp-session-status" class="font-bold text-amber-400">Locked</span>
-                </div>
-                <button onclick="lockSetpointSession()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-1.5 rounded-lg text-[11px] font-bold">
-                    🔒 Lock Setpoint Again
-                </button>
-            </div>
-
-            <div class="space-y-2 text-xs">
-                <label class="text-slate-400 font-semibold block">Change App Access Password:</label>
-                <input id="cfg-new-app-pwd" type="password" placeholder="New password (min 4 chars)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <button onclick="saveAppPassword()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-2.5 rounded-xl font-extrabold">
-                    Save Password
-                </button>
-                <div id="cfg-pwd-msg" class="text-center text-xs font-bold hidden"></div>
-            </div>
-
-            <button onclick="closeSettingsModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-bold">
-                Close
+        <!-- Store Buttons -->
+        <div class="grid grid-cols-2 gap-3 pt-1">
+            <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
+                <i class="fa-solid fa-layer-group text-lg"></i>
+                <span class="text-xs">1st Store Details</span>
+                <span id="btn-s1-sub" class="text-[10px] text-blue-200 font-normal">EMPTY</span>
+            </button>
+            <button onclick="openStoreModal(2)" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
+                <i class="fa-solid fa-layer-group text-lg"></i>
+                <span class="text-xs">2nd Store Details</span>
+                <span id="btn-s2-sub" class="text-[10px] text-purple-200 font-normal">EMPTY</span>
             </button>
         </div>
+
+        <div class="text-center pt-2 text-[11px] text-slate-500">@EGG85_bot</div>
+
     </div>
 
     <!-- Store Details & Management Modal -->
@@ -312,6 +186,7 @@
                 </button>
             </div>
 
+            <!-- Modal Navigation Tabs (4 Tabs: Status, Add Eggs, Unlock, Clear) -->
             <div class="grid grid-cols-4 gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
                 <button id="tab-view-btn" onclick="switchModalTab('view')" class="py-2 rounded-lg bg-cyan-600 text-white transition">📊 Status</button>
                 <button id="tab-add-btn" onclick="switchModalTab('add')" class="py-2 rounded-lg text-slate-400 hover:text-white transition">➕ Add</button>
@@ -373,12 +248,14 @@
                 </div>
             </div>
 
-            <!-- TAB 2: ADD / PLACE EGGS -->
+            <!-- TAB 2: ADD / PLACE EGGS WITH LIVE CAPACITY, LOCK CHECK & SMART SPLIT/MERGE -->
             <div id="modal-tab-add" class="space-y-3 text-xs hidden">
+
+                <!-- Live Tray Capacity & Lock Status Box -->
                 <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-2.5 space-y-2">
                     <div class="text-[10px] uppercase tracking-wider text-cyan-400 font-bold flex items-center justify-between">
                         <span><i class="fa-solid fa-circle-info mr-1"></i>Current Tray Space (Max 40)</span>
-                        <span id="cap-store-total" class="text-emerald-400">Open Free: 80 Eggs</span>
+                        <span id="cap-store-total" class="text-emerald-400">Free: 80</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-[11px]">
                         <div class="bg-slate-800/90 p-2 rounded-lg border border-slate-700/60">
@@ -387,7 +264,7 @@
                                 <span id="cap-tray-a-lock" class="text-[9px] font-bold"></span>
                             </div>
                             <div id="cap-tray-a-type" class="text-amber-400 font-semibold text-[10px]">EMPTY</div>
-                            <div id="cap-tray-a-qty" class="text-slate-400 text-[10px]">Has: 0/40 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
+                            <div id="cap-tray-a-qty" class="text-slate-400 text-[10px]">Has: 0 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
                         </div>
                         <div class="bg-slate-800/90 p-2 rounded-lg border border-slate-700/60">
                             <div class="flex justify-between items-center">
@@ -395,7 +272,7 @@
                                 <span id="cap-tray-b-lock" class="text-[9px] font-bold"></span>
                             </div>
                             <div id="cap-tray-b-type" class="text-amber-400 font-semibold text-[10px]">EMPTY</div>
-                            <div id="cap-tray-b-qty" class="text-slate-400 text-[10px]">Has: 0/40 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
+                            <div id="cap-tray-b-qty" class="text-slate-400 text-[10px]">Has: 0 | <span class="text-emerald-400 font-bold">Free: 40</span></div>
                         </div>
                     </div>
                 </div>
@@ -425,8 +302,10 @@
                     </div>
                 </div>
 
+                <!-- Live Preview / Warning Banner -->
                 <div id="live-qty-preview" class="hidden p-2.5 rounded-xl text-[11px] font-medium"></div>
 
+                <!-- Post-Placement Lock Choice -->
                 <div>
                     <label class="text-slate-400 block mb-1">Reuse Tray Later? (නැවත බිත්තර දමනවාද?):</label>
                     <select id="form-lock-after" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-semibold">
@@ -459,6 +338,7 @@
                     <input id="form-add-pwd" type="password" placeholder="Enter password (default: 1234)" class="w-full bg-slate-900 border border-amber-500/40 rounded-xl p-2.5 text-white">
                 </div>
 
+                <!-- Smart Split vs Direct Sibling Placement Confirmation Box -->
                 <div id="merge-confirm-box" class="hidden bg-amber-500/15 border border-amber-500/50 p-3 rounded-xl space-y-2">
                     <div id="merge-confirm-text" class="text-amber-200 text-[11px] leading-relaxed font-medium"></div>
                     <div class="space-y-1.5">
@@ -548,173 +428,12 @@
 
         let liveStoresData = { 1: { type: "EMPTY" }, 2: { type: "EMPTY" } };
         let currentTargetTemp = 37.8;
-        let currentTrayAngleVal = 45;
         let activeModalStoreId = 1;
-
-        // Password & Session State (Matches ESP32 default "1234")
-        let savedPassword = localStorage.getItem('rtn_app_pwd') || '1234';
-        let isAppLoggedIn = false;
-        let isSetpointSessionUnlocked = false;
-        let pendingTempDelta = 0;
-
-        function hasSetpointPermission() {
-            return isAppLoggedIn || isSetpointSessionUnlocked;
-        }
-
-        function refreshSetpointLockBadge() {
-            const el = document.getElementById('setpoint-lock-icon');
-            const sessEl = document.getElementById('sp-session-status');
-            if (hasSetpointPermission()) {
-                el.textContent = '🔓 Unlocked';
-                el.className = 'text-[10px] text-emerald-400 font-bold';
-                if (sessEl) {
-                    sessEl.textContent = 'Unlocked';
-                    sessEl.className = 'font-bold text-emerald-400';
-                }
-            } else {
-                el.textContent = '🔒 Setpoint';
-                el.className = 'text-[10px] text-slate-400 font-semibold';
-                if (sessEl) {
-                    sessEl.textContent = 'Locked';
-                    sessEl.className = 'font-bold text-amber-400';
-                }
-            }
-        }
-
-        function toggleAppLogin() {
-            const input = document.getElementById('app-login-pwd');
-            const badge = document.getElementById('app-auth-badge');
-            const btn = document.getElementById('app-login-btn');
-
-            if (isAppLoggedIn) {
-                isAppLoggedIn = false;
-                badge.textContent = 'Locked';
-                badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40';
-                btn.textContent = 'Login';
-                input.value = '';
-                input.disabled = false;
-                refreshSetpointLockBadge();
-                return;
-            }
-
-            if (input.value === savedPassword) {
-                isAppLoggedIn = true;
-                badge.textContent = 'Logged In';
-                badge.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40';
-                btn.textContent = 'Logout';
-                input.value = '••••';
-                input.disabled = true;
-                refreshSetpointLockBadge();
-            } else {
-                alert('Incorrect Password!');
-                input.value = '';
-            }
-        }
-
-        function requestTempAdjust(delta) {
-            if (hasSetpointPermission()) {
-                adjustTargetTemp(delta);
-            } else {
-                pendingTempDelta = delta;
-                document.getElementById('sp-modal-pwd').value = '';
-                document.getElementById('sp-modal-err').classList.add('hidden');
-                document.getElementById('setpoint-pwd-modal').classList.remove('hidden');
-            }
-        }
-
-        function verifySetpointPwdModal() {
-            const entered = document.getElementById('sp-modal-pwd').value;
-            if (entered === savedPassword) {
-                isSetpointSessionUnlocked = true;
-                refreshSetpointLockBadge();
-                closeSetpointPwdModal();
-                adjustTargetTemp(pendingTempDelta);
-            } else {
-                document.getElementById('sp-modal-err').classList.remove('hidden');
-            }
-        }
-
-        function closeSetpointPwdModal() {
-            document.getElementById('setpoint-pwd-modal').classList.add('hidden');
-        }
-
-        function lockSetpointSession() {
-            isSetpointSessionUnlocked = false;
-            refreshSetpointLockBadge();
-        }
-
-        function openSettingsModal() {
-            document.getElementById('cfg-pwd-msg').classList.add('hidden');
-            document.getElementById('cfg-new-app-pwd').value = '';
-            refreshSetpointLockBadge();
-            document.getElementById('settings-modal').classList.remove('hidden');
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        function saveAppPassword() {
-            const newPwd = document.getElementById('cfg-new-app-pwd').value.trim();
-            const msg = document.getElementById('cfg-pwd-msg');
-            msg.classList.remove('hidden');
-            if (newPwd.length < 4) {
-                msg.className = 'text-center text-xs font-bold text-red-400';
-                msg.textContent = '❌ Password must be at least 4 characters!';
-                return;
-            }
-            savedPassword = newPwd;
-            localStorage.setItem('rtn_app_pwd', savedPassword);
-            document.getElementById('cfg-new-app-pwd').value = '';
-            msg.className = 'text-center text-xs font-bold text-emerald-400';
-            msg.textContent = '✅ App password updated!';
-        }
-
-        function updateAngleButtonsUI(angleNum) {
-            const vals = [-45, 0, 45];
-            vals.forEach(v => {
-                const btn = document.getElementById('ang-btn-' + v);
-                if (!btn) return;
-                if (Number(angleNum) === v) {
-                    btn.className = 'py-1 rounded-lg bg-blue-900/70 border border-cyan-400 text-amber-300';
-                } else {
-                    btn.className = 'py-1 rounded-lg bg-slate-900 border border-slate-700 text-slate-300';
-                }
-            });
-            const label = (Number(angleNum) === 0) ? '00' : (Number(angleNum) > 0 ? '+' + angleNum : String(angleNum));
-            document.getElementById('tray-angle').innerText = label;
-        }
-
-        function selectTrayAngle(angleNum) {
-            currentTrayAngleVal = Number(angleNum);
-            updateAngleButtonsUI(currentTrayAngleVal);
-            db.ref('incubators/device_01/telemetry/trayAngle').set(currentTrayAngleVal);
-        }
-
-        function updateEggCardVisual(storeNum, storeObj) {
-            const eggEl = document.getElementById('s' + storeNum + '-egg-graphic');
-            if (!eggEl) return;
-            const rawType = String(storeObj.type || '').toLowerCase();
-            const t1 = String(storeObj['tray' + (storeNum === 1 ? 1 : 3) + 'Type'] || '').toLowerCase();
-            const t2 = String(storeObj['tray' + (storeNum === 1 ? 2 : 4) + 'Type'] || '').toLowerCase();
-            const combined = rawType + ' ' + t1 + ' ' + t2;
-
-            eggEl.classList.remove('egg-brown', 'egg-white', 'egg-empty');
-            if (!storeObj.active || Number(storeObj.qty || 0) === 0) {
-                eggEl.classList.add('egg-empty');
-            } else if (combined.includes('quail')) {
-                eggEl.classList.add('egg-brown');
-            } else {
-                eggEl.classList.add('egg-white');
-            }
-        }
 
         // 1. Live Telemetry Listener
         db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
-
-            document.getElementById('sync-time').innerText = "Synced: Live";
 
             if (data.temperature !== undefined) {
                 document.getElementById('temp-val').innerText = Number(data.temperature).toFixed(1) + " °C";
@@ -727,33 +446,32 @@
                 document.getElementById('target-temp-display').innerText = currentTargetTemp.toFixed(1) + " °C";
             }
             if (data.trayAngle !== undefined) {
-                currentTrayAngleVal = Number(data.trayAngle);
-                updateAngleButtonsUI(currentTrayAngleVal);
+                document.getElementById('tray-angle').innerText = data.trayAngle + "°";
             }
 
-            // Heater UI
+            // Heater UI (Flashes Red Across Entire Card When ON)
             const heaterBadge = document.getElementById('heater-badge');
             const heaterCard = document.getElementById('heater-card');
             const heaterIcon = document.getElementById('heater-icon');
             const heaterSub = document.getElementById('heater-subtext');
 
             if (data.heaterActive) {
-                heaterBadge.className = "px-2.5 py-0.5 rounded-xl font-bold text-[11px] bg-red-600 text-white shadow-lg shadow-red-600/60 border border-red-400";
+                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-600 text-white shadow-lg shadow-red-600/60 border border-red-400";
                 heaterBadge.innerText = "ON 🔥";
                 heaterCard.classList.add('heater-on-anim');
                 heaterIcon.className = "fa-solid fa-fire text-red-400 animate-bounce";
-                heaterSub.className = "text-[11px] text-red-200 font-semibold mt-2";
+                heaterSub.className = "text-[11px] text-red-200 font-semibold mt-0.5";
                 heaterSub.innerText = "Heating Element Active";
             } else {
-                heaterBadge.className = "px-2.5 py-0.5 rounded-xl font-bold text-[11px] bg-slate-800 text-slate-400 border border-slate-700";
+                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                 heaterBadge.innerText = "OFF";
                 heaterCard.classList.remove('heater-on-anim');
                 heaterIcon.className = "fa-solid fa-fire text-amber-500";
-                heaterSub.className = "text-[11px] text-emerald-400 font-semibold mt-2";
-                heaterSub.innerText = "Auto Relay Normal";
+                heaterSub.className = "text-[11px] text-slate-400 mt-0.5";
+                heaterSub.innerText = "Automatic Relay Control";
             }
 
-            // Fan UI
+            // Fan UI (Keeps Airflow + 4-Digit RPM)
             const fanBadge = document.getElementById('fan-badge');
             const fanIcon = document.getElementById('fan-icon');
             const fanAirflow = document.getElementById('fan-airflow');
@@ -762,13 +480,13 @@
             const formatted4DigitRpm = String(Math.max(0, Math.min(9999, Math.round(rawRpm)))).padStart(4, '0');
 
             if (data.fanActive !== false) {
-                fanBadge.className = "px-2.5 py-0.5 rounded-xl font-bold text-[11px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
                 fanBadge.innerText = "ON";
                 fanAirflow.innerText = "Active";
                 fanRpmEl.innerText = formatted4DigitRpm;
                 fanIcon.classList.add('animate-spin-custom');
             } else {
-                fanBadge.className = "px-2.5 py-0.5 rounded-xl font-bold text-[11px] bg-slate-700 text-slate-400";
+                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700 text-slate-400";
                 fanBadge.innerText = "OFF";
                 fanAirflow.innerText = "Stopped";
                 fanRpmEl.innerText = "0000";
@@ -807,14 +525,12 @@
                 document.getElementById('btn-s1-sub').innerText = stores.store1.active
                     ? `${stores.store1.type} (${stores.store1.qty} Eggs)`
                     : "EMPTY";
-                updateEggCardVisual(1, stores.store1);
             }
             if (stores.store2) {
                 liveStoresData[2] = stores.store2;
                 document.getElementById('btn-s2-sub').innerText = stores.store2.active
                     ? `${stores.store2.type} (${stores.store2.qty} Eggs)`
                     : "EMPTY";
-                updateEggCardVisual(2, stores.store2);
             }
 
             if (!document.getElementById('store-modal').classList.contains('hidden')) {
@@ -970,7 +686,7 @@
             if (selTray.active && selTray.locked) {
                 previewEl.classList.remove('hidden');
                 previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-rose-500/20 border border-rose-500/40 text-rose-300";
-                previewEl.innerText = `🔒 Tray ${selTray.num} Lock කර ඇත! මෙයට බිත්තර එකතු කළ නොහැක.`;
+                previewEl.innerText = `🔒 Tray ${selTray.num} Lock කර ඇත! මෙයට බිත්තර එකතු කළ නොහැක. (Unlock ටැබ් එකෙන් Unlock කරන්න, නැතිනම් අනෙක් Tray එක තෝරන්න).`;
                 return;
             }
 
@@ -999,10 +715,10 @@
 
                 if (canSplit || canAllSibling) {
                     previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-amber-500/15 border border-amber-500/40 text-amber-200";
-                    previewEl.innerText = `⚠️ Tray ${selTray.num} හි ඉඩ ඇත්තේ ${selTray.free}කට පමණි! Tray ${otherTray.num} වෙත යොමු කිරීමට Save ඔබන්න.`;
+                    previewEl.innerText = `⚠️ Tray ${selTray.num} හි ඉඩ ඇත්තේ ${selTray.free}කට පමණි! Tray ${otherTray.num} වෙත යොමු කිරීමේ විකල්ප බැලීමට පහත Save ඔබන්න.`;
                 } else {
                     previewEl.className = "p-2.5 rounded-xl text-[11px] font-medium bg-red-500/20 border border-red-500/40 text-red-300";
-                    previewEl.innerText = `❌ ප්‍රමාණය වැඩියි හෝ අනෙක් Tray එක Lock වී / වෙනත් වර්ගයකි!`;
+                    previewEl.innerText = `❌ ප්‍රමාණය වැඩියි හෝ අනෙක් Tray එක Lock වී / වෙනත් වර්ගයකි! (Max: ${selTray.free + (siblingOk ? otherTray.free : 0)}).`;
                 }
             }
         }
@@ -1053,7 +769,7 @@
                 }
                 if (overflow > otherTray.free) {
                     fbEl.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-red-500/20 text-red-400";
-                    fbEl.innerText = `❌ Store එකේ ඉඩ මදි! උපරිම ${selTray.free + otherTray.free} කි.`;
+                    fbEl.innerText = `❌ Store එකේ ඉඩ මදි! තැබිය හැකි උපරිම ප්‍රමාණය ${selTray.free + otherTray.free} කි.`;
                     fbEl.classList.remove('hidden');
                     return;
                 }
@@ -1258,9 +974,6 @@
         function closeStoreModal() {
             document.getElementById('store-modal').classList.add('hidden');
         }
-
-        updateAngleButtonsUI(currentTrayAngleVal);
-        refreshSetpointLockBadge();
     </script>
 </body>
 </html>
