@@ -2,8 +2,8 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RTN Smart Incubator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RTN SMART Incubator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -15,14 +15,18 @@
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#0f172a',
-                        cardbg: '#1e293b',
+                        darkbg: '#090f1d',
+                        cardbg: '#131c31',
                     }
                 }
             }
         }
     </script>
     <style>
+        html, body {
+            overscroll-behavior-y: none;
+            -webkit-tap-highlight-color: transparent;
+        }
         @keyframes spin-fast {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -30,145 +34,193 @@
         .animate-spin-custom {
             animation: spin-fast 0.8s linear infinite;
         }
-        @keyframes pulse-red-card {
+        @keyframes flash-red-card {
             0%, 100% {
-                background-color: rgba(220, 38, 38, 0.25) !important;
-                border-color: rgba(239, 68, 68, 0.85) !important;
-                box-shadow: 0 0 12px rgba(239, 68, 68, 0.35) !important;
+                background-color: rgba(220, 38, 38, 0.22) !important;
+                border-color: rgba(239, 68, 68, 0.9) !important;
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.35) !important;
             }
             50% {
-                background-color: rgba(220, 38, 38, 0.65) !important;
+                background-color: rgba(220, 38, 38, 0.58) !important;
                 border-color: #ff4d4d !important;
-                box-shadow: 0 0 24px rgba(239, 68, 68, 0.85) !important;
+                box-shadow: 0 0 22px rgba(239, 68, 68, 0.85) !important;
             }
         }
-        .heater-on-anim {
-            animation: pulse-red-card 1.1s infinite ease-in-out !important;
+        @keyframes flash-green-card {
+            0%, 100% {
+                border-color: rgba(16, 185, 129, 0.45) !important;
+                box-shadow: 0 0 6px rgba(16, 185, 129, 0.15) !important;
+            }
+            50% {
+                border-color: rgba(52, 211, 153, 0.95) !important;
+                box-shadow: 0 0 15px rgba(16, 185, 129, 0.42) !important;
+            }
+        }
+        .flash-red-anim {
+            animation: flash-red-card 1.1s infinite ease-in-out !important;
+        }
+        .flash-green-anim {
+            animation: flash-green-card 1.8s infinite ease-in-out !important;
+        }
+        .luminous-blue-btn {
+            background: linear-gradient(135deg, #00d2ff 0%, #0072ff 100%);
+            box-shadow: 0 0 14px rgba(0, 210, 255, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            border: 1px solid #7dd3fc;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+        }
+        .luminous-blue-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.4);
         }
     </style>
 </head>
-<body class="bg-darkbg text-slate-100 font-sans p-4 pb-12 select-none">
+<body class="bg-darkbg text-slate-100 font-sans px-3 py-2.5 select-none">
 
-    <div class="max-w-md mx-auto space-y-4">
+    <div class="max-w-md mx-auto space-y-2.5">
         
-        <!-- App Header -->
-        <div class="flex items-center justify-between bg-cardbg p-3.5 rounded-2xl shadow-lg border border-slate-800">
-            <div class="flex items-center space-x-2.5">
-                <span class="text-2xl">🥚</span>
-                <div>
-                    <h1 class="font-bold text-base tracking-wide leading-tight">RTN SMART Incubator</h1>
-                    <span class="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Two-Way Live Sync</span>
+        <!-- 1. APP HEADER CARD (Light Blue Outline + WiFi Signal + Green System Active Sub-Card) -->
+        <div class="bg-cardbg p-3 rounded-2xl border-2 border-sky-400/80 shadow-[0_0_16px_rgba(56,189,248,0.22)] space-y-2">
+            <div class="flex items-start justify-between gap-2">
+                <!-- Left: Single-Line Title + Two-Way Live Sync -->
+                <div class="min-w-0">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="text-lg leading-none">🥚</span>
+                        <h1 class="font-extrabold text-[15px] sm:text-base tracking-wide text-white whitespace-nowrap">RTN SMART Incubator</h1>
+                    </div>
+                    <div class="text-[11px] text-cyan-300 font-semibold tracking-wider uppercase mt-0.5 pl-6">
+                        Two-Way Live Sync
+                    </div>
                 </div>
-            </div>
-            <div class="text-right">
-                <span id="sync-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1"></span>
-                <span id="sync-time" class="text-xs text-slate-400">Synced: Live</span>
-            </div>
-        </div>
 
-        <!-- System Active Banner -->
-        <div id="system-banner" class="bg-amber-500/10 border border-amber-500/30 text-amber-400 p-2.5 rounded-xl text-center text-xs font-semibold flex items-center justify-center space-x-2 shadow-inner">
-            <i class="fa-solid fa-bell animate-bounce"></i>
-            <span id="banner-text">System Active - Monitoring Incubator</span>
-        </div>
-
-        <!-- Power & Door Status Row -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-cardbg p-3 rounded-xl border border-slate-800 flex items-center justify-between shadow-sm">
-                <span class="text-xs text-slate-400 font-medium">ESP32:</span>
-                <span id="power-status" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Online</span>
-            </div>
-            <div class="bg-cardbg p-3 rounded-xl border border-slate-800 flex items-center justify-between shadow-sm">
-                <span class="text-xs text-slate-400 font-medium">Door:</span>
-                <span id="door-status" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">CLOSED 🔒</span>
-            </div>
-        </div>
-
-        <!-- Temp & Humidity Row -->
-        <div class="grid grid-cols-2 gap-3">
-            <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
-                <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Temperature</div>
-                <div id="temp-val" class="text-3xl font-extrabold text-cyan-400">-- °C</div>
-            </div>
-            <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 text-center shadow-md">
-                <div class="text-[11px] text-slate-400 mb-1 uppercase tracking-wider font-semibold">Humidity</div>
-                <div id="hum-val" class="text-3xl font-extrabold text-blue-400">-- %</div>
-            </div>
-        </div>
-
-        <!-- Target Temp Control -->
-        <div class="bg-cardbg p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
-            <div>
-                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Target Setpoint</div>
-                <div id="target-temp-display" class="text-lg font-bold text-amber-400 mt-0.5">37.8 °C</div>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="adjustTargetTemp(-0.1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 font-bold text-lg active:scale-90 transition">-</button>
-                <button onclick="adjustTargetTemp(0.1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 font-bold text-lg active:scale-90 transition">+</button>
-            </div>
-        </div>
-
-        <!-- Tray Angle & Manual Turn -->
-        <div class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md">
-            <div>
-                <div class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Current Tray Angle</div>
-                <div id="tray-angle" class="text-2xl font-bold text-white mt-0.5">45°</div>
-            </div>
-            <button id="manual-turn-btn" onclick="triggerManualTurn()" class="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/40 px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center space-x-2 active:scale-95 transition">
-                <i id="turn-icon" class="fa-solid fa-rotate"></i>
-                <span>Turn Eggs</span>
-            </button>
-        </div>
-
-        <!-- Heater Status (Flashes Red Across Entire Card When ON) -->
-        <div id="heater-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
-            <div>
-                <div class="font-bold text-sm flex items-center space-x-2">
-                    <i id="heater-icon" class="fa-solid fa-fire text-amber-500"></i>
-                    <span>Heater Status</span>
-                </div>
-                <div id="heater-subtext" class="text-[11px] text-slate-400 mt-0.5">Automatic Relay Control</div>
-            </div>
-            <div id="heater-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                OFF
-            </div>
-        </div>
-
-        <!-- Circulation Fan (Keeps Existing Elements + Adds 4-Digit RPM) -->
-        <div id="fan-card" class="bg-cardbg p-4 rounded-2xl border border-slate-800 flex items-center justify-between shadow-md transition-all duration-300">
-            <div class="flex items-center space-x-3">
-                <div id="fan-icon-container" class="text-cyan-400 text-2xl">
-                    <i id="fan-icon" class="fa-solid fa-fan animate-spin-custom"></i>
-                </div>
-                <div>
-                    <div class="font-bold text-sm">Circulation Fan</div>
-                    <div class="text-[11px] text-slate-400 mt-0.5">
-                        Airflow: <span id="fan-airflow" class="font-bold text-slate-200">Active</span>
-                        <span class="mx-1 text-slate-600">|</span>
-                        RPM: <span id="fan-rpm" class="font-mono font-bold text-cyan-400">1450</span>
+                <!-- Right: WiFi Signal Strength + Synced Live -->
+                <div class="text-right shrink-0 flex flex-col items-end">
+                    <div id="wifi-badge" class="flex items-center space-x-1 bg-slate-900/90 border border-sky-500/40 px-2 py-0.5 rounded-lg">
+                        <i id="wifi-icon" class="fa-solid fa-wifi text-emerald-400 text-[11px]"></i>
+                        <span id="wifi-strength" class="text-[10px] font-bold text-emerald-300">WiFi 92%</span>
+                    </div>
+                    <div class="flex items-center mt-1">
+                        <span id="sync-status-dot" class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping mr-1.5"></span>
+                        <span id="sync-time" class="text-[10px] font-semibold text-slate-300">Synced: Live</span>
                     </div>
                 </div>
             </div>
-            <div id="fan-badge" class="px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-                ON
+
+            <!-- Sub-Card: Green Fill with Yellow/Orange Text -->
+            <div id="system-banner" class="bg-emerald-600/90 border border-emerald-400/70 py-1.5 px-3 rounded-xl text-center text-xs font-extrabold flex items-center justify-center space-x-2 shadow-sm">
+                <i class="fa-solid fa-bell animate-bounce text-amber-300 text-sm"></i>
+                <span id="banner-text" class="text-amber-300 tracking-wide">System Active - Monitoring Incubator</span>
             </div>
         </div>
 
-        <!-- Store Buttons -->
-        <div class="grid grid-cols-2 gap-3 pt-1">
-            <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span class="text-xs">1st Store Details</span>
-                <span id="btn-s1-sub" class="text-[10px] text-blue-200 font-normal">EMPTY</span>
-            </button>
-            <button onclick="openStoreModal(2)" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3.5 rounded-2xl font-semibold shadow-lg flex flex-col items-center justify-center space-y-1.5 transition transform active:scale-95">
-                <i class="fa-solid fa-layer-group text-lg"></i>
-                <span class="text-xs">2nd Store Details</span>
-                <span id="btn-s2-sub" class="text-[10px] text-purple-200 font-normal">EMPTY</span>
-            </button>
+        <!-- 2. ESP32 & DOOR STATUS ROW (Larger Colored Labels) -->
+        <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-cardbg px-3 py-2 rounded-xl border border-slate-700/80 flex items-center justify-between shadow-sm">
+                <span class="text-sm font-extrabold text-sky-400 tracking-wide">ESP32:</span>
+                <span id="power-status" class="px-2.5 py-0.5 text-xs font-extrabold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Online</span>
+            </div>
+            <div class="bg-cardbg px-3 py-2 rounded-xl border border-slate-700/80 flex items-center justify-between shadow-sm">
+                <span class="text-sm font-extrabold text-amber-400 tracking-wide">Door:</span>
+                <span id="door-status" class="px-2.5 py-0.5 text-xs font-extrabold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">CLOSED 🔒</span>
+            </div>
         </div>
 
-        <div class="text-center pt-2 text-[11px] text-slate-500">@EGG85_bot</div>
+        <!-- 3. TEMPERATURE & HUMIDITY ROW (Compact Height + Dynamic Red/Green Flashing Outline) -->
+        <div class="grid grid-cols-2 gap-2.5">
+            <div id="temp-card" class="bg-cardbg py-2 px-3 rounded-2xl border-2 border-emerald-500/60 flash-green-anim text-center shadow-md transition-all">
+                <div class="text-[13px] font-extrabold text-cyan-300 uppercase tracking-wider leading-tight">Temperature</div>
+                <div id="temp-val" class="text-[26px] font-black text-white leading-tight mt-0.5">-- °C</div>
+            </div>
+            <div id="hum-card" class="bg-cardbg py-2 px-3 rounded-2xl border-2 border-emerald-500/60 flash-green-anim text-center shadow-md transition-all">
+                <div class="text-[13px] font-extrabold text-indigo-300 uppercase tracking-wider leading-tight">Humidity</div>
+                <div id="hum-val" class="text-[26px] font-black text-white leading-tight mt-0.5">-- %</div>
+            </div>
+        </div>
+
+        <!-- 4. TARGET SETPOINT & TRAY ANGLE (2-Column Compact Grid) -->
+        <div class="grid grid-cols-2 gap-2.5">
+            <!-- Left: Target Setpoint -->
+            <div class="bg-cardbg py-2 px-2.5 rounded-2xl border border-slate-700/90 flex flex-col justify-between shadow-md">
+                <div class="flex items-center justify-between">
+                    <span class="text-[13px] font-extrabold text-amber-400 uppercase tracking-wide">Target</span>
+                    <span class="text-[10px] text-slate-400 font-semibold">Setpoint</span>
+                </div>
+                <div class="flex items-center justify-between mt-1.5 gap-1">
+                    <button onclick="adjustTargetTemp(-0.1)" class="w-9 h-8 rounded-xl bg-gradient-to-b from-emerald-500 to-teal-700 border border-emerald-300/60 text-red-500 font-black text-2xl leading-none flex items-center justify-center active:scale-90 transition shadow-md">-</button>
+                    <div id="target-temp-display" class="text-base sm:text-lg font-black text-white tracking-tight text-center">37.8°C</div>
+                    <button onclick="adjustTargetTemp(0.1)" class="w-9 h-8 rounded-xl bg-gradient-to-b from-amber-500 to-orange-600 border border-amber-300/60 text-red-600 font-black text-2xl leading-none flex items-center justify-center active:scale-90 transition shadow-md">+</button>
+                </div>
+            </div>
+
+            <!-- Right: Tray Angle (-45, 90=0°, 135) + Turn Eggs (Resets to 0° / 90) -->
+            <div class="bg-cardbg py-2 px-2.5 rounded-2xl border border-slate-700/90 flex flex-col justify-between shadow-md">
+                <div class="flex items-center justify-between">
+                    <span class="text-[13px] font-extrabold text-sky-400 uppercase tracking-wide">Tray Angle</span>
+                    <span id="tray-angle-pills" class="text-[9px] font-bold text-slate-400">-45 | <span class="text-cyan-300">90=0°</span> | 135</span>
+                </div>
+                <div class="flex items-center justify-between mt-1.5 gap-1.5">
+                    <div class="leading-tight">
+                        <div id="tray-angle" class="text-lg font-black text-emerald-400">0° <span class="text-[11px] font-bold text-slate-300">(90)</span></div>
+                    </div>
+                    <button id="manual-turn-btn" onclick="triggerManualTurn()" class="luminous-blue-btn px-2.5 py-1.5 rounded-xl font-extrabold text-[11px] flex items-center space-x-1 shrink-0 transition">
+                        <i id="turn-icon" class="fa-solid fa-rotate"></i>
+                        <span>Turn Eggs</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. HEATER STATUS & CIRCULATION FAN (2-Column Compact Grid with Red/Green Flash) -->
+        <div class="grid grid-cols-2 gap-2.5">
+            <!-- Left: Heater Status -->
+            <div id="heater-card" class="bg-cardbg py-2 px-2.5 rounded-2xl border-2 border-emerald-500/60 flash-green-anim flex flex-col justify-between shadow-md transition-all">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-1.5">
+                        <i id="heater-icon" class="fa-solid fa-fire text-amber-400 text-sm"></i>
+                        <span class="text-[13px] font-extrabold text-rose-300 uppercase tracking-wide">Heater</span>
+                    </div>
+                    <div id="heater-badge" class="px-2 py-0.5 rounded-lg font-extrabold text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                        OFF
+                    </div>
+                </div>
+                <div id="heater-subtext" class="text-[10px] text-slate-300 font-semibold mt-1 truncate">Auto Relay Ready</div>
+            </div>
+
+            <!-- Right: Circulation Fan (4-Digit RPM + Animated Fan Icon + Red/Green Flash) -->
+            <div id="fan-card" class="bg-cardbg py-2 px-2.5 rounded-2xl border-2 border-emerald-500/60 flash-green-anim flex flex-col justify-between shadow-md transition-all">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-1.5">
+                        <i id="fan-icon" class="fa-solid fa-fan text-cyan-400 text-base animate-spin-custom"></i>
+                        <span class="text-[13px] font-extrabold text-cyan-300 uppercase tracking-wide">Fan</span>
+                    </div>
+                    <div id="fan-badge" class="px-2 py-0.5 rounded-lg font-extrabold text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                        ON
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] mt-1">
+                    <span id="fan-airflow" class="font-bold text-emerald-300">Active</span>
+                    <span class="font-mono font-extrabold text-amber-300">RPM: <span id="fan-rpm">1450</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. 1ST STORE & 2ND STORE BUTTONS (Compact Height, Fits Without Scrolling) -->
+        <div class="grid grid-cols-2 gap-2.5 pt-0.5">
+            <button onclick="openStoreModal(1)" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border border-blue-400/40 text-white py-2.5 px-3 rounded-2xl font-bold shadow-lg flex items-center justify-between transition transform active:scale-95">
+                <div class="text-left">
+                    <div class="text-xs font-extrabold leading-tight">1st Store Details</div>
+                    <div id="btn-s1-sub" class="text-[10px] text-blue-200 font-semibold mt-0.5">EMPTY</div>
+                </div>
+                <i class="fa-solid fa-layer-group text-base text-blue-200"></i>
+            </button>
+            <button onclick="openStoreModal(2)" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 border border-purple-400/40 text-white py-2.5 px-3 rounded-2xl font-bold shadow-lg flex items-center justify-between transition transform active:scale-95">
+                <div class="text-left">
+                    <div class="text-xs font-extrabold leading-tight">2nd Store Details</div>
+                    <div id="btn-s2-sub" class="text-[10px] text-purple-200 font-semibold mt-0.5">EMPTY</div>
+                </div>
+                <i class="fa-solid fa-layer-group text-base text-purple-200"></i>
+            </button>
+        </div>
 
     </div>
 
@@ -415,8 +467,8 @@
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        let tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+        if (tg) tg.expand();
 
         const firebaseConfig = {
             databaseURL: "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -429,48 +481,101 @@
         let currentTargetTemp = 37.8;
         let activeModalStoreId = 1;
 
+        function setCardFlashState(cardEl, isAlert) {
+            if (!cardEl) return;
+            if (isAlert) {
+                cardEl.classList.remove('flash-green-anim', 'border-emerald-500/60');
+                cardEl.classList.add('flash-red-anim', 'border-red-500');
+            } else {
+                cardEl.classList.remove('flash-red-anim', 'border-red-500');
+                cardEl.classList.add('flash-green-anim', 'border-emerald-500/60');
+            }
+        }
+
+        function formatTrayAngleDisplay(rawAngle) {
+            const ang = Number(rawAngle);
+            if (isNaN(ang)) return `0° <span class="text-[11px] font-bold text-slate-300">(90)</span>`;
+            // Supports both servo degrees (-45, 90, 135) and relative tilt (-45, 0, +45)
+            if (ang === 90 || ang === 0) {
+                return `0° <span class="text-[11px] font-bold text-cyan-300">(90)</span>`;
+            } else if (ang === -45 || ang === 45) {
+                return `-45° <span class="text-[11px] font-bold text-amber-300">(Tilt)</span>`;
+            } else if (ang === 135) {
+                return `135° <span class="text-[11px] font-bold text-amber-300">(Tilt)</span>`;
+            } else {
+                const rel = ang - 90;
+                const relStr = rel > 0 ? `+${rel}°` : `${rel}°`;
+                return `${relStr} <span class="text-[11px] font-bold text-slate-300">(${ang})</span>`;
+            }
+        }
+
         // 1. Live Telemetry Listener
         db.ref('incubators/device_01/telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
-            if (data.temperature !== undefined) {
-                document.getElementById('temp-val').innerText = Number(data.temperature).toFixed(1) + " °C";
-            }
-            if (data.humidity !== undefined) {
-                document.getElementById('hum-val').innerText = Number(data.humidity).toFixed(1) + " %";
-            }
             if (data.targetTemp !== undefined) {
                 currentTargetTemp = Number(data.targetTemp);
-                document.getElementById('target-temp-display').innerText = currentTargetTemp.toFixed(1) + " °C";
-            }
-            if (data.trayAngle !== undefined) {
-                document.getElementById('tray-angle').innerText = data.trayAngle + "°";
+                document.getElementById('target-temp-display').innerText = currentTargetTemp.toFixed(1) + "°C";
             }
 
-            // Heater UI (Flashes Red Across Entire Card When ON)
+            // Temperature Value + Red/Green Flashing Outline
+            if (data.temperature !== undefined) {
+                const tempVal = Number(data.temperature);
+                const tempEl = document.getElementById('temp-val');
+                const tempCard = document.getElementById('temp-card');
+                tempEl.innerText = tempVal.toFixed(1) + " °C";
+
+                const isTempHigh = tempVal > (currentTargetTemp + 0.5) || tempVal >= 38.5;
+                setCardFlashState(tempCard, isTempHigh);
+                tempEl.className = isTempHigh
+                    ? "text-[26px] font-black text-red-300 leading-tight mt-0.5"
+                    : "text-[26px] font-black text-emerald-300 leading-tight mt-0.5";
+            }
+
+            // Humidity Value + Red/Green Flashing Outline
+            if (data.humidity !== undefined) {
+                const humVal = Number(data.humidity);
+                const humEl = document.getElementById('hum-val');
+                const humCard = document.getElementById('hum-card');
+                humEl.innerText = humVal.toFixed(1) + " %";
+
+                const isHumHigh = humVal > 75.0;
+                setCardFlashState(humCard, isHumHigh);
+                humEl.className = isHumHigh
+                    ? "text-[26px] font-black text-red-300 leading-tight mt-0.5"
+                    : "text-[26px] font-black text-emerald-300 leading-tight mt-0.5";
+            }
+
+            // Tray Angle (-45, 90=0°, 135)
+            if (data.trayAngle !== undefined) {
+                document.getElementById('tray-angle').innerHTML = formatTrayAngleDisplay(data.trayAngle);
+            }
+
+            // Heater UI (Flashes Red When ON, Green When OFF)
             const heaterBadge = document.getElementById('heater-badge');
             const heaterCard = document.getElementById('heater-card');
             const heaterIcon = document.getElementById('heater-icon');
             const heaterSub = document.getElementById('heater-subtext');
 
             if (data.heaterActive) {
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-red-600 text-white shadow-lg shadow-red-600/60 border border-red-400";
+                heaterBadge.className = "px-2 py-0.5 rounded-lg font-extrabold text-[11px] bg-red-600 text-white shadow-md border border-red-300";
                 heaterBadge.innerText = "ON 🔥";
-                heaterCard.classList.add('heater-on-anim');
-                heaterIcon.className = "fa-solid fa-fire text-red-400 animate-bounce";
-                heaterSub.className = "text-[11px] text-red-200 font-semibold mt-0.5";
+                setCardFlashState(heaterCard, true);
+                heaterIcon.className = "fa-solid fa-fire text-red-400 animate-bounce text-sm";
+                heaterSub.className = "text-[10px] text-red-200 font-bold mt-1 truncate";
                 heaterSub.innerText = "Heating Element Active";
             } else {
-                heaterBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                heaterBadge.className = "px-2 py-0.5 rounded-lg font-extrabold text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 heaterBadge.innerText = "OFF";
-                heaterCard.classList.remove('heater-on-anim');
-                heaterIcon.className = "fa-solid fa-fire text-amber-500";
-                heaterSub.className = "text-[11px] text-slate-400 mt-0.5";
-                heaterSub.innerText = "Automatic Relay Control";
+                setCardFlashState(heaterCard, false);
+                heaterIcon.className = "fa-solid fa-fire text-amber-400 text-sm";
+                heaterSub.className = "text-[10px] text-emerald-300/90 font-semibold mt-1 truncate";
+                heaterSub.innerText = "Auto Relay Normal";
             }
 
-            // Fan UI (Keeps Airflow + 4-Digit RPM)
+            // Fan UI (4-Digit RPM + Animated Fan + Red/Green Outline Flash)
+            const fanCard = document.getElementById('fan-card');
             const fanBadge = document.getElementById('fan-badge');
             const fanIcon = document.getElementById('fan-icon');
             const fanAirflow = document.getElementById('fan-airflow');
@@ -479,38 +584,58 @@
             const formatted4DigitRpm = String(Math.max(0, Math.min(9999, Math.round(rawRpm)))).padStart(4, '0');
 
             if (data.fanActive !== false) {
-                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30";
+                fanBadge.className = "px-2 py-0.5 rounded-lg font-extrabold text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 fanBadge.innerText = "ON";
+                fanAirflow.className = "font-bold text-emerald-300";
                 fanAirflow.innerText = "Active";
                 fanRpmEl.innerText = formatted4DigitRpm;
-                fanIcon.classList.add('animate-spin-custom');
+                fanIcon.className = "fa-solid fa-fan text-cyan-400 text-base animate-spin-custom";
+                setCardFlashState(fanCard, false);
             } else {
-                fanBadge.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs bg-slate-700 text-slate-400";
+                fanBadge.className = "px-2 py-0.5 rounded-lg font-extrabold text-[11px] bg-red-600 text-white border border-red-300";
                 fanBadge.innerText = "OFF";
+                fanAirflow.className = "font-bold text-red-300";
                 fanAirflow.innerText = "Stopped";
                 fanRpmEl.innerText = "0000";
-                fanIcon.classList.remove('animate-spin-custom');
+                fanIcon.className = "fa-solid fa-fan text-red-400 text-base";
+                setCardFlashState(fanCard, true);
             }
 
             // Door UI
             const doorBadge = document.getElementById('door-status');
             if (data.doorOpen) {
-                doorBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse";
+                doorBadge.className = "px-2.5 py-0.5 text-xs font-extrabold rounded-lg bg-red-500/25 text-red-400 border border-red-500/50 animate-pulse";
                 doorBadge.innerText = "OPEN 🔓";
             } else {
-                doorBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                doorBadge.className = "px-2.5 py-0.5 text-xs font-extrabold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 doorBadge.innerText = "CLOSED 🔒";
             }
 
-            // Online Status Check
+            // Online Status & WiFi Signal Strength
             const nowSec = Math.floor(Date.now() / 1000);
             const pwrBadge = document.getElementById('power-status');
-            if (data.lastSeen && (nowSec - data.lastSeen) < 45) {
-                pwrBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+            const wifiIcon = document.getElementById('wifi-icon');
+            const wifiStr = document.getElementById('wifi-strength');
+            const isOnline = data.lastSeen && (nowSec - data.lastSeen) < 45;
+
+            if (isOnline) {
+                pwrBadge.className = "px-2.5 py-0.5 text-xs font-extrabold rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 pwrBadge.innerText = "Online";
+                wifiIcon.className = "fa-solid fa-wifi text-emerald-400 text-[11px]";
+                if (data.rssi !== undefined) {
+                    const rssi = Number(data.rssi);
+                    const pct = Math.max(10, Math.min(100, 2 * (rssi + 100)));
+                    wifiStr.innerText = `WiFi ${pct}%`;
+                } else {
+                    wifiStr.innerText = "WiFi Strong";
+                }
+                wifiStr.className = "text-[10px] font-bold text-emerald-300";
             } else {
-                pwrBadge.className = "px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                pwrBadge.className = "px-2.5 py-0.5 text-xs font-extrabold rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40";
                 pwrBadge.innerText = "Standby";
+                wifiIcon.className = "fa-solid fa-wifi text-amber-400 text-[11px]";
+                wifiStr.innerText = "WiFi Sync";
+                wifiStr.className = "text-[10px] font-bold text-amber-300";
             }
         });
 
@@ -566,14 +691,17 @@
             let nextTemp = Math.round((currentTargetTemp + delta) * 10) / 10;
             if (nextTemp < 35.0 || nextTemp > 40.5) return;
             currentTargetTemp = nextTemp;
-            document.getElementById('target-temp-display').innerText = currentTargetTemp.toFixed(1) + " °C";
+            document.getElementById('target-temp-display').innerText = currentTargetTemp.toFixed(1) + "°C";
             db.ref('incubators/device_01/settings/targetTemp').set(currentTargetTemp);
         }
 
         function triggerManualTurn() {
             const icon = document.getElementById('turn-icon');
             icon.classList.add('animate-spin');
+            // Reset tray angle display to 0° (90) immediately on UI and trigger ESP32 reset-to-zero turn
+            document.getElementById('tray-angle').innerHTML = `0° <span class="text-[11px] font-bold text-cyan-300">(90)</span>`;
             db.ref('incubators/device_01/commands/manualTurnTrigger').set(true);
+            db.ref('incubators/device_01/commands/resetTrayZero').set(true);
             setTimeout(() => icon.classList.remove('animate-spin'), 1200);
         }
 
@@ -773,7 +901,6 @@
                     return;
                 }
 
-                // Show Smart Split vs Direct Sibling Option Box
                 fbEl.classList.add('hidden');
                 document.getElementById('btn-submit-place').classList.add('hidden');
 
