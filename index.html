@@ -3,450 +3,740 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>RTN Smart Incubator - EggBot</title>
+  <title>RTN Smart Incubator</title>
   <style>
     :root {
-      --bg-main: #0b1120;
-      --bg-card: #131c31;
-      --bg-inner: #0e1628;
-      --border-subtle: #24324d;
+      --bg-page: #070b14;
+      --bg-card: #0e1729;
+      --bg-inner: #0a1120;
+      --border-card: #1b2a46;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --cyan: #38bdf8;
-      --blue: #2563eb;
-      --green: #22c55e;
-      --red: #ef4444;
-      --yellow: #eab308;
-      --amber: #f59e0b;
+      --green-ok: #22c55e;
+      --green-btn: #10b981;
+      --orange-btn: #f97316;
+      --blue-btn: #0284c7;
+      --red-alert: #ef4444;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background: var(--bg-main);
+      background: var(--bg-page);
       color: var(--text-main);
-      padding: 8px 10px 24px;
-      max-width: 540px;
+      padding: 8px 10px 20px;
+      max-width: 520px;
       margin: 0 auto;
     }
 
-    .stack { display: flex; flex-direction: column; gap: 10px; }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
+    /* 1st Card: Header + WiFi/Net */
+    .top-header-card {
+      background: linear-gradient(180deg, #0d1a30 0%, #091222 100%);
+      border: 1.5px solid #1d4ed8;
       border-radius: 14px;
-      padding: 12px 14px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+      padding: 8px 10px;
+      margin-bottom: 7px;
     }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    /* 1st Card: Top Status Bar */
-    .top-bar {
+    .header-row-1 {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 6px 12px;
-      background: #0f172a;
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #cbd5e1;
-    }
-
-    .top-bar-right { display: flex; align-items: center; gap: 8px; font-size: 11px; }
-
-    /* 2nd Card: Header & Connectivity */
-    .header-card {
-      border: 1.5px solid #0284c7;
-      box-shadow: 0 0 16px rgba(2, 132, 199, 0.2);
-    }
-
-    .header-top {
-      display: flex;
       justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 6px;
+      margin-bottom: 7px;
     }
-
-    .app-title {
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 0.4px;
-      color: #ffffff;
+    .brand-left {
       display: flex;
       align-items: center;
       gap: 6px;
+      min-width: 0;
     }
-
-    .live-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-
-    .pill-badge {
+    .egg-outline-icon {
+      width: 18px;
+      height: 22px;
+      border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+      border: 2px solid #38bdf8;
+      background: rgba(180, 110, 50, 0.25);
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
-      border: 1px solid transparent;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-shrink: 0;
     }
-
-    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-
-    .live-on {
+    .brand-title {
+      font-size: 0.86rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       background: rgba(34, 197, 94, 0.16);
+      border: 1px solid rgba(34, 197, 94, 0.55);
       color: #4ade80;
-      border-color: rgba(34, 197, 94, 0.45);
+      font-size: 0.64rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
     }
-    .live-on .pulse-dot { animation: pulseAnim 1.2s infinite; }
-
-    .twoway-on {
-      background: rgba(56, 189, 248, 0.16);
-      color: #38bdf8;
-      border-color: rgba(56, 189, 248, 0.45);
-    }
-
-    .badge-off {
-      background: rgba(148, 163, 184, 0.15);
-      color: #94a3b8;
-      border-color: rgba(148, 163, 184, 0.3);
-    }
-
-    @keyframes pulseAnim {
+    @keyframes greenDotFlash {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.35; transform: scale(1.3); }
+      50% { opacity: 0.2; transform: scale(0.75); }
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: greenDotFlash 0.9s infinite;
+    }
+    .twoway-pill {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #7dd3fc;
+      font-size: 0.64rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      white-space: nowrap;
     }
 
-    .conn-box {
+    .header-row-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 6px;
+    }
+    .net-sub-box {
       background: var(--bg-inner);
       border: 1px solid #1e293b;
       border-radius: 10px;
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .conn-info { display: flex; flex-direction: column; min-width: 0; }
-    .conn-lbl { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
-    .conn-val { font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .net-tag { margin-left: auto; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; flex-shrink: 0; }
-    .net-ok { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-    .net-bad { background: rgba(239, 68, 68, 0.22); color: #f87171; }
-
-    /* 3rd Card: System Alert Banner */
-    .alert-banner {
-      background: linear-gradient(90deg, #16a34a, #22c55e);
-      border: 1.5px solid #4ade80;
-      border-radius: 12px;
-      padding: 11px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.25);
-    }
-
-    .alert-banner.warn {
-      background: linear-gradient(90deg, #dc2626, #ef4444);
-      border-color: #fca5a5;
-    }
-
-    .alert-text { color: #0b1f5e; font-size: 14.5px; font-weight: 900; letter-spacing: 0.2px; }
-    .alert-banner.warn .alert-text { color: #ffffff; }
-
-    /* 4th Card: ESP32 & Door */
-    .mini-status-card { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; }
-    .mini-title { font-size: 13px; font-weight: 800; }
-
-    .status-chip { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; border: 1px solid; }
-    .chip-green { background: rgba(34, 197, 94, 0.16); color: #4ade80; border-color: rgba(34, 197, 94, 0.45); }
-    .chip-red { background: rgba(239, 68, 68, 0.18); color: #f87171; border-color: rgba(239, 68, 68, 0.5); }
-
-    /* 5th & 6th Cards: Half-Round Speedometer Gauges */
-    .gauge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-    .section-title { font-size: 13px; font-weight: 800; letter-spacing: 0.6px; color: var(--cyan); text-transform: uppercase; }
-
-    .gauge-wrap { display: flex; flex-direction: column; align-items: center; position: relative; margin: 2px 0 8px; }
-    .gauge-reading { margin-top: -34px; text-align: center; }
-    .gauge-main-val { font-size: 28px; font-weight: 900; color: #ffffff; line-height: 1.1; }
-    .gauge-sub-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-
-    .setpoint-bar {
+      padding: 5px 7px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 5px;
+      min-width: 0;
+    }
+    .net-left {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+    }
+    .wifi-check-badge {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid #22c55e;
+      color: #4ade80;
+      font-size: 0.62rem;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .net-label {
+      font-size: 0.56rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .net-val {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #4ade80;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+    .net-val.bad { color: #f87171; }
+    .internet-ok-tag {
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      color: #4ade80;
+      font-size: 0.56rem;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .internet-ok-tag.bad {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+    }
+
+    /* Row 3: ESP32 & DOOR (50/50) */
+    .row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin-bottom: 7px;
+    }
+    .pill-status-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-card);
+      border-radius: 12px;
+      padding: 7px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .pill-status-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #e2e8f0;
+    }
+    .pill-badge-green {
+      background: rgba(22, 163, 74, 0.24);
+      border: 1px solid #22c55e;
+      color: #4ade80;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .pill-badge-red {
+      background: rgba(239, 68, 68, 0.24);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    /* Compact Meter Cards (Temperature & Humidity) */
+    .meter-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-card);
+      border-radius: 14px;
+      padding: 8px 11px 9px;
+      margin-bottom: 7px;
+    }
+    .meter-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .meter-name {
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+    }
+    .meter-range {
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .arc-box {
+      position: relative;
+      width: 100%;
+      max-width: 230px;
+      margin: 0 auto 3px;
+    }
+    .arc-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .arc-value-above-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 18px;
+      text-align: center;
+      pointer-events: none;
+    }
+    .arc-num {
+      font-size: 1.32rem;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.05;
+    }
+    .arc-sub {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-top: 1px;
+    }
+
+    .setpoint-inline-card {
       background: var(--bg-inner);
       border: 1px solid #1e293b;
       border-radius: 10px;
-      padding: 7px 12px;
-      margin-top: 6px;
-    }
-
-    .sp-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      border: none;
-      font-size: 20px;
-      font-weight: 900;
-      color: #ffffff;
-      cursor: pointer;
+      padding: 4px 12px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .step-btn-green {
+      width: 30px;
+      height: 28px;
+      border-radius: 8px;
+      border: none;
+      background: var(--green-btn);
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .step-btn-orange {
+      width: 30px;
+      height: 28px;
+      border-radius: 8px;
+      border: none;
+      background: var(--orange-btn);
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .step-btn-green:active, .step-btn-orange:active {
+      transform: scale(0.94);
+    }
+    .setpoint-center {
+      text-align: center;
+      line-height: 1.15;
+    }
+    .setpoint-tag {
+      font-size: 0.58rem;
+      font-weight: 800;
+      color: #22d3ee;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .setpoint-val-highlight {
+      font-size: 0.84rem;
+      font-weight: 900;
+      color: #fde047;
     }
 
-    .sp-minus { background: #0d9488; }
-    .sp-plus { background: #ea580c; }
-    .sp-btn:active { transform: scale(0.94); }
-
-    .sp-center { text-align: center; }
-    .sp-label { font-size: 10px; color: var(--amber); font-weight: 800; text-transform: uppercase; }
-    .sp-value { font-size: 16px; font-weight: 900; color: #ffffff; }
-
-    /* 7th Card: TRAY ANGLE */
-    .angle-btn-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
-
-    .angle-btn {
-      background: transparent;
-      border: 2px solid #38bdf8;
+    /* Row 6: Tray Angle Card */
+    .tray-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-card);
+      border-radius: 14px;
+      padding: 8px 11px 9px;
+      margin-bottom: 7px;
+    }
+    .tray-title {
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+      margin-bottom: 6px;
+    }
+    .angle-btns-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+    .angle-sq-btn {
+      width: 68px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1.5px solid #38bdf8;
+      background: #0a1426;
       color: #e2e8f0;
-      border-radius: 10px;
-      padding: 9px 4px;
-      font-size: 12px;
+      font-size: 0.68rem;
       font-weight: 800;
       cursor: pointer;
-      text-align: center;
-      transition: all 0.18s ease;
+      transition: all 0.2s ease;
     }
-
-    .angle-btn span { display: block; font-size: 11px; font-weight: 700; opacity: 0.85; margin-top: 2px; }
-
-    .angle-btn.selected {
-      background: #0284c7;
+    .angle-sq-btn.selected {
+      background: rgba(2, 132, 199, 0.35);
       border-color: #7dd3fc;
       color: #ffffff;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.45);
+    }
+    @keyframes rgbBorderCycle {
+      0% { border-color: #ef4444; box-shadow: 0 0 10px #ef4444; color: #fca5a5; }
+      33% { border-color: #22c55e; box-shadow: 0 0 10px #22c55e; color: #86efac; }
+      66% { border-color: #3b82f6; box-shadow: 0 0 10px #3b82f6; color: #93c5fd; }
+      100% { border-color: #ef4444; box-shadow: 0 0 10px #ef4444; color: #fca5a5; }
+    }
+    .angle-sq-btn.rgb-moving {
+      animation: rgbBorderCycle 0.75s linear infinite;
+      background: #111827;
     }
 
-    .tray-bottom-row { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 8px; align-items: stretch; }
-
-    .pos-card {
+    .tray-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 7px;
+      align-items: stretch;
+    }
+    .pos-mini-box {
       background: var(--bg-inner);
-      border: 1px solid #263554;
+      border: 1px solid #1e293b;
       border-radius: 10px;
-      padding: 7px 6px;
+      padding: 5px 4px;
       text-align: center;
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
-
-    .pos-lbl { font-size: 9.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
-    .pos-val { font-size: 13px; font-weight: 900; color: #4ade80; margin-top: 2px; }
-
-    .turn-egg-btn {
-      background: linear-gradient(135deg, #0077ff, #00c6ff);
-      border: 1.5px solid #7dd3fc;
-      border-radius: 11px;
+    .pos-mini-lbl {
+      font-size: 0.54rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .pos-mini-val-white {
+      font-size: 0.72rem;
+      font-weight: 800;
       color: #ffffff;
-      font-size: 13px;
+      margin-top: 1px;
+    }
+    .pos-mini-val-cyan {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 1px;
+    }
+    .turn-egg-main-btn {
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      color: #ffffff;
+      font-size: 0.76rem;
       font-weight: 900;
+      padding: 7px 6px;
       cursor: pointer;
-      box-shadow: 0 0 16px rgba(0, 174, 255, 0.55);
+      box-shadow: 0 0 12px rgba(14, 165, 233, 0.5);
+    }
+    @keyframes redFlashBtn {
+      0%, 100% { background: #dc2626; box-shadow: 0 0 14px rgba(239, 68, 68, 0.9); }
+      50% { background: #7f1d1d; box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
+    }
+    .turn-egg-main-btn.flashing-red {
+      animation: redFlashBtn 0.45s infinite;
+      color: #ffffff;
+    }
+
+    /* Row 7: Heater & Fan (50/50) */
+    .hw-card {
+      background: var(--bg-card);
+      border: 2px solid var(--green-ok);
+      border-radius: 14px;
+      padding: 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .hw-card.heater-active {
+      border-color: #ef4444;
+      animation: borderFlashRed 0.9s infinite;
+    }
+    .hw-card.heater-exceeded {
+      animation: fullCardBlinkRed 0.6s infinite;
+    }
+    @keyframes borderFlashRed {
+      0%, 100% { border-color: #ef4444; }
+      50% { border-color: #fca5a5; }
+    }
+    @keyframes fullCardBlinkRed {
+      0%, 100% { background: #450a0a; border-color: #ef4444; }
+      50% { background: #0e1729; border-color: #ef4444; }
+    }
+    .hw-top-inline {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      padding: 8px 6px;
+      gap: 6px;
+    }
+    .flame-lg {
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+    .heater-label-red {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #f87171;
+      letter-spacing: 0.4px;
+    }
+    .fan-label-txt {
+      font-size: 0.88rem;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 0.4px;
+      margin-left: 4px;
+    }
+    .hw-badge {
+      font-size: 0.62rem;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.22);
+      border: 1px solid #22c55e;
+      color: #4ade80;
+    }
+    .hw-badge.on-red {
+      background: rgba(239, 68, 68, 0.28);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+    .hw-sub-inline {
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .fan-spin-icon {
+      display: inline-block;
+      font-size: 1.12rem;
+      line-height: 1;
+    }
+    @keyframes spinAnim {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .fan-spin-icon.spinning {
+      animation: spinAnim 0.85s linear infinite;
     }
 
-    .turn-egg-btn:active { transform: scale(0.96); }
-    .eeprom-note { margin-top: 8px; font-size: 11px; color: #94a3b8; text-align: center; }
-
-    /* 8th Card: HEATER & FAN */
-    .hw-card { border: 2px solid #22c55e; transition: all 0.25s ease; }
-    .hw-heater-on { border-color: #ef4444; animation: heaterBorderFlash 1s infinite; }
-    .hw-heater-exceeded { border-color: #ef4444; animation: heaterExceedBlink 0.7s infinite; }
-
-    @keyframes heaterBorderFlash {
-      0%, 100% { border-color: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.45); }
-      50% { border-color: #7f1d1d; box-shadow: none; }
+    /* Row 8: 1st & 2nd Store Details (CMYK Animated Gradient) */
+    @keyframes cmykFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
-
-    @keyframes heaterExceedBlink {
-      0%, 100% { background: rgba(220, 38, 38, 0.42); border-color: #fca5a5; }
-      50% { background: var(--bg-card); border-color: #ef4444; }
-    }
-
-    .hw-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .hw-sub { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; color: var(--text-muted); font-weight: 700; }
-
-    .spin-fan { display: inline-block; animation: spin360 0.9s linear infinite; }
-    @keyframes spin360 { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    /* 9th Card: 1st Store & 2nd Store (50% / 50%) */
-    .store-card {
+    .cmyk-store-card {
+      background: linear-gradient(125deg, #0891b2, #9333ea, #db2777, #d97706, #0284c7);
+      background-size: 320% 320%;
+      animation: cmykFlow 7s ease infinite;
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
       border-radius: 14px;
-      padding: 12px 13px;
-      color: #ffffff;
-      cursor: pointer;
+      padding: 11px 10px;
+      min-height: 68px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-      transition: transform 0.15s ease;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     }
-
-    .store-card:active { transform: scale(0.97); }
-    .store-1 { background: linear-gradient(135deg, #2563eb, #4f46e5); }
-    .store-2 { background: linear-gradient(135deg, #c026d3, #db2777); }
-    .store-name { font-size: 13.5px; font-weight: 800; margin-bottom: 3px; }
-    .store-meta { font-size: 11.5px; opacity: 0.92; font-weight: 600; }
-
-    /* Store Popup Modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(5, 10, 22, 0.82);
-      backdrop-filter: blur(5px);
-      display: none;
+    .cmyk-store-card:active {
+      transform: scale(0.98);
+    }
+    .store-text-col {
+      min-width: 0;
+    }
+    .store-card-title {
+      font-size: 0.78rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    }
+    .store-card-sub {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-top: 2px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    }
+    .inventory-book-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.78);
+      border: 1.5px solid #ffffff;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 14px;
-      z-index: 999;
+      font-size: 0.9rem;
+      flex-shrink: 0;
     }
 
-    .modal-overlay.open { display: flex; }
-
-    .modal-box {
-      width: 100%;
-      max-width: 430px;
-      background: #141c2e;
-      border: 1px solid #2b3a59;
-      border-radius: 20px;
-      padding: 16px;
-      color: #f8fafc;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
-      max-height: 92vh;
+    /* Full-Page Popup Modal for Store Details */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.92);
+      z-index: 999;
+      padding: 12px;
       overflow-y: auto;
     }
-
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .modal-title { font-size: 17px; font-weight: 800; color: #60a5fa; display: flex; align-items: center; gap: 8px; }
-
-    .modal-close-x {
+    .modal-backdrop.open {
+      display: block;
+    }
+    .modal-sheet {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #0e1729;
+      border: 1.5px solid #253858;
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .modal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #38bdf8;
+    }
+    .modal-x-btn {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      border: none;
-      background: #232f48;
-      color: #cbd5e1;
-      font-size: 16px;
-      font-weight: 800;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 900;
       cursor: pointer;
     }
-
-    .modal-tabs {
+    .tabs-bar {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      background: #0d1322;
+      background: #070d19;
       padding: 5px;
       border-radius: 12px;
       margin-bottom: 12px;
     }
-
     .tab-btn {
+      padding: 7px 4px;
+      border-radius: 9px;
+      border: 1px solid transparent;
       background: transparent;
-      border: none;
       color: #94a3b8;
-      padding: 8px 4px;
-      border-radius: 9px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .tab-btn.active { background: #1d6fa5; color: #ffffff; }
-
-    .modal-row-box {
-      background: #0f1626;
-      border: 1px solid #22304c;
-      border-radius: 12px;
-      padding: 11px 13px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
-
-    .modal-block-box {
-      background: #0f1626;
-      border: 1px solid #22304c;
-      border-radius: 12px;
-      padding: 11px 13px;
-      margin-bottom: 10px;
-    }
-
-    .tray-mini-card {
-      background: #151f34;
-      border: 1px solid #283858;
-      border-radius: 10px;
-      padding: 10px 8px;
-      text-align: center;
-    }
-
-    .lock-pill { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-left: 4px; }
-    .lock-on { background: rgba(239, 68, 68, 0.22); color: #f87171; }
-    .lock-off { background: rgba(34, 197, 94, 0.22); color: #4ade80; }
-
-    .modal-input, .modal-select {
-      width: 100%;
-      background: #162036;
-      border: 1px solid #33466d;
-      color: #ffffff;
-      padding: 9px 10px;
-      border-radius: 9px;
-      font-size: 13px;
-      margin-top: 6px;
-    }
-
-    .action-primary-btn {
-      width: 100%;
-      background: #0284c7;
-      border: none;
-      color: #ffffff;
-      padding: 11px;
-      border-radius: 11px;
-      font-size: 14px;
+      font-size: 0.72rem;
       font-weight: 800;
       cursor: pointer;
+    }
+    .tab-btn.active {
+      background: #0284c7;
+      border-color: #7dd3fc;
+      color: #ffffff;
+    }
+    .modal-box {
+      background: #0a1120;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .trays-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
       margin-top: 8px;
     }
-
-    .modal-footer-close {
+    .tray-detail-card {
+      background: #0e1729;
+      border: 1px solid #26354f;
+      border-radius: 10px;
+      padding: 8px;
+      text-align: center;
+    }
+    .lock-pill {
+      display: inline-block;
+      background: rgba(185, 28, 28, 0.28);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 6px;
+      margin-left: 4px;
+    }
+    .lock-pill.unlocked {
+      background: rgba(22, 163, 74, 0.24);
+      border-color: #22c55e;
+      color: #4ade80;
+    }
+    .field-lbl {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+    .input-dark, .select-dark {
       width: 100%;
-      background: #1e293b;
+      background: #0f1c33;
       border: 1px solid #334155;
-      color: #f8fafc;
-      padding: 12px;
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #ffffff;
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .btn-primary-blue {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .btn-danger-red {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .btn-close-sheet {
+      width: 100%;
+      padding: 10px;
       border-radius: 12px;
-      font-size: 14px;
+      border: 1px solid #334155;
+      background: #132038;
+      color: #ffffff;
+      font-size: 0.88rem;
       font-weight: 800;
       cursor: pointer;
       margin-top: 4px;
@@ -454,810 +744,665 @@
   </style>
 </head>
 <body>
-  <div class="stack">
-    <!-- 1st Card (Row 0): Top Status Bar -->
-    <div class="top-bar">
-      <span id="sys-clock">12:03 PM</span>
-      <span id="fb-sync-tag">🔥 EggBot Sync</span>
-      <div class="top-bar-right">
-        <span id="top-net-mini">📶 Online</span>
-        <span>🔋 100%</span>
+
+  <!-- 1st Card: Header + ESP32 WiFi + Phone/App Net -->
+  <div class="top-header-card">
+    <div class="header-row-1">
+      <div class="brand-left">
+        <span class="egg-outline-icon">🥚</span>
+        <span class="brand-title">RTN SMART INCUBATOR</span>
+      </div>
+      <div class="header-badges">
+        <span id="liveBadge" class="live-pill"><span class="live-dot"></span>LIVE</span>
+        <span class="twoway-pill">⇄ 2-Way Live</span>
       </div>
     </div>
-
-    <!-- 2nd Card (Row 1): RTN SMART INCUBATOR + Dual Connectivity -->
-    <section class="card header-card">
-      <div class="header-top">
-        <div class="app-title">🥚 RTN SMART INCUBATOR</div>
-        <div class="live-badges">
-          <span id="badge-live" class="pill-badge live-on"><span class="pulse-dot"></span> LIVE</span>
-          <span id="badge-twoway" class="pill-badge twoway-on">⇄ 2-Way Live</span>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="conn-box">
-          <div id="esp-wifi-svg" style="width: 34px; height: 30px; flex-shrink: 0;"></div>
-          <div class="conn-info">
-            <span class="conn-lbl">ESP32 WiFi</span>
-            <span id="esp-wifi-label" class="conn-val" style="color: #4ade80;">WiFi Connected</span>
+    <div class="header-row-2">
+      <div class="net-sub-box">
+        <div class="net-left">
+          <span id="wifiCheckCircle" class="wifi-check-badge">✓</span>
+          <div>
+            <div class="net-label">ESP32 WiFi</div>
+            <div id="espWifiText" class="net-val">WiFi Connected</div>
           </div>
         </div>
-
-        <div class="conn-box">
-          <span style="font-size: 18px;">📱</span>
-          <div class="conn-info">
-            <span class="conn-lbl">Phone / App Net</span>
-            <span id="phone-net-label" class="conn-val" style="color: #4ade80;">Net Online</span>
+      </div>
+      <div class="net-sub-box">
+        <div class="net-left">
+          <span style="font-size:0.85rem;">📱</span>
+          <div>
+            <div class="net-label">Phone / App Net</div>
+            <div id="phoneNetText" class="net-val">Net Online</div>
           </div>
-          <span id="phone-net-pill" class="net-tag net-ok">Internet OK</span>
         </div>
-      </div>
-    </section>
-
-    <!-- 3rd Card (Row 2): SYSTEM ACTIVE Banner -->
-    <section id="alert-card" class="alert-banner">
-      <span style="font-size: 19px;">🔔</span>
-      <span id="alert-banner-text" class="alert-text">SYSTEM ACTIVE - Monitoring Incubator</span>
-    </section>
-
-    <!-- 4th Card (Row 3): ESP32 & DOOR -->
-    <div class="grid-2">
-      <div class="card mini-status-card">
-        <span class="mini-title" style="color: #38bdf8;">ESP32:</span>
-        <span id="esp-online-chip" class="status-chip chip-green">ONLINE</span>
-      </div>
-      <div class="card mini-status-card" onclick="toggleDoorDemo()" title="Tap to test Door Open/Close EEPROM Restore">
-        <span class="mini-title" style="color: #fbbf24;">DOOR:</span>
-        <span id="door-status-chip" class="status-chip chip-green">CLOSED 🔒</span>
-      </div>
-    </div>
-
-    <!-- 5th Card (Row 4): TEMPERATURE -->
-    <section class="card">
-      <div class="gauge-header">
-        <span class="section-title">🌡️ TEMPERATURE</span>
-        <span style="font-size: 11px; color: #94a3b8;">Range: 25°C – 45°C</span>
-      </div>
-
-      <div class="gauge-wrap">
-        <svg viewBox="0 0 220 120" width="220" height="120">
-          <defs>
-            <linearGradient id="tempGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#38bdf8" />
-              <stop offset="50%" stop-color="#22c55e" />
-              <stop offset="80%" stop-color="#f59e0b" />
-              <stop offset="100%" stop-color="#ef4444" />
-            </linearGradient>
-          </defs>
-          <path d="M 20 105 A 90 90 0 0 1 200 105" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round" />
-          <path id="temp-arc" d="M 20 105 A 90 90 0 0 1 200 105" fill="none" stroke="url(#tempGrad)" stroke-width="16" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="105" />
-        </svg>
-        <div class="gauge-reading">
-          <div id="temp-current-val" class="gauge-main-val">37.5°C</div>
-          <div class="gauge-sub-lbl">Current Temperature</div>
-        </div>
-      </div>
-
-      <div class="setpoint-bar">
-        <button class="sp-btn sp-minus" onclick="adjustTempSet(-0.1)">−</button>
-        <div class="sp-center">
-          <div class="sp-label">Target Setpoint</div>
-          <div id="temp-set-val" class="sp-value">37.5°C</div>
-        </div>
-        <button class="sp-btn sp-plus" onclick="adjustTempSet(0.1)">+</button>
-      </div>
-    </section>
-
-    <!-- 6th Card (Row 5): HUMIDITY -->
-    <section class="card">
-      <div class="gauge-header">
-        <span class="section-title">💧 HUMIDITY</span>
-        <span style="font-size: 11px; color: #94a3b8;">Range: 0% – 100%</span>
-      </div>
-
-      <div class="gauge-wrap">
-        <svg viewBox="0 0 220 120" width="220" height="120">
-          <defs>
-            <linearGradient id="humGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#f59e0b" />
-              <stop offset="50%" stop-color="#22c55e" />
-              <stop offset="100%" stop-color="#38bdf8" />
-            </linearGradient>
-          </defs>
-          <path d="M 20 105 A 90 90 0 0 1 200 105" fill="none" stroke="#1e293b" stroke-width="16" stroke-linecap="round" />
-          <path id="hum-arc" d="M 20 105 A 90 90 0 0 1 200 105" fill="none" stroke="url(#humGrad)" stroke-width="16" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="118" />
-        </svg>
-        <div class="gauge-reading">
-          <div id="hum-current-val" class="gauge-main-val">58%</div>
-          <div class="gauge-sub-lbl">Current Humidity</div>
-        </div>
-      </div>
-
-      <div class="setpoint-bar">
-        <button class="sp-btn sp-minus" onclick="adjustHumSet(-1)">−</button>
-        <div class="sp-center">
-          <div class="sp-label">Target Humidity</div>
-          <div id="hum-set-val" class="sp-value">60%</div>
-        </div>
-        <button class="sp-btn sp-plus" onclick="adjustHumSet(1)">+</button>
-      </div>
-    </section>
-
-    <!-- 7th Card (Row 6): TRAY ANGLE -->
-    <section class="card">
-      <div class="section-title">🔄 TRAY ANGLE</div>
-
-      <div class="angle-btn-row">
-        <button id="btn-angle-left" class="angle-btn selected" onclick="selectAngle('LEFT', -45)">
-          LEFT<span>(-45°)</span>
-        </button>
-        <button id="btn-angle-center" class="angle-btn" onclick="selectAngle('CENTER', 90)">
-          CENTER<span>(90°)</span>
-        </button>
-        <button id="btn-angle-right" class="angle-btn" onclick="selectAngle('RIGHT', 135)">
-          RIGHT<span>(135°)</span>
-        </button>
-      </div>
-
-      <div class="tray-bottom-row">
-        <div class="pos-card">
-          <span class="pos-lbl">Current Pos</span>
-          <span id="current-pos-val" class="pos-val">LEFT (-45°)</span>
-        </div>
-
-        <button class="turn-egg-btn" onclick="executeTurnEgg()">
-          🔄 TURN EGG
-        </button>
-
-        <div class="pos-card">
-          <span class="pos-lbl">Last Pos (EEPROM)</span>
-          <span id="last-pos-val" class="pos-val" style="color: #38bdf8;">RIGHT (135°)</span>
-        </div>
-      </div>
-      <div class="eeprom-note" id="eeprom-status-note">
-        EEPROM Auto-Restore Ready: Door Close කළාම Last Position එකට auto-return වේ.
-      </div>
-    </section>
-
-    <!-- 8th Card (Row 7): HEATER & FAN -->
-    <div class="grid-2">
-      <section id="heater-card" class="card hw-card">
-        <div class="hw-top">
-          <span class="mini-title" style="color: #f87171;">🔥 HEATER</span>
-          <span id="heater-chip" class="status-chip chip-green">OFF</span>
-        </div>
-        <div class="hw-sub">
-          <span id="heater-sub-text">Auto Relay Normal</span>
-        </div>
-      </section>
-
-      <section id="fan-card" class="card hw-card">
-        <div class="hw-top">
-          <span class="mini-title" style="color: #38bdf8;"><span id="fan-icon" class="spin-fan">❄️</span> FAN</span>
-          <span id="fan-chip" class="status-chip chip-green">ON</span>
-        </div>
-        <div class="hw-sub">
-          <span id="fan-sub-text">Active</span>
-          <span style="color: #fbbf24;">RPM: <strong id="fan-rpm-val">1450</strong></span>
-        </div>
-      </section>
-    </div>
-
-    <!-- 9th Card (Row 8): 1st Store & 2nd Store (50% / 50%) -->
-    <div class="grid-2">
-      <div class="store-card store-1" onclick="openStoreModal(1)">
-        <div>
-          <div class="store-name">1st Store Details</div>
-          <div id="store1-summary" class="store-meta">Quail (78 Eggs)</div>
-        </div>
-        <span style="font-size: 20px;">📚</span>
-      </div>
-
-      <div class="store-card store-2" onclick="openStoreModal(2)">
-        <div>
-          <div class="store-name">2nd Store Details</div>
-          <div id="store2-summary" class="store-meta">Chicken (60 Eggs)</div>
-        </div>
-        <span style="font-size: 20px;">📚</span>
+        <span id="internetOkBadge" class="internet-ok-tag">Internet OK</span>
       </div>
     </div>
   </div>
 
-  <!-- Store Details Popup Modal -->
-  <div id="store-modal" class="modal-overlay" onclick="if(event.target === this) closeStoreModal()">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title" id="modal-store-title">📦 1st Store Details</div>
-        <button class="modal-close-x" onclick="closeStoreModal()">✕</button>
+  <!-- ESP32: ONLINE | DOOR: CLOSED -->
+  <div class="row-2col">
+    <div class="pill-status-card">
+      <span class="pill-status-title">ESP32:</span>
+      <span id="espBadge" class="pill-badge-green">ONLINE</span>
+    </div>
+    <div class="pill-status-card">
+      <span class="pill-status-title">DOOR:</span>
+      <span id="doorBadge" class="pill-badge-green">CLOSED 🔒</span>
+    </div>
+  </div>
+
+  <!-- TEMPERATURE Card -->
+  <div class="meter-card">
+    <div class="meter-top">
+      <span class="meter-name">🌡️ TEMPERATURE</span>
+      <span class="meter-range">Range: 25°C – 45°C</span>
+    </div>
+    <div class="arc-box">
+      <svg class="arc-svg" viewBox="0 0 220 116">
+        <defs>
+          <linearGradient id="tempGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#38bdf8" />
+            <stop offset="45%" stop-color="#22c55e" />
+            <stop offset="75%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#ef4444" />
+          </linearGradient>
+        </defs>
+        <path d="M 18 102 A 92 92 0 0 1 202 102" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+        <path id="tempFillPath" d="M 18 102 A 92 92 0 0 1 202 102" fill="none" stroke="url(#tempGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="289.03" stroke-dashoffset="110" />
+        <line x1="18" y1="102" x2="202" y2="102" stroke="#334155" stroke-width="1.2" stroke-dasharray="3 3" />
+      </svg>
+      <div class="arc-value-above-line">
+        <div id="tempCurNum" class="arc-num">37.5°C</div>
+        <div class="arc-sub">Current Temperature</div>
+      </div>
+    </div>
+    <div class="setpoint-inline-card">
+      <button class="step-btn-green" onclick="stepTemp(-0.1)">−</button>
+      <div class="setpoint-center">
+        <div class="setpoint-tag">TARGET SETPOINT</div>
+        <div id="tempSetVal" class="setpoint-val-highlight">37.5°C</div>
+      </div>
+      <button class="step-btn-orange" onclick="stepTemp(0.1)">+</button>
+    </div>
+  </div>
+
+  <!-- HUMIDITY Card -->
+  <div class="meter-card">
+    <div class="meter-top">
+      <span class="meter-name">💧 HUMIDITY</span>
+      <span class="meter-range">Range: 0% – 100%</span>
+    </div>
+    <div class="arc-box">
+      <svg class="arc-svg" viewBox="0 0 220 116">
+        <defs>
+          <linearGradient id="humGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="50%" stop-color="#22c55e" />
+            <stop offset="100%" stop-color="#06b6d4" />
+          </linearGradient>
+        </defs>
+        <path d="M 18 102 A 92 92 0 0 1 202 102" fill="none" stroke="#1e293b" stroke-width="14" stroke-linecap="round" />
+        <path id="humFillPath" d="M 18 102 A 92 92 0 0 1 202 102" fill="none" stroke="url(#humGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="289.03" stroke-dashoffset="120" />
+        <line x1="18" y1="102" x2="202" y2="102" stroke="#334155" stroke-width="1.2" stroke-dasharray="3 3" />
+      </svg>
+      <div class="arc-value-above-line">
+        <div id="humCurNum" class="arc-num">58%</div>
+        <div class="arc-sub">Current Humidity</div>
+      </div>
+    </div>
+    <div class="setpoint-inline-card">
+      <button class="step-btn-green" onclick="stepHum(-1)">−</button>
+      <div class="setpoint-center">
+        <div class="setpoint-tag">TARGET HUMIDITY</div>
+        <div id="humSetVal" class="setpoint-val-highlight">60%</div>
+      </div>
+      <button class="step-btn-orange" onclick="stepHum(1)">+</button>
+    </div>
+  </div>
+
+  <!-- TRAY ANGLE Card -->
+  <div class="tray-card">
+    <div class="tray-title">🔄 TRAY ANGLE</div>
+    <div class="angle-btns-wrap">
+      <button id="btnSelLeft" class="angle-sq-btn" onclick="selectAngle(-45, 'LEFT')">LEFT</button>
+      <button id="btnSelCenter" class="angle-sq-btn" onclick="selectAngle(90, 'CENTER')">CENTER</button>
+      <button id="btnSelRight" class="angle-sq-btn" onclick="selectAngle(135, 'RIGHT')">RIGHT</button>
+    </div>
+    <div class="tray-bottom-grid">
+      <div class="pos-mini-box">
+        <span class="pos-mini-lbl">CURRENT POS</span>
+        <span id="trayCurPos" class="pos-mini-val-white">LEFT (-45°)</span>
+      </div>
+      <button id="btnTurnEggAction" class="turn-egg-main-btn" onclick="executeTurnEgg()">🔄 TURN EGG</button>
+      <div class="pos-mini-box">
+        <span class="pos-mini-lbl">LAST POS (EEPROM)</span>
+        <span id="trayLastPos" class="pos-mini-val-cyan">RIGHT (135°)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEATER & FAN Row -->
+  <div class="row-2col">
+    <div id="heaterBox" class="hw-card">
+      <div class="hw-top-inline">
+        <span class="flame-lg">🔥</span>
+        <span class="heater-label-red">HEATER</span>
+        <span id="heaterBadge" class="hw-badge">OFF</span>
+      </div>
+      <div id="heaterSub" class="hw-sub-inline">Auto Relay Normal</div>
+    </div>
+
+    <div id="fanBox" class="hw-card">
+      <div class="hw-top-inline">
+        <span id="fanSpinner" class="fan-spin-icon spinning">❄️</span>
+        <span class="fan-label-txt">FAN</span>
+        <span id="fanBadge" class="hw-badge">ON</span>
+      </div>
+      <div id="fanSub" class="hw-sub-inline">Active • RPM: 1450</div>
+    </div>
+  </div>
+
+  <!-- 1st Store & 2nd Store Details Cards -->
+  <div class="row-2col">
+    <div class="cmyk-store-card" onclick="openStoreModal(1)">
+      <div class="store-text-col">
+        <div class="store-card-title">1st Store Details</div>
+        <div id="homeStore1Summary" class="store-card-sub">Quail (78 Eggs)</div>
+      </div>
+      <span class="inventory-book-box">📖</span>
+    </div>
+
+    <div class="cmyk-store-card" onclick="openStoreModal(2)">
+      <div class="store-text-col">
+        <div class="store-card-title">2nd Store Details</div>
+        <div id="homeStore2Summary" class="store-card-sub">Chicken (10 Eggs)</div>
+      </div>
+      <span class="inventory-book-box">📖</span>
+    </div>
+  </div>
+
+  <!-- Store Details Full Popup Modal -->
+  <div id="storeModal" class="modal-backdrop">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div id="modalStoreTitle" class="modal-title">📦 1st Store Details</div>
+        <button class="modal-x-btn" onclick="closeStoreModal()">✕</button>
       </div>
 
-      <div class="modal-tabs">
-        <button id="tab-status" class="tab-btn active" onclick="switchModalTab('status')">📊 Status</button>
-        <button id="tab-add" class="tab-btn" onclick="switchModalTab('add')">+ Add</button>
-        <button id="tab-unlock" class="tab-btn" onclick="switchModalTab('unlock')">🔓 Unlock</button>
-        <button id="tab-clear" class="tab-btn" onclick="switchModalTab('clear')">🗑️ Clear</button>
+      <div class="tabs-bar">
+        <button id="tabBtnStatus" class="tab-btn active" onclick="switchTab('status')">📊 Status</button>
+        <button id="tabBtnAdd" class="tab-btn" onclick="switchTab('add')">+ Add</button>
+        <button id="tabBtnUnlock" class="tab-btn" onclick="switchTab('unlock')">🔓 Unlock</button>
+        <button id="tabBtnClear" class="tab-btn" onclick="switchTab('clear')">🗑️ Clear</button>
       </div>
 
-      <div id="pane-status">
-        <div class="modal-row-box">
-          <span style="color: #94a3b8;">Egg Variety (වර්ගය):</span>
-          <strong id="m-variety" style="color: #fbbf24;">Quail</strong>
+      <!-- Status Tab -->
+      <div id="paneStatus">
+        <div class="modal-box row-between">
+          <span style="font-size:0.8rem; font-weight:700; color:#cbd5e1;">Egg Variety (වර්ගය):</span>
+          <span id="stVariety" style="font-size:0.88rem; font-weight:900; color:#facc15;">Quail</span>
         </div>
 
-        <div class="modal-block-box">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="font-size: 13px; color: #94a3b8;">Tray Breakdown:</span>
-            <span id="m-total-eggs" style="background: #1e293b; padding: 3px 9px; border-radius: 7px; font-size: 12px; font-weight: 800;">Total: 78 Eggs</span>
+        <div class="modal-box">
+          <div class="row-between">
+            <span style="font-size:0.8rem; font-weight:800; color:#e2e8f0;">Tray Breakdown:</span>
+            <span id="stTotalEggs" style="background:#172554; color:#93c5fd; font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:8px;">Total: 78 Eggs</span>
           </div>
-
-          <div class="grid-2">
-            <div class="tray-mini-card">
-              <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 4px;">
-                <span id="m-t1-name">Tray 1</span>
-                <span id="m-t1-lock" class="lock-pill lock-on">🔒 Locked</span>
-              </div>
-              <div id="m-t1-count" style="font-size: 15px; font-weight: 900; color: #38bdf8;">40/40 Eggs</div>
-              <div id="m-t1-sub" style="font-size: 11px; color: #94a3b8; margin-top: 3px;">Quail (Day 6)</div>
+          <div class="trays-2col">
+            <div class="tray-detail-card">
+              <div style="font-size:0.76rem; font-weight:800;">Tray 1 <span id="stTray1Lock" class="lock-pill">🔒 Locked</span></div>
+              <div id="stTray1Count" style="font-size:0.96rem; font-weight:900; color:#38bdf8; margin:3px 0;">40/40 Eggs</div>
+              <div id="stTray1Day" style="font-size:0.68rem; color:#94a3b8;">Quail (Day 6)</div>
             </div>
-
-            <div class="tray-mini-card">
-              <div style="font-size: 12px; color: #cbd5e1; margin-bottom: 4px;">
-                <span id="m-t2-name">Tray 2</span>
-                <span id="m-t2-lock" class="lock-pill lock-on">🔒 Locked</span>
-              </div>
-              <div id="m-t2-count" style="font-size: 15px; font-weight: 900; color: #38bdf8;">38/40 Eggs</div>
-              <div id="m-t2-sub" style="font-size: 11px; color: #94a3b8; margin-top: 3px;">Quail (Day 6)</div>
+            <div class="tray-detail-card">
+              <div style="font-size:0.76rem; font-weight:800;">Tray 2 <span id="stTray2Lock" class="lock-pill">🔒 Locked</span></div>
+              <div id="stTray2Count" style="font-size:0.96rem; font-weight:900; color:#38bdf8; margin:3px 0;">38/40 Eggs</div>
+              <div id="stTray2Day" style="font-size:0.68rem; color:#94a3b8;">Quail (Day 6)</div>
             </div>
           </div>
         </div>
 
-        <div class="modal-row-box">
-          <span style="color: #94a3b8;">Stored Date:</span>
-          <strong id="m-stored-date" style="color: #a78bfa;">2026-11-18</strong>
+        <div class="modal-box row-between">
+          <span style="font-size:0.78rem; color:#cbd5e1;">Stored Date:</span>
+          <span id="stStoredDate" style="font-size:0.84rem; font-weight:800; color:#c084fc;">2026-11-18</span>
         </div>
 
-        <div class="grid-2" style="margin-bottom: 10px;">
-          <div class="modal-block-box" style="margin-bottom: 0;">
-            <div style="font-size: 11.5px; color: #94a3b8;">Elapsed Days:</div>
-            <div id="m-elapsed" style="font-size: 16px; font-weight: 900; color: #4ade80; margin-top: 3px;">6 Days</div>
+        <div class="trays-2col" style="margin-top:0; margin-bottom:10px;">
+          <div class="modal-box" style="margin-bottom:0;">
+            <div style="font-size:0.7rem; color:#94a3b8;">Elapsed Days:</div>
+            <div id="stElapsed" style="font-size:0.94rem; font-weight:900; color:#4ade80; margin-top:2px;">6 Days</div>
           </div>
-          <div class="modal-block-box" style="margin-bottom: 0;">
-            <div style="font-size: 11.5px; color: #94a3b8;">Remaining:</div>
-            <div id="m-remaining" style="font-size: 16px; font-weight: 900; color: #38bdf8; margin-top: 3px;">11 Days</div>
+          <div class="modal-box" style="margin-bottom:0;">
+            <div style="font-size:0.7rem; color:#94a3b8;">Remaining:</div>
+            <div id="stRemaining" style="font-size:0.94rem; font-weight:900; color:#38bdf8; margin-top:2px;">11 Days</div>
           </div>
         </div>
 
-        <div class="modal-row-box">
-          <span style="color: #94a3b8;">Reminder Times:</span>
-          <strong id="m-reminders" style="color: #fb7185;">07:15 & 16:25</strong>
+        <div class="modal-box row-between">
+          <span style="font-size:0.78rem; color:#cbd5e1;">Reminder Times:</span>
+          <span id="stReminders" style="font-size:0.84rem; font-weight:800; color:#fb7185;">07:15 &amp; 16:25</span>
         </div>
       </div>
 
-      <div id="pane-add" style="display: none;">
-        <div class="modal-block-box">
-          <label style="font-size: 12px; color: #94a3b8;">Egg Variety (වර්ගය):</label>
-          <select id="inp-variety" class="modal-select">
-            <option value="Chicken">Chicken (21 Days)</option>
-            <option value="Quail">Quail (17 Days)</option>
-            <option value="Duck">Duck (28 Days)</option>
+      <!-- Add Tab -->
+      <div id="paneAdd" style="display:none;">
+        <div class="modal-box">
+          <label class="field-lbl">Egg Variety (වර්ගය):</label>
+          <select id="addVarietySelect" class="select-dark">
+            <option value="Quail|17">Quail (17 Days)</option>
+            <option value="Chicken|21">Chicken (21 Days)</option>
           </select>
 
-          <div class="grid-2" style="margin-top: 10px;">
+          <div class="trays-2col" style="margin-top:0;">
             <div>
-              <label id="lbl-inp-t1" style="font-size: 12px; color: #94a3b8;">Tray A Eggs (Max 40):</label>
-              <input id="inp-t1" type="number" min="0" max="40" class="modal-input" />
+              <label class="field-lbl">Tray 1 Eggs (Max 40):</label>
+              <input id="addTray1Input" type="number" min="0" max="40" value="40" class="input-dark" />
             </div>
             <div>
-              <label id="lbl-inp-t2" style="font-size: 12px; color: #94a3b8;">Tray B Eggs (Max 40):</label>
-              <input id="inp-t2" type="number" min="0" max="40" class="modal-input" />
-            </div>
-          </div>
-
-          <div class="grid-2" style="margin-top: 10px;">
-            <div>
-              <label style="font-size: 12px; color: #94a3b8;">Stored Date:</label>
-              <input id="inp-date" type="date" class="modal-input" />
-            </div>
-            <div>
-              <label style="font-size: 12px; color: #94a3b8;">Reminder Times:</label>
-              <input id="inp-reminders" type="text" placeholder="07:15 & 16:25" class="modal-input" />
+              <label class="field-lbl">Tray 2 Eggs (Max 40):</label>
+              <input id="addTray2Input" type="number" min="0" max="40" value="38" class="input-dark" />
             </div>
           </div>
 
-          <button class="action-primary-btn" onclick="saveStoreSetup()">💾 Save & Lock Store</button>
+          <div class="trays-2col" style="margin-top:0;">
+            <div>
+              <label class="field-lbl">Stored Date:</label>
+              <input id="addDateInput" type="date" value="2026-11-18" class="input-dark" />
+            </div>
+            <div>
+              <label class="field-lbl">Reminder Times:</label>
+              <input id="addReminderInput" type="text" value="07:15 & 16:25" class="input-dark" />
+            </div>
+          </div>
+
+          <button class="btn-primary-blue" onclick="saveAndLockStore()">💾 Save &amp; Lock Store</button>
         </div>
       </div>
 
-      <div id="pane-unlock" style="display: none;">
-        <div class="modal-block-box">
-          <div style="font-size: 12.5px; color: #cbd5e1; margin-bottom: 8px;">
-            අත්වැරදීමකින් Tray එකක් Lock වුණා නම් Password ඇතුළත් කර Unlock කරන්න (Default: <code>1234</code>):
+      <!-- Unlock Tab -->
+      <div id="paneUnlock" style="display:none;">
+        <div class="modal-box">
+          <div style="font-size:0.78rem; color:#e2e8f0; margin-bottom:8px; line-height:1.4;">
+            අත්වැරදීමකින් Tray එකක් Lock වුණා නම් Password ඇතුළත් කර Unlock කරන්න (Default: 1234):
           </div>
-          <input id="inp-unlock-pass" type="password" placeholder="Enter Unlock Password" class="modal-input" />
-          <div class="grid-2" style="margin-top: 8px;">
-            <button class="action-primary-btn" onclick="unlockTray(0)">🔓 Unlock First Tray</button>
-            <button class="action-primary-btn" onclick="unlockTray(1)">🔓 Unlock Second Tray</button>
+          <input id="unlockPassInput" type="password" placeholder="Enter Unlock Password" class="input-dark" />
+          <div class="trays-2col" style="margin-top:0;">
+            <button class="btn-primary-blue" onclick="unlockTray(1)">🔓 Unlock First Tray</button>
+            <button class="btn-primary-blue" onclick="unlockTray(2)">🔓 Unlock Second Tray</button>
           </div>
-          <div id="unlock-msg" style="font-size: 12px; margin-top: 8px; color: #4ade80;"></div>
         </div>
       </div>
 
-      <div id="pane-clear" style="display: none;">
-        <div class="modal-block-box" style="text-align: center;">
-          <div style="font-size: 13px; color: #fca5a5; margin-bottom: 10px;">
-            මෙම Store එකේ සියලුම බිත්තර දත්ත ඉවත් කර (Reset) නැවත 0 කිරීමට පහත බටන් එක ඔබන්න.
+      <!-- Clear Tab (Password Protected) -->
+      <div id="paneClear" style="display:none;">
+        <div class="modal-box">
+          <div style="font-size:0.78rem; color:#fca5a5; margin-bottom:8px; line-height:1.45;">
+            මෙම Store එකේ සියලුම බිත්තර දත්ත ඉවත් කර (Reset) නැවත 0 කිරීමට Password ඇතුළත් කර Verify කරන්න (Default: 1234).
           </div>
-          <button class="action-primary-btn" style="background: #dc2626;" onclick="clearStoreData()">🗑️ Clear All Eggs in Store</button>
+          <input id="clearPassInput" type="password" placeholder="Enter Password to Clear Store" class="input-dark" />
+          <button class="btn-danger-red" onclick="verifyAndClearStore()">🗑️ Verify Password &amp; Clear All Eggs in Store</button>
         </div>
       </div>
 
-      <button class="modal-footer-close" onclick="closeStoreModal()">Close</button>
+      <button class="btn-close-sheet" onclick="closeStoreModal()">Close</button>
     </div>
   </div>
 
   <script>
-    const FIREBASE_CONFIG = {
-      databaseURL: "https://eggbot-da012-default-rtdb.firebaseio.com",
-      authSecret: "",
-      rootPath: "/incubator",
-      pollIntervalMs: 2500
-    };
+    const DB_URL = "https://eggbot-da012-default-rtdb.firebaseio.com/incubator.json";
+    const CMD_URL = "https://eggbot-da012-default-rtdb.firebaseio.com/incubator/cmd.json";
+    const ARC_LEN = 289.03;
+    const STORE_PASS = "1234";
 
-    const state = {
-      espWifi: 'connected',
-      phoneOnline: navigator.onLine,
-      doorOpen: false,
+    let activeStoreId = 1;
+    let pendingAngle = null;
+    let isTurning = false;
+
+    let appState = {
       tempCurrent: 37.5,
       tempSet: 37.5,
       humCurrent: 58,
       humSet: 60,
-      selectedAngleLabel: 'LEFT',
-      selectedAngleDeg: -45,
-      currentPosLabel: 'LEFT',
       currentPosDeg: -45,
-      lastPosLabel: 'RIGHT',
+      currentPosLabel: "LEFT",
       lastPosDeg: 135,
-      heaterState: 'OFF',
-      fanOn: true,
-      fanRpm: 1450,
-      activeStoreId: 1,
+      lastPosLabel: "RIGHT",
+      doorOpen: false,
       stores: {
         1: {
-          title: '1st Store Details',
-          variety: 'Quail',
+          variety: "Quail",
           totalDays: 17,
+          storedDate: "2026-11-18",
+          reminders: "07:15 & 16:25",
           trays: [
-            { name: 'Tray 1', count: 40, max: 40, locked: true },
-            { name: 'Tray 2', count: 38, max: 40, locked: true }
-          ],
-          storedDate: '2026-11-18',
-          reminders: '07:15 & 16:25'
+            { name: "Tray 1", count: 40, max: 40, locked: true },
+            { name: "Tray 2", count: 38, max: 40, locked: true }
+          ]
         },
         2: {
-          title: '2nd Store Details',
-          variety: 'Chicken',
+          variety: "Chicken",
           totalDays: 21,
+          storedDate: "2026-11-23",
+          reminders: "08:00 & 18:00",
           trays: [
-            { name: 'Tray 3', count: 40, max: 40, locked: true },
-            { name: 'Tray 4', count: 20, max: 40, locked: true }
-          ],
-          storedDate: '2026-11-17',
-          reminders: '07:15 & 16:25'
+            { name: "Tray 1", count: 10, max: 40, locked: false },
+            { name: "Tray 2", count: 0, max: 40, locked: false }
+          ]
         }
       }
     };
 
-    function buildFirebaseUrl(subPath = '') {
-      const base = FIREBASE_CONFIG.databaseURL.replace(/\/+$/, '');
-      const cleanRoot = FIREBASE_CONFIG.rootPath.replace(/^\/+|\/+$/g, '');
-      const cleanSub = subPath.replace(/^\/+|\/+$/g, '');
-      const fullPath = cleanSub ? `${cleanRoot}/${cleanSub}` : cleanRoot;
-      const authParam = FIREBASE_CONFIG.authSecret ? `?auth=${encodeURIComponent(FIREBASE_CONFIG.authSecret)}` : '';
-      return `${base}/${fullPath}.json${authParam}`;
+    function setArc(pathId, val, min, max) {
+      const clamped = Math.max(min, Math.min(max, Number(val) || 0));
+      const ratio = (clamped - min) / (max - min);
+      const offset = ARC_LEN * (1 - ratio);
+      const el = document.getElementById(pathId);
+      if (el) el.style.strokeDashoffset = offset.toFixed(2);
     }
 
-    async function fbPatch(subPath, dataObj) {
-      try {
-        await fetch(buildFirebaseUrl(subPath), {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dataObj)
-        });
-      } catch (err) {
-        console.warn('Firebase PATCH error:', err);
-      }
+    function sendCmd(action, value, extra = {}) {
+      fetch(CMD_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, value, ...extra, ts: Date.now() })
+      }).catch(() => {});
     }
 
-    async function fbPut(subPath, dataObj) {
-      try {
-        await fetch(buildFirebaseUrl(subPath), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dataObj)
-        });
-      } catch (err) {
-        console.warn('Firebase PUT error:', err);
-      }
+    function stepTemp(delta) {
+      const next = Math.round((appState.tempSet + delta) * 10) / 10;
+      if (next < 25.0 || next > 45.0) return;
+      appState.tempSet = next;
+      document.getElementById("tempSetVal").textContent = next.toFixed(1) + "°C";
+      sendCmd("SET_TEMP", next);
     }
 
-    async function pollFirebase() {
-      try {
-        const res = await fetch(buildFirebaseUrl(''), { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        state.phoneOnline = true;
-        document.getElementById('fb-sync-tag').textContent = '🔥 EggBot Live';
-
-        if (data && typeof data === 'object') {
-          if (data.espWifi) state.espWifi = data.espWifi;
-          if (typeof data.doorOpen === 'boolean') setDoorState(data.doorOpen, false);
-          if (typeof data.tempCurrent === 'number') state.tempCurrent = data.tempCurrent;
-          if (typeof data.tempSet === 'number') state.tempSet = data.tempSet;
-          if (typeof data.humCurrent === 'number') state.humCurrent = data.humCurrent;
-          if (typeof data.humSet === 'number') state.humSet = data.humSet;
-          if (data.currentPosLabel) state.currentPosLabel = data.currentPosLabel;
-          if (typeof data.currentPosDeg === 'number') state.currentPosDeg = data.currentPosDeg;
-          if (data.lastPosLabel) state.lastPosLabel = data.lastPosLabel;
-          if (typeof data.lastPosDeg === 'number') state.lastPosDeg = data.lastPosDeg;
-          if (data.heaterState) state.heaterState = data.heaterState;
-          if (typeof data.fanOn === 'boolean') state.fanOn = data.fanOn;
-          if (typeof data.fanRpm === 'number') state.fanRpm = data.fanRpm;
-
-          if (data.stores) {
-            if (data.stores['1']) Object.assign(state.stores[1], data.stores['1']);
-            if (data.stores['2']) Object.assign(state.stores[2], data.stores['2']);
-          }
-
-          renderAll();
-        }
-      } catch (err) {
-        document.getElementById('fb-sync-tag').textContent = '⚠️ Sync Retry';
-      }
+    function stepHum(delta) {
+      const next = Math.round(appState.humSet + delta);
+      if (next < 0 || next > 100) return;
+      appState.humSet = next;
+      document.getElementById("humSetVal").textContent = next + "%";
+      sendCmd("SET_HUM", next);
     }
 
-    function renderWifiIcon(mode) {
-      let circleColor = '#22c55e';
-      let inner = `<path d="M18 24.5l2.2 2.2 4.3-4.4" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>`;
-      if (mode === 'disconnected') {
-        circleColor = '#ef4444';
-        inner = `<path d="M19 22l4.2 4.2m0-4.2L19 26.2" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round"/>`;
-      } else if (mode === 'no_internet') {
-        circleColor = '#eab308';
-        inner = `<text x="21.1" y="27.2" text-anchor="middle" fill="#0f172a" font-size="10" font-weight="900">?</text>`;
-      }
-      return `
-        <svg viewBox="0 0 34 30" width="34" height="30">
-          <path d="M3 10.5c7.5-7 19-7 26.5 0" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
-          <path d="M7.5 15c5-4.6 12.5-4.6 17.5 0" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
-          <path d="M12 19.5c2.5-2.3 6.5-2.3 9 0" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="16.5" cy="24" r="2.2" fill="#2563eb"/>
-          <circle cx="21.1" cy="24.2" r="6.8" fill="${circleColor}" stroke="#0e1628" stroke-width="1.5"/>
-          ${inner}
-        </svg>
-      `;
-    }
-
-    function updateConnectivityUI() {
-      document.getElementById('esp-wifi-svg').innerHTML = renderWifiIcon(state.espWifi);
-      const espLbl = document.getElementById('esp-wifi-label');
-      const espChip = document.getElementById('esp-online-chip');
-
-      if (state.espWifi === 'connected') {
-        espLbl.textContent = 'WiFi Connected';
-        espLbl.style.color = '#4ade80';
-        espChip.textContent = 'ONLINE';
-        espChip.className = 'status-chip chip-green';
-      } else if (state.espWifi === 'no_internet') {
-        espLbl.textContent = 'WiFi Connected (No Net)';
-        espLbl.style.color = '#facc15';
-        espChip.textContent = 'NO NET';
-        espChip.className = 'status-chip chip-red';
-      } else {
-        espLbl.textContent = 'WiFi Not Connected';
-        espLbl.style.color = '#f87171';
-        espChip.textContent = 'OFFLINE';
-        espChip.className = 'status-chip chip-red';
-      }
-
-      const phoneLbl = document.getElementById('phone-net-label');
-      const phonePill = document.getElementById('phone-net-pill');
-      const topMini = document.getElementById('top-net-mini');
-      if (state.phoneOnline) {
-        phoneLbl.textContent = 'Net Online';
-        phoneLbl.style.color = '#4ade80';
-        phonePill.textContent = 'Internet OK';
-        phonePill.className = 'net-tag net-ok';
-        topMini.textContent = '📶 Online';
-      } else {
-        phoneLbl.textContent = 'No Internet (Offline)';
-        phoneLbl.style.color = '#f87171';
-        phonePill.textContent = 'Offline';
-        phonePill.className = 'net-tag net-bad';
-        topMini.textContent = '⚠️ Offline';
-      }
-
-      const fullyLive = (state.espWifi === 'connected') && state.phoneOnline;
-      const liveB = document.getElementById('badge-live');
-      const twoB = document.getElementById('badge-twoway');
-      liveB.className = `pill-badge ${fullyLive ? 'live-on' : 'badge-off'}`;
-      liveB.innerHTML = `<span class="pulse-dot"></span> ${fullyLive ? 'LIVE' : 'STANDBY'}`;
-      twoB.className = `pill-badge ${fullyLive ? 'twoway-on' : 'badge-off'}`;
-      twoB.textContent = fullyLive ? '⇄ 2-Way Live' : '⇄ 2-Way Paused';
-    }
-
-    function updateGaugesUI() {
-      document.getElementById('temp-current-val').textContent = Number(state.tempCurrent).toFixed(1) + '°C';
-      document.getElementById('temp-set-val').textContent = Number(state.tempSet).toFixed(1) + '°C';
-      const tempPct = Math.max(0, Math.min(1, (state.tempCurrent - 25) / 20));
-      document.getElementById('temp-arc').style.strokeDashoffset = (282.7 * (1 - tempPct)).toFixed(1);
-
-      document.getElementById('hum-current-val').textContent = Math.round(state.humCurrent) + '%';
-      document.getElementById('hum-set-val').textContent = Math.round(state.humSet) + '%';
-      const humPct = Math.max(0, Math.min(1, state.humCurrent / 100));
-      document.getElementById('hum-arc').style.strokeDashoffset = (282.7 * (1 - humPct)).toFixed(1);
-    }
-
-    function adjustTempSet(delta) {
-      state.tempSet = Math.round((state.tempSet + delta) * 10) / 10;
-      updateGaugesUI();
-      fbPatch('', { tempSet: state.tempSet, cmd: { action: 'SET_TEMP', value: state.tempSet, ts: Date.now() } });
-    }
-
-    function adjustHumSet(delta) {
-      state.humSet = Math.max(20, Math.min(95, state.humSet + delta));
-      updateGaugesUI();
-      fbPatch('', { humSet: state.humSet, cmd: { action: 'SET_HUM', value: state.humSet, ts: Date.now() } });
-    }
-
-    function selectAngle(label, deg) {
-      state.selectedAngleLabel = label;
-      state.selectedAngleDeg = deg;
-      ['left', 'center', 'right'].forEach(k => {
-        document.getElementById('btn-angle-' + k).classList.remove('selected');
+    function clearSelectionHighlights() {
+      ["btnSelLeft", "btnSelCenter", "btnSelRight"].forEach(id => {
+        const b = document.getElementById(id);
+        b.classList.remove("selected", "rgb-moving");
       });
-      document.getElementById('btn-angle-' + label.toLowerCase()).classList.add('selected');
+    }
+
+    function selectAngle(deg, label) {
+      if (isTurning || appState.doorOpen) return;
+      pendingAngle = { deg, label };
+      clearSelectionHighlights();
+      if (deg <= 0) document.getElementById("btnSelLeft").classList.add("selected");
+      else if (deg < 110) document.getElementById("btnSelCenter").classList.add("selected");
+      else document.getElementById("btnSelRight").classList.add("selected");
     }
 
     function executeTurnEgg() {
-      if (state.currentPosLabel !== state.selectedAngleLabel) {
-        state.lastPosLabel = state.currentPosLabel;
-        state.lastPosDeg = state.currentPosDeg;
-        state.currentPosLabel = state.selectedAngleLabel;
-        state.currentPosDeg = state.selectedAngleDeg;
-      }
-      updateTrayUI();
-      fbPatch('', {
-        currentPosLabel: state.currentPosLabel,
-        currentPosDeg: state.currentPosDeg,
-        lastPosLabel: state.lastPosLabel,
-        lastPosDeg: state.lastPosDeg,
-        cmd: { action: 'TURN_EGG', value: state.currentPosDeg, ts: Date.now() }
+      if (isTurning || appState.doorOpen) return;
+      const target = pendingAngle || (appState.currentPosDeg <= 0
+        ? { deg: 135, label: "RIGHT" }
+        : { deg: -45, label: "LEFT" });
+
+      isTurning = true;
+      const turnBtn = document.getElementById("btnTurnEggAction");
+      turnBtn.classList.add("flashing-red");
+
+      ["btnSelLeft", "btnSelCenter", "btnSelRight"].forEach(id => {
+        document.getElementById(id).classList.add("rgb-moving");
       });
+
+      sendCmd("TURN_EGG", target.deg, { label: target.label });
+
+      setTimeout(() => {
+        appState.lastPosDeg = appState.currentPosDeg;
+        appState.lastPosLabel = appState.currentPosLabel;
+        appState.currentPosDeg = target.deg;
+        appState.currentPosLabel = target.label;
+
+        document.getElementById("trayCurPos").textContent = `${target.label} (${target.deg}°)`;
+        document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
+
+        turnBtn.classList.remove("flashing-red");
+        clearSelectionHighlights();
+        pendingAngle = null;
+        isTurning = false;
+      }, 1400);
     }
 
-    function setDoorState(isOpen, syncToFirebase = true) {
-      state.doorOpen = isOpen;
-      const doorChip = document.getElementById('door-status-chip');
-      const alertCard = document.getElementById('alert-card');
-      const alertText = document.getElementById('alert-banner-text');
-
-      if (state.doorOpen) {
-        doorChip.textContent = 'OPEN 🔓';
-        doorChip.className = 'status-chip chip-red';
-        alertCard.classList.add('warn');
-        alertText.textContent = 'WARNING - Incubator Door Open!';
-        document.getElementById('eeprom-status-note').textContent =
-          'Door Open: EEPROM Last Position (' + state.lastPosLabel + ') ආරක්ෂිතව save වී ඇත.';
-      } else {
-        doorChip.textContent = 'CLOSED 🔒';
-        doorChip.className = 'status-chip chip-green';
-        alertCard.classList.remove('warn');
-        alertText.textContent = 'SYSTEM ACTIVE - Monitoring Incubator';
-        state.currentPosLabel = state.lastPosLabel;
-        state.currentPosDeg = state.lastPosDeg;
-        selectAngle(state.currentPosLabel, state.currentPosDeg);
-        document.getElementById('eeprom-status-note').textContent =
-          'Door Closed: EEPROM Last Position (' + state.lastPosLabel + ' ' + state.lastPosDeg + '°) වෙත auto-restore විය.';
-      }
-      updateTrayUI();
-      if (syncToFirebase) {
-        fbPatch('', {
-          doorOpen: state.doorOpen,
-          currentPosLabel: state.currentPosLabel,
-          currentPosDeg: state.currentPosDeg
-        });
-      }
-    }
-
-    function toggleDoorDemo() {
-      setDoorState(!state.doorOpen, true);
-    }
-
-    function updateTrayUI() {
-      document.getElementById('current-pos-val').textContent = `${state.currentPosLabel} (${state.currentPosDeg}°)`;
-      document.getElementById('last-pos-val').textContent = `${state.lastPosLabel} (${state.lastPosDeg}°)`;
-    }
-
-    function updateHardwareUI() {
-      const hCard = document.getElementById('heater-card');
-      const hChip = document.getElementById('heater-chip');
-      const hSub = document.getElementById('heater-sub-text');
-      hCard.className = 'card hw-card';
-
-      if (state.heaterState === 'ON') {
-        hCard.classList.add('hw-heater-on');
-        hChip.textContent = 'ON';
-        hChip.className = 'status-chip chip-red';
-        hSub.textContent = 'Heating Active';
-      } else if (state.heaterState === 'EXCEEDED') {
-        hCard.classList.add('hw-heater-exceeded');
-        hChip.textContent = 'EXCEEDED';
-        hChip.className = 'status-chip chip-red';
-        hSub.textContent = 'Over-Temp Cutout!';
-      } else {
-        hChip.textContent = 'OFF';
-        hChip.className = 'status-chip chip-green';
-        hSub.textContent = 'Auto Relay Normal';
-      }
-
-      const fChip = document.getElementById('fan-chip');
-      const fIcon = document.getElementById('fan-icon');
-      const fSub = document.getElementById('fan-sub-text');
-      document.getElementById('fan-rpm-val').textContent = state.fanOn ? state.fanRpm : 0;
-      if (state.fanOn) {
-        fChip.textContent = 'ON';
-        fChip.className = 'status-chip chip-green';
-        fIcon.classList.add('spin-fan');
-        fSub.textContent = 'Active';
-      } else {
-        fChip.textContent = 'OFF';
-        fChip.className = 'status-chip chip-red';
-        fIcon.classList.remove('spin-fan');
-        fSub.textContent = 'Stopped';
-      }
-    }
-
-    function calcDays(storedDateStr, totalDays) {
-      const start = new Date(storedDateStr + 'T00:00:00');
+    function calcDays(dateStr, totalDays) {
+      const start = new Date(dateStr + "T00:00:00");
+      if (isNaN(start.getTime())) return { elapsed: 1, remaining: totalDays || 17 };
       const now = new Date();
-      const diff = Math.max(0, Math.floor((now - start) / (1000 * 60 * 60 * 24)));
-      const rem = Math.max(0, totalDays - diff);
-      return { elapsed: diff, remaining: rem };
-    }
-
-    function updateStoreCardsUI() {
-      [1, 2].forEach(id => {
-        const s = state.stores[id];
-        const total = (s.trays[0]?.count || 0) + (s.trays[1]?.count || 0);
-        document.getElementById(`store${id}-summary`).textContent = `${s.variety} (${total} Eggs)`;
-      });
+      const diff = Math.max(0, Math.floor((now - start) / 86400000));
+      const maxD = totalDays || 17;
+      return { elapsed: diff, remaining: Math.max(0, maxD - diff) };
     }
 
     function openStoreModal(storeId) {
-      state.activeStoreId = storeId;
-      switchModalTab('status');
-      renderModalContent();
-      document.getElementById('store-modal').classList.add('open');
+      activeStoreId = storeId;
+      document.getElementById("modalStoreTitle").textContent =
+        storeId === 1 ? "📦 1st Store Details" : "📦 2nd Store Details";
+      document.getElementById("storeModal").classList.add("open");
+      switchTab("status");
+      renderStoreModal();
     }
 
     function closeStoreModal() {
-      document.getElementById('store-modal').classList.remove('open');
+      document.getElementById("storeModal").classList.remove("open");
     }
 
-    function switchModalTab(tab) {
-      ['status', 'add', 'unlock', 'clear'].forEach(t => {
-        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-        document.getElementById('pane-' + t).style.display = (t === tab) ? 'block' : 'none';
+    function switchTab(tab) {
+      ["status", "add", "unlock", "clear"].forEach(t => {
+        document.getElementById("pane" + t.charAt(0).toUpperCase() + t.slice(1)).style.display = (t === tab) ? "block" : "none";
+        document.getElementById("tabBtn" + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle("active", t === tab);
       });
-      document.getElementById('unlock-msg').textContent = '';
     }
 
-    function renderModalContent() {
-      const s = state.stores[state.activeStoreId];
-      const total = s.trays[0].count + s.trays[1].count;
-      const days = calcDays(s.storedDate, s.totalDays);
+    function renderStoreModal() {
+      const s = appState.stores[activeStoreId];
+      if (!s) return;
+      const t1 = s.trays[0] || { count: 0, max: 40, locked: false };
+      const t2 = s.trays[1] || { count: 0, max: 40, locked: false };
+      const total = Number(t1.count || 0) + Number(t2.count || 0);
+      const dInfo = calcDays(s.storedDate, s.totalDays);
 
-      document.getElementById('modal-store-title').textContent = `📦 ${s.title}`;
-      document.getElementById('m-variety').textContent = s.variety;
-      document.getElementById('m-total-eggs').textContent = `Total: ${total} Eggs`;
+      document.getElementById("stVariety").textContent = s.variety || "Quail";
+      document.getElementById("stTotalEggs").textContent = `Total: ${total} Eggs`;
+      document.getElementById("stTray1Count").textContent = `${t1.count}/${t1.max || 40} Eggs`;
+      document.getElementById("stTray2Count").textContent = `${t2.count}/${t2.max || 40} Eggs`;
+      document.getElementById("stTray1Day").textContent = `${s.variety} (Day ${Math.max(1, dInfo.elapsed)})`;
+      document.getElementById("stTray2Day").textContent = `${s.variety} (Day ${Math.max(1, dInfo.elapsed)})`;
 
-      [0, 1].forEach(idx => {
-        const num = idx + 1;
-        const tr = s.trays[idx];
-        document.getElementById(`m-t${num}-name`).textContent = tr.name;
-        const lockEl = document.getElementById(`m-t${num}-lock`);
-        lockEl.textContent = tr.locked ? '🔒 Locked' : '🔓 Open';
-        lockEl.className = `lock-pill ${tr.locked ? 'lock-on' : 'lock-off'}`;
-        document.getElementById(`m-t${num}-count`).textContent = `${tr.count}/${tr.max} Eggs`;
-        document.getElementById(`m-t${num}-sub`).textContent = `${s.variety} (Day ${days.elapsed})`;
-      });
+      const l1 = document.getElementById("stTray1Lock");
+      l1.textContent = t1.locked ? "🔒 Locked" : "🔓 Unlocked";
+      l1.className = "lock-pill" + (t1.locked ? "" : " unlocked");
 
-      document.getElementById('m-stored-date').textContent = s.storedDate;
-      document.getElementById('m-elapsed').textContent = `${days.elapsed} Days`;
-      document.getElementById('m-remaining').textContent = `${days.remaining} Days`;
-      document.getElementById('m-reminders').textContent = s.reminders;
+      const l2 = document.getElementById("stTray2Lock");
+      l2.textContent = t2.locked ? "🔒 Locked" : "🔓 Unlocked";
+      l2.className = "lock-pill" + (t2.locked ? "" : " unlocked");
 
-      document.getElementById('inp-variety').value = s.variety;
-      document.getElementById('lbl-inp-t1').textContent = `${s.trays[0].name} Eggs (Max 40):`;
-      document.getElementById('lbl-inp-t2').textContent = `${s.trays[1].name} Eggs (Max 40):`;
-      document.getElementById('inp-t1').value = s.trays[0].count;
-      document.getElementById('inp-t2').value = s.trays[1].count;
-      document.getElementById('inp-date').value = s.storedDate;
-      document.getElementById('inp-reminders').value = s.reminders;
+      document.getElementById("stStoredDate").textContent = s.storedDate || "2026-11-18";
+      document.getElementById("stElapsed").textContent = `${dInfo.elapsed} Days`;
+      document.getElementById("stRemaining").textContent = `${dInfo.remaining} Days`;
+      document.getElementById("stReminders").textContent = s.reminders || "07:15 & 16:25";
     }
 
-    function saveStoreSetup() {
-      const id = state.activeStoreId;
-      const s = state.stores[id];
-      const variety = document.getElementById('inp-variety').value;
-      const daysMap = { Chicken: 21, Quail: 17, Duck: 28 };
-      s.variety = variety;
-      s.totalDays = daysMap[variety] || 21;
-      s.trays[0].count = Math.max(0, Math.min(40, parseInt(document.getElementById('inp-t1').value || '0', 10)));
-      s.trays[1].count = Math.max(0, Math.min(40, parseInt(document.getElementById('inp-t2').value || '0', 10)));
-      s.trays[0].locked = s.trays[0].count > 0;
-      s.trays[1].locked = s.trays[1].count > 0;
-      s.storedDate = document.getElementById('inp-date').value || s.storedDate;
-      s.reminders = document.getElementById('inp-reminders').value || '07:15 & 16:25';
+    function saveAndLockStore() {
+      const [varName, daysStr] = document.getElementById("addVarietySelect").value.split("|");
+      const c1 = Math.max(0, Math.min(40, Number(document.getElementById("addTray1Input").value) || 0));
+      const c2 = Math.max(0, Math.min(40, Number(document.getElementById("addTray2Input").value) || 0));
+      const dt = document.getElementById("addDateInput").value || "2026-11-24";
+      const rem = document.getElementById("addReminderInput").value || "07:15 & 16:25";
 
-      updateStoreCardsUI();
-      renderModalContent();
-      switchModalTab('status');
-      fbPut(`stores/${id}`, s);
+      appState.stores[activeStoreId] = {
+        variety: varName,
+        totalDays: Number(daysStr) || 17,
+        storedDate: dt,
+        reminders: rem,
+        trays: [
+          { name: "Tray 1", count: c1, max: 40, locked: c1 > 0 },
+          { name: "Tray 2", count: c2, max: 40, locked: c2 > 0 }
+        ]
+      };
+      sendCmd("UPDATE_STORE", activeStoreId, { storeData: appState.stores[activeStoreId] });
+      updateHomeStoreSummaries();
+      renderStoreModal();
+      switchTab("status");
     }
 
     function unlockTray(trayIdx) {
-      const pass = document.getElementById('inp-unlock-pass').value;
-      const msgEl = document.getElementById('unlock-msg');
-      if (pass === '1234') {
-        const id = state.activeStoreId;
-        const s = state.stores[id];
-        s.trays[trayIdx].locked = false;
-        msgEl.style.color = '#4ade80';
-        msgEl.textContent = `${s.trays[trayIdx].name} unlocked successfully!`;
-        renderModalContent();
-        fbPut(`stores/${id}`, s);
+      const pwd = document.getElementById("unlockPassInput").value.trim();
+      if (pwd !== STORE_PASS) {
+        alert("Password වැරදියි! (Default: 1234)");
+        return;
+      }
+      appState.stores[activeStoreId].trays[trayIdx - 1].locked = false;
+      document.getElementById("unlockPassInput").value = "";
+      sendCmd("UNLOCK_TRAY", trayIdx, { storeId: activeStoreId });
+      renderStoreModal();
+      alert(`Tray ${trayIdx} Unlocked!`);
+    }
+
+    function verifyAndClearStore() {
+      const pwd = document.getElementById("clearPassInput").value.trim();
+      if (pwd !== STORE_PASS) {
+        alert("Clear කිරීමට නිවැරදි Password එක ඇතුළත් කරන්න! (Default: 1234)");
+        return;
+      }
+      appState.stores[activeStoreId].trays = [
+        { name: "Tray 1", count: 0, max: 40, locked: false },
+        { name: "Tray 2", count: 0, max: 40, locked: false }
+      ];
+      document.getElementById("clearPassInput").value = "";
+      sendCmd("CLEAR_STORE", activeStoreId);
+      updateHomeStoreSummaries();
+      renderStoreModal();
+      switchTab("status");
+      alert("Store දත්ත සාර්ථකව Clear කරන ලදී.");
+    }
+
+    function updateHomeStoreSummaries() {
+      [1, 2].forEach(id => {
+        const s = appState.stores[id];
+        const total = (s.trays || []).reduce((acc, t) => acc + Number(t.count || 0), 0);
+        const el = document.getElementById(id === 1 ? "homeStore1Summary" : "homeStore2Summary");
+        el.textContent = `${s.variety || "Quail"} (${total} Eggs)`;
+      });
+    }
+
+    function setPhoneNetStatus(online) {
+      const phoneTxt = document.getElementById("phoneNetText");
+      const okTag = document.getElementById("internetOkBadge");
+      if (online && navigator.onLine) {
+        phoneTxt.textContent = "Net Online";
+        phoneTxt.classList.remove("bad");
+        okTag.textContent = "Internet OK";
+        okTag.classList.remove("bad");
       } else {
-        msgEl.style.color = '#f87171';
-        msgEl.textContent = 'Invalid Password!';
+        phoneTxt.textContent = "Net Offline";
+        phoneTxt.classList.add("bad");
+        okTag.textContent = "No Internet";
+        okTag.classList.add("bad");
       }
     }
 
-    function clearStoreData() {
-      const id = state.activeStoreId;
-      const s = state.stores[id];
-      s.trays[0].count = 0;
-      s.trays[1].count = 0;
-      s.trays[0].locked = false;
-      s.trays[1].locked = false;
-      updateStoreCardsUI();
-      renderModalContent();
-      switchModalTab('status');
-      fbPut(`stores/${id}`, s);
+    function applyFirebaseData(data) {
+      if (!data) return;
+
+      const espOnline = data.espWifi === "connected";
+      document.getElementById("espWifiText").textContent = espOnline ? "WiFi Connected" : "WiFi Disconnected";
+      document.getElementById("espWifiText").classList.toggle("bad", !espOnline);
+      document.getElementById("wifiCheckCircle").textContent = espOnline ? "✓" : "✕";
+
+      const espBadge = document.getElementById("espBadge");
+      espBadge.textContent = espOnline ? "ONLINE" : "OFFLINE";
+      espBadge.className = espOnline ? "pill-badge-green" : "pill-badge-red";
+
+      appState.doorOpen = Boolean(data.doorOpen);
+      const doorBadge = document.getElementById("doorBadge");
+      doorBadge.textContent = appState.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
+      doorBadge.className = appState.doorOpen ? "pill-badge-red" : "pill-badge-green";
+
+      if (typeof data.tempCurrent === "number") {
+        appState.tempCurrent = data.tempCurrent;
+        document.getElementById("tempCurNum").textContent = data.tempCurrent.toFixed(1) + "°C";
+        setArc("tempFillPath", data.tempCurrent, 25, 45);
+      }
+      if (typeof data.tempSet === "number") {
+        appState.tempSet = data.tempSet;
+        document.getElementById("tempSetVal").textContent = data.tempSet.toFixed(1) + "°C";
+      }
+
+      if (typeof data.humCurrent === "number") {
+        appState.humCurrent = data.humCurrent;
+        document.getElementById("humCurNum").textContent = Math.round(data.humCurrent) + "%";
+        setArc("humFillPath", data.humCurrent, 0, 100);
+      }
+      if (typeof data.humSet === "number") {
+        appState.humSet = data.humSet;
+        document.getElementById("humSetVal").textContent = Math.round(data.humSet) + "%";
+      }
+
+      if (typeof data.currentPosDeg === "number") {
+        appState.currentPosDeg = data.currentPosDeg;
+        appState.currentPosLabel = data.currentPosLabel || "LEFT";
+        document.getElementById("trayCurPos").textContent = `${appState.currentPosLabel} (${appState.currentPosDeg}°)`;
+      }
+      if (typeof data.lastPosDeg === "number") {
+        appState.lastPosDeg = data.lastPosDeg;
+        appState.lastPosLabel = data.lastPosLabel || "RIGHT";
+        document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
+      }
+
+      const hState = data.heaterState || "OFF";
+      const hBox = document.getElementById("heaterBox");
+      const hBadge = document.getElementById("heaterBadge");
+      const hSub = document.getElementById("heaterSub");
+      hBadge.textContent = hState;
+      hBadge.className = "hw-badge" + (hState === "ON" || hState === "EXCEEDED" ? " on-red" : "");
+      hBox.className = "hw-card" + (hState === "EXCEEDED" ? " heater-exceeded" : hState === "ON" ? " heater-active" : "");
+      hSub.textContent = hState === "EXCEEDED" ? "Thermal Cutoff!" : hState === "ON" ? "Heating Active" : "Auto Relay Normal";
+
+      const fanOn = data.fanOn !== false;
+      const fanRpm = data.fanRpm || 1450;
+      document.getElementById("fanBadge").textContent = fanOn ? "ON" : "OFF";
+      document.getElementById("fanSpinner").classList.toggle("spinning", fanOn);
+      document.getElementById("fanSub").textContent = fanOn ? `Active • RPM: ${fanRpm}` : "Stopped • RPM: 0";
+
+      if (data.stores) {
+        if (data.stores["1"]) appState.stores[1] = data.stores["1"];
+        if (data.stores["2"]) appState.stores[2] = data.stores["2"];
+        updateHomeStoreSummaries();
+        if (document.getElementById("storeModal").classList.contains("open")) {
+          renderStoreModal();
+        }
+      }
     }
 
-    function renderAll() {
-      updateConnectivityUI();
-      updateGaugesUI();
-      updateTrayUI();
-      updateHardwareUI();
-      updateStoreCardsUI();
+    async function syncLoop() {
+      try {
+        const res = await fetch(DB_URL, { cache: "no-store" });
+        if (res.ok) {
+          setPhoneNetStatus(true);
+          const json = await res.json();
+          applyFirebaseData(json);
+        } else {
+          setPhoneNetStatus(false);
+        }
+      } catch (err) {
+        setPhoneNetStatus(false);
+      }
     }
 
-    function tickClock() {
-      const now = new Date();
-      document.getElementById('sys-clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    setInterval(tickClock, 1000);
-    tickClock();
-
-    window.addEventListener('online', () => { state.phoneOnline = true; updateConnectivityUI(); pollFirebase(); });
-    window.addEventListener('offline', () => { state.phoneOnline = false; updateConnectivityUI(); });
-
-    renderAll();
-    pollFirebase();
-    setInterval(pollFirebase, FIREBASE_CONFIG.pollIntervalMs);
+    setArc("tempFillPath", 37.5, 25, 45);
+    setArc("humFillPath", 58, 0, 100);
+    updateHomeStoreSummaries();
+    syncLoop();
+    setInterval(syncLoop, 2500);
   </script>
 </body>
 </html>
