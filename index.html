@@ -45,12 +45,12 @@
       gap: 6px;
     }
 
-    /* 1st Card: Header + WiFi/Net */
+    /* 1st Card: Header + Row 2 (ESP WiFi + 3 Inline Buttons) */
     .top-header-card {
       background: linear-gradient(180deg, #0d1a30 0%, #091222 100%);
       border: 1.5px solid #1d4ed8;
       border-radius: 14px;
-      padding: 11px 11px;
+      padding: 10px 11px;
       margin-bottom: 5px;
       width: 100%;
       flex-shrink: 0;
@@ -60,7 +60,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
       flex-wrap: nowrap;
     }
     .brand-left {
@@ -131,61 +131,75 @@
       white-space: nowrap;
     }
 
-    .header-row-2 {
+    /* Replaced 2nd Row: ESP WiFi + 3 Inline Buttons */
+    .header-row-2-inline {
       display: flex;
-      align-items: stretch;
-      justify-content: space-between;
-      gap: 7px;
-      width: 100%;
-    }
-    .net-sub-box {
-      background: var(--bg-inner);
-      border: 1px solid #1e293b;
-      border-radius: 10px;
-      padding: 8px 9px;
-      display: inline-flex;
       align-items: center;
       justify-content: space-between;
       gap: 6px;
-      flex: 1 1 0;
-      min-width: 0;
+      width: 100%;
+      background: var(--bg-inner);
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 6px 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
     }
-    .net-left {
-      display: flex;
+    .esp-wifi-inline {
+      display: inline-flex;
       align-items: center;
-      gap: 7px;
-      min-width: 0;
-    }
-    .net-label {
-      font-size: 0.61rem;
+      gap: 5px;
+      font-size: 0.68rem;
       font-weight: 800;
-      color: var(--text-muted);
-      line-height: 1.15;
-      text-transform: uppercase;
-    }
-    .net-val {
-      font-size: 0.8rem;
-      font-weight: 900;
-      color: #4ade80;
-      line-height: 1.2;
-      white-space: nowrap;
-    }
-    .net-val.bad { color: #f87171; }
-    .internet-ok-tag {
-      background: rgba(34, 197, 94, 0.18);
-      border: 1px solid rgba(34, 197, 94, 0.45);
-      color: #4ade80;
-      font-size: 0.58rem;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 6px;
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .internet-ok-tag.bad {
+    .esp-wifi-inline.ok {
+      color: #4ade80;
+    }
+    .esp-wifi-inline.bad {
+      color: #f87171;
+    }
+    .top-3-btns {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .top-st-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.62rem;
+      font-weight: 800;
+      white-space: nowrap;
+      cursor: default;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .top-st-btn.ok {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(34, 197, 94, 0.55);
+      color: #4ade80;
+    }
+    .top-st-btn.bad {
       background: rgba(239, 68, 68, 0.2);
-      border-color: rgba(239, 68, 68, 0.5);
+      border-color: rgba(239, 68, 68, 0.55);
       color: #fca5a5;
+    }
+    @keyframes arrowPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.22); opacity: 0.55; }
+    }
+    .two-arrows-icon {
+      display: inline-block;
+      font-weight: 900;
+    }
+    .two-arrows-icon.active-blink {
+      animation: arrowPulse 0.8s infinite;
     }
 
     /* Row 2: ESP32 & DOOR (50/50) */
@@ -721,7 +735,7 @@
 </head>
 <body>
 
-  <!-- 1st Card: Header + WiFi/Net -->
+  <!-- 1st Card: Header + Single Replaced 2nd Row (ESP WiFi + 3 Inline Buttons) -->
   <div class="top-header-card">
     <div class="header-row-1">
       <div class="brand-left">
@@ -733,25 +747,26 @@
         <span class="twoway-pill">two way data</span>
       </div>
     </div>
-    <div class="header-row-2">
-      <div class="net-sub-box">
-        <div class="net-left">
-          <span id="wifiCheckCircle" style="font-size:0.95rem;line-height:1;">📶</span>
-          <div>
-            <div class="net-label">ESP32 WiFi</div>
-            <div id="espWifiText" class="net-val">Connecting...</div>
-          </div>
-        </div>
+
+    <div class="header-row-2-inline">
+      <div id="espWifiInlineBox" class="esp-wifi-inline bad">
+        <span id="wifiCheckCircle">📵</span>
+        <span id="espWifiText">Not Connected</span>
       </div>
-      <div class="net-sub-box">
-        <div class="net-left">
-          <span style="font-size:0.95rem;line-height:1;">📱</span>
-          <div>
-            <div class="net-label">Phone / App Net</div>
-            <div id="phoneNetText" class="net-val">Net Online</div>
-          </div>
-        </div>
-        <span id="internetOkBadge" class="internet-ok-tag">Internet OK</span>
+
+      <div class="top-3-btns">
+        <span id="btnServerArrows" class="top-st-btn bad">
+          <span id="serverArrowsGlyph" class="two-arrows-icon">⇅</span>
+          <span>Server</span>
+        </span>
+
+        <span id="btnPhoneInternetOk" class="top-st-btn bad">
+          <span>Internet OK</span>
+        </span>
+
+        <span id="btnAppSyncState" class="top-st-btn bad">
+          <span>App Sync</span>
+        </span>
       </div>
     </div>
   </div>
@@ -1051,7 +1066,6 @@
   </div>
 
   <script>
-    // Unified Firebase RTDB URL (Works from ANY Wi-Fi or Mobile Data network worldwide)
     const FIREBASE_BASE = "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app";
     const FIREBASE_SECRET = "wiSVmpMOYWsolFFfNuTM4JbwDlDMBAAxkSlTlPm1";
     const DB_URL = `${FIREBASE_BASE}/incubator.json?auth=${FIREBASE_SECRET}`;
@@ -1068,6 +1082,7 @@
     let remainingToAssign = 0;
     let lastLocalStoreWriteTs = 0;
     let devicePassword = "1234";
+    let phoneHasRealInternet = false;
 
     function todayISO() {
       const d = new Date();
@@ -1514,24 +1529,53 @@
       });
     }
 
-    function setPhoneNetStatus(online) {
-      const phoneTxt = document.getElementById("phoneNetText");
-      const okTag = document.getElementById("internetOkBadge");
-      if (online && navigator.onLine) {
-        phoneTxt.textContent = "Net Online";
-        phoneTxt.classList.remove("bad");
-        okTag.textContent = "Internet OK";
-        okTag.classList.remove("bad");
-      } else {
-        phoneTxt.textContent = "Net Offline";
-        phoneTxt.classList.add("bad");
-        okTag.textContent = "No Internet";
-        okTag.classList.add("bad");
+    function renderTopRowButtons({ serverOk, internetOk, appSyncOk }) {
+      const srvBtn = document.getElementById("btnServerArrows");
+      const srvGlyph = document.getElementById("serverArrowsGlyph");
+      srvBtn.className = "top-st-btn " + (serverOk ? "ok" : "bad");
+      srvGlyph.classList.toggle("active-blink", Boolean(serverOk));
+
+      const netBtn = document.getElementById("btnPhoneInternetOk");
+      netBtn.className = "top-st-btn " + (internetOk ? "ok" : "bad");
+      netBtn.querySelector("span").textContent = internetOk ? "Internet OK" : "No Net";
+
+      const syncBtn = document.getElementById("btnAppSyncState");
+      syncBtn.className = "top-st-btn " + (appSyncOk ? "ok" : "bad");
+      syncBtn.querySelector("span").textContent = appSyncOk ? "App Sync" : "Sync Off";
+    }
+
+    async function probePhoneInternet() {
+      if (!navigator.onLine) {
+        phoneHasRealInternet = false;
+        return false;
+      }
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 2500);
+      try {
+        await fetch("https://www.gstatic.com/generate_204", {
+          mode: "no-cors",
+          cache: "no-store",
+          signal: ctrl.signal
+        });
+        clearTimeout(t);
+        phoneHasRealInternet = true;
+        return true;
+      } catch (e) {
+        clearTimeout(t);
+        phoneHasRealInternet = false;
+        return false;
       }
     }
 
-    function applyFirebaseData(data) {
-      if (!data) return;
+    function applyFirebaseData(data, serverReachable) {
+      if (!data) {
+        renderTopRowButtons({
+          serverOk: Boolean(serverReachable),
+          internetOk: phoneHasRealInternet,
+          appSyncOk: false
+        });
+        return;
+      }
 
       if (typeof data.devicePassword === "string" && data.devicePassword.length > 0) {
         devicePassword = data.devicePassword;
@@ -1542,9 +1586,18 @@
       const isFresh = (hbSec === 0) || (Math.abs(nowSec - hbSec) <= 35);
       const espOnline = (data.espWifi === "connected") && isFresh;
 
-      document.getElementById("espWifiText").textContent = espOnline ? "Wifi conected" : "not conected";
-      document.getElementById("espWifiText").classList.toggle("bad", !espOnline);
-      document.getElementById("wifiCheckCircle").textContent = espOnline ? "📶" : "📵";
+      const wifiBox = document.getElementById("espWifiInlineBox");
+      const wifiTxt = document.getElementById("espWifiText");
+      const wifiIcon = document.getElementById("wifiCheckCircle");
+      wifiBox.className = "esp-wifi-inline " + (espOnline ? "ok" : "bad");
+      wifiTxt.textContent = espOnline ? "Connected" : "Not Connected";
+      wifiIcon.textContent = espOnline ? "📶" : "📵";
+
+      renderTopRowButtons({
+        serverOk: Boolean(serverReachable),
+        internetOk: phoneHasRealInternet && Boolean(serverReachable),
+        appSyncOk: Boolean(serverReachable) && (espOnline || Boolean(data.stores))
+      });
 
       const espBadge = document.getElementById("espBadge");
       espBadge.textContent = espOnline ? "ONLINE" : "OFFLINE";
@@ -1612,17 +1665,17 @@
     }
 
     async function syncLoop() {
+      await probePhoneInternet();
       try {
         const res = await fetch(DB_URL, { cache: "no-store" });
         if (res.ok) {
-          setPhoneNetStatus(true);
           const json = await res.json();
-          applyFirebaseData(json);
+          applyFirebaseData(json, true);
         } else {
-          setPhoneNetStatus(false);
+          applyFirebaseData(null, false);
         }
       } catch (err) {
-        setPhoneNetStatus(false);
+        applyFirebaseData(null, false);
       }
     }
 
