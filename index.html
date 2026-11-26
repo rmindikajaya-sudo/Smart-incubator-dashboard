@@ -42,7 +42,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
     }
 
     /* 1st Card: Header + WiFi/Net */
@@ -51,13 +51,14 @@
       border: 1.5px solid #1d4ed8;
       border-radius: 14px;
       padding: 11px 11px;
+      margin-bottom: 5px;
       width: 100%;
       flex-shrink: 0;
     }
     .header-row-1 {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: space-between;
       gap: 6px;
       margin-bottom: 10px;
       flex-wrap: nowrap;
@@ -91,7 +92,7 @@
     .header-badges {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       margin-left: auto;
       flex-shrink: 0;
     }
@@ -191,7 +192,7 @@
     .row-2col {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 7px;
       flex-shrink: 0;
     }
     .pill-status-card {
@@ -230,12 +231,12 @@
       white-space: nowrap;
     }
 
-    /* Meter Cards (Temperature & Humidity) */
+    /* Meter Cards (Temperature & Humidity) - No +/- Buttons, Reading + Target Badge Above Invisible 180 Line */
     .meter-card {
       background: var(--bg-card);
       border: 1.5px solid var(--border-card);
       border-radius: 13px;
-      padding: 10px 11px 6px;
+      padding: 9px 11px 6px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -276,6 +277,7 @@
       display: block;
       overflow: visible;
     }
+    /* Positioned strictly above the invisible 180-degree chord line (y=114) */
     .arc-readings-above-180 {
       position: absolute;
       left: 0;
@@ -286,10 +288,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
     }
     .arc-num {
-      font-size: 1.32rem;
+      font-size: 1.38rem;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.02;
@@ -299,9 +301,9 @@
       background: rgba(250, 204, 21, 0.16);
       border: 1px solid rgba(250, 204, 21, 0.55);
       color: #fde047;
-      font-size: 0.62rem;
+      font-size: 0.63rem;
       font-weight: 800;
-      padding: 1px 8px;
+      padding: 2px 9px;
       border-radius: 999px;
       line-height: 1.25;
     }
@@ -329,9 +331,9 @@
     .angle-btns-wrap {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 13px;
-      padding: 0 2px;
+      padding: 0 4px;
     }
     .angle-sq-btn {
       width: 100%;
@@ -422,8 +424,8 @@
       background: var(--bg-card);
       border: 2px solid var(--green-ok);
       border-radius: 13px;
-      padding: 9px 8px;
-      min-height: 56px;
+      padding: 10px 8px;
+      min-height: 60px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -995,10 +997,26 @@
               <input id="addDateInput" type="date" value="2026-11-25" class="input-dark" />
             </div>
             <div>
-              <label class="field-lbl">Reminder Times:</label>
-              <input id="addReminderInput" type="text" value="07:15 & 16:25" class="input-dark" />
+              <label class="field-lbl">Reminder Count (කීයක්ද?):</label>
+              <select id="reminderCountSelect" class="select-dark" onchange="toggleReminderInputs()">
+                <option value="2">2 Times (Time 1 &amp; Time 2)</option>
+                <option value="1">1 Time (Single Time)</option>
+              </select>
             </div>
           </div>
+
+          <div class="trays-2col" style="margin-top:0;">
+            <div>
+              <label class="field-lbl">Reminder Time 1:</label>
+              <input id="remTime1Input" type="text" value="07:15" placeholder="HH:MM" class="input-dark" />
+            </div>
+            <div id="remTime2Wrap">
+              <label class="field-lbl">Reminder Time 2:</label>
+              <input id="remTime2Input" type="text" value="16:25" placeholder="HH:MM" class="input-dark" />
+            </div>
+          </div>
+
+          <button type="button" class="btn-primary-blue" style="background:#0f766e; margin-bottom:10px;" onclick="saveReminderTimesOnly()">⏰ Save Reminder Time(s)</button>
 
           <button class="btn-primary-blue" onclick="saveAndLockStore()">💾 Save &amp; Lock Store</button>
         </div>
@@ -1212,6 +1230,31 @@
       };
     }
 
+    function toggleReminderInputs() {
+      const cnt = document.getElementById("reminderCountSelect").value;
+      document.getElementById("remTime2Wrap").style.display = cnt === "1" ? "none" : "block";
+    }
+
+    function buildReminderString() {
+      const cnt = document.getElementById("reminderCountSelect").value;
+      const t1 = (document.getElementById("remTime1Input").value || "").trim() || "07:15";
+      const t2 = (document.getElementById("remTime2Input").value || "").trim() || "16:25";
+      return cnt === "1" ? t1 : `${t1} & ${t2}`;
+    }
+
+    function saveReminderTimesOnly() {
+      const remStr = buildReminderString();
+      appState.stores[activeStoreId].reminders = remStr;
+      pushStoresSnapshot();
+      sendCmd("UPDATE_REMINDERS", activeStoreId, {
+        source: "APP",
+        notifyTelegram: true,
+        reminders: remStr
+      });
+      renderStoreModal();
+      alert(`Reminder Time සේව් විය: ${remStr}`);
+    }
+
     function configureAddTabForStore(storeId) {
       const tNumA = storeId === 1 ? 1 : 3;
       const tNumB = storeId === 1 ? 2 : 4;
@@ -1227,7 +1270,18 @@
       const totalD = s.totalDays || (s.variety === "Chicken" ? 21 : 17);
       document.getElementById("addVarietySelect").value = `${s.variety || "Quail"}|${totalD}`;
       document.getElementById("addDateInput").value = s.storedDate || new Date().toISOString().slice(0, 10);
-      document.getElementById("addReminderInput").value = s.reminders || "07:15 & 16:25";
+
+      const parts = (s.reminders || "07:15 & 16:25").split("&").map(x => x.trim()).filter(Boolean);
+      if (parts.length <= 1) {
+        document.getElementById("reminderCountSelect").value = "1";
+        document.getElementById("remTime1Input").value = parts[0] || "07:15";
+        document.getElementById("remTime2Input").value = "16:25";
+      } else {
+        document.getElementById("reminderCountSelect").value = "2";
+        document.getElementById("remTime1Input").value = parts[0] || "07:15";
+        document.getElementById("remTime2Input").value = parts[1] || "16:25";
+      }
+      toggleReminderInputs();
 
       draftTrayCounts = [
         Number(s.trays[0] ? s.trays[0].count : 0),
@@ -1263,7 +1317,7 @@
         return;
       }
       if (planned > maxFreeStore) {
-        alert(`මෙම Store එකේ දැනට දාන්න පුළුවන් උපරිම ඉඩ ${maxFreeStore} Eggs පමණයි!`);
+        alert(`එතනින් එහාට බැහැ! (Max 40/Tray — දැනට දාන්න පුළුවන් උපරිම ඉඩ ${maxFreeStore} Eggs පමණයි)`);
         return;
       }
 
@@ -1295,7 +1349,7 @@
         return;
       }
       if (qty > freeInTray) {
-        alert(`Tray ${tNum} එකේ දාන්න පුළුවන් උපරිම ඉඩ ${freeInTray} Eggs පමණයි! (Auto-Merge නැත)`);
+        alert(`එතනින් එහාට බැහැ! Tray ${tNum} සීමාව 40 යි (දැනට දාන්න පුළුවන්: ${freeInTray} Eggs).`);
         return;
       }
 
@@ -1315,7 +1369,7 @@
 
       const [varName, daysStr] = document.getElementById("addVarietySelect").value.split("|");
       const dt = document.getElementById("addDateInput").value || new Date().toISOString().slice(0, 10);
-      const rem = document.getElementById("addReminderInput").value.trim() || "07:15 & 16:25";
+      const rem = buildReminderString();
       const tNumA = activeStoreId === 1 ? 1 : 3;
       const tNumB = activeStoreId === 1 ? 2 : 4;
 
