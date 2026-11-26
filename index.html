@@ -45,7 +45,7 @@
       gap: 6px;
     }
 
-    /* 1st Card: Header + Row 2 (ESP WiFi + 3 Inline Buttons) */
+    /* 1st Card: Header + Row 2 (ESP32 Left + 3 Buttons Right-to-Left Larger with Space) */
     .top-header-card {
       background: linear-gradient(180deg, #0d1a30 0%, #091222 100%);
       border: 1.5px solid #1d4ed8;
@@ -92,26 +92,40 @@
     .header-badges {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       margin-left: auto;
       flex-shrink: 0;
+    }
+
+    @keyframes liveSplashFlash {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+      50% {
+        opacity: 0.55;
+        transform: scale(1.06);
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+      }
     }
     .live-pill {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      background: rgba(34, 197, 94, 0.16);
-      border: 1px solid rgba(34, 197, 94, 0.55);
+      gap: 5px;
+      background: rgba(34, 197, 94, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.65);
       color: #4ade80;
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 2px 8px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 3px 9px;
       border-radius: 999px;
       white-space: nowrap;
+      animation: liveSplashFlash 1.1s infinite;
     }
     @keyframes greenDotFlash {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.2; transform: scale(0.75); }
+      50% { opacity: 0.2; transform: scale(0.72); }
     }
     .live-dot {
       width: 6px;
@@ -120,60 +134,81 @@
       background: #22c55e;
       animation: greenDotFlash 0.9s infinite;
     }
-    .twoway-pill {
-      background: rgba(56, 189, 248, 0.14);
-      border: 1px solid rgba(56, 189, 248, 0.45);
+
+    .twoway-sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.55);
       color: #7dd3fc;
-      font-size: 0.65rem;
-      font-weight: 800;
-      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 3px 10px;
       border-radius: 999px;
       white-space: nowrap;
+      letter-spacing: 0.2px;
     }
 
-    /* Replaced 2nd Row: ESP WiFi + 3 Inline Buttons */
+    /* Replaced 2nd Row: ESP32 Left + 3 Buttons Right-to-Left */
     .header-row-2-inline {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      gap: 10px;
       width: 100%;
       background: var(--bg-inner);
       border: 1px solid #1e293b;
       border-radius: 10px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       flex-wrap: nowrap;
       overflow-x: auto;
     }
-    .esp-wifi-inline {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.68rem;
-      font-weight: 800;
-      white-space: nowrap;
+    .esp-stack-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
       flex-shrink: 0;
     }
-    .esp-wifi-inline.ok {
+    .esp-heading-lg {
+      font-size: 0.92rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #e2e8f0;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+    .esp-wifi-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+    .esp-wifi-sub.ok {
       color: #4ade80;
     }
-    .esp-wifi-inline.bad {
+    .esp-wifi-sub.bad {
       color: #f87171;
     }
     .top-3-btns {
       display: inline-flex;
+      flex-direction: row-reverse;
       align-items: center;
-      gap: 5px;
+      gap: 8px;
       margin-left: auto;
       flex-shrink: 0;
     }
     .top-st-btn {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
+      gap: 5px;
+      padding: 6px 10px;
       border-radius: 999px;
-      font-size: 0.62rem;
+      font-size: 0.72rem;
       font-weight: 800;
       white-space: nowrap;
       cursor: default;
@@ -735,7 +770,7 @@
 </head>
 <body>
 
-  <!-- 1st Card: Header + Single Replaced 2nd Row (ESP WiFi + 3 Inline Buttons) -->
+  <!-- 1st Card: Header + Row 2 (ESP32 Left + 3 Buttons Right-to-Left Larger with Space) -->
   <div class="top-header-card">
     <div class="header-row-1">
       <div class="brand-left">
@@ -744,14 +779,17 @@
       </div>
       <div class="header-badges">
         <span id="liveBadge" class="live-pill"><span class="live-dot"></span>LIVE</span>
-        <span class="twoway-pill">two way data</span>
+        <span class="twoway-sync-pill">⇅ Two Way Sync</span>
       </div>
     </div>
 
     <div class="header-row-2-inline">
-      <div id="espWifiInlineBox" class="esp-wifi-inline bad">
-        <span id="wifiCheckCircle">📵</span>
-        <span id="espWifiText">Not Connected</span>
+      <div class="esp-stack-col">
+        <div class="esp-heading-lg">ESP32</div>
+        <div id="espWifiInlineBox" class="esp-wifi-sub bad">
+          <span id="wifiCheckCircle">📵</span>
+          <span id="espWifiText">Not Connected</span>
+        </div>
       </div>
 
       <div class="top-3-btns">
@@ -1589,7 +1627,7 @@
       const wifiBox = document.getElementById("espWifiInlineBox");
       const wifiTxt = document.getElementById("espWifiText");
       const wifiIcon = document.getElementById("wifiCheckCircle");
-      wifiBox.className = "esp-wifi-inline " + (espOnline ? "ok" : "bad");
+      wifiBox.className = "esp-wifi-sub " + (espOnline ? "ok" : "bad");
       wifiTxt.textContent = espOnline ? "Connected" : "Not Connected";
       wifiIcon.textContent = espOnline ? "📶" : "📵";
 
