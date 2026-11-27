@@ -123,6 +123,12 @@
       white-space: nowrap;
       animation: liveSplashFlash 1.1s infinite;
     }
+    .live-pill.offline-mode {
+      background: rgba(245, 158, 11, 0.18);
+      border-color: rgba(245, 158, 11, 0.65);
+      color: #fbbf24;
+      animation: none;
+    }
     @keyframes greenDotFlash {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.2; transform: scale(0.72); }
@@ -133,6 +139,10 @@
       border-radius: 50%;
       background: #22c55e;
       animation: greenDotFlash 0.9s infinite;
+    }
+    .live-pill.offline-mode .live-dot {
+      background: #f59e0b;
+      animation: none;
     }
 
     .twoway-sync-pill {
@@ -1109,6 +1119,7 @@
     const DB_URL = `${FIREBASE_BASE}/incubator.json?auth=${FIREBASE_SECRET}`;
     const CMD_URL = `${FIREBASE_BASE}/incubator/cmd.json?auth=${FIREBASE_SECRET}`;
     const STORES_URL = `${FIREBASE_BASE}/incubator/stores.json?auth=${FIREBASE_SECRET}`;
+    const CACHE_KEY = "RTN_EGG_BOT_CACHE_V1";
 
     const ARC_LEN = 320.44;
     const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
@@ -1119,8 +1130,15 @@
     let draftTrayCounts = [0, 0];
     let remainingToAssign = 0;
     let lastLocalStoreWriteTs = 0;
+    let pendingStorePush = false;
     let devicePassword = "1234";
     let phoneHasRealInternet = false;
+    let lastTelemetrySnapshot = {
+      espOnline: false,
+      heaterState: "OFF",
+      fanOn: true,
+      fanRpm: 1450
+    };
 
     function todayISO() {
       const d = new Date();
@@ -1164,12 +1182,108 @@
       }
     };
 
+    function saveCache() {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          appState,
+          telemetry: lastTelemetrySnapshot,
+          devicePassword,
+          savedAt: Date.now()
+        }));
+      } catch (e) {}
+    }
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.appState) {
+          appState = {
+            ...appState,
+            ...parsed.appState,
+            stores: {
+              1: parsed.appState.stores && parsed.appState.stores["1"] ? normalizeIncomingStore(1, parsed.appState.stores["1"]) : appState.stores[1],
+              2: parsed.appState.stores && parsed.appState.stores["2"] ? normalizeIncomingStore(2, parsed.appState.stores["2"]) : appState.stores[2]
+            }
+          };
+        }
+        if (parsed && parsed.telemetry) {
+          lastTelemetrySnapshot = { ...lastTelemetrySnapshot, ...parsed.telemetry };
+        }
+        if (parsed && typeof parsed.devicePassword === "string" && parsed.devicePassword.length > 0) {
+          devicePassword = parsed.devicePassword;
+        }
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
     function setArc(pathId, val, min, max) {
       const clamped = Math.max(min, Math.min(max, Number(val) || 0));
       const ratio = (clamped - min) / (max - min);
       const offset = ARC_LEN * (1 - ratio);
       const el = document.getElementById(pathId);
       if (el) el.style.strokeDashoffset = offset.toFixed(2);
+    }
+
+    function renderAllStateUI(isLiveOnline) {
+      const liveBadge = document.getElementById("liveBadge");
+      if (isLiveOnline) {
+        liveBadge.classList.remove("offline-mode");
+        liveBadge.innerHTML = `<span class="live-dot"></span>LIVE`;
+      } else {
+        liveBadge.classList.add("offline-mode");
+        liveBadge.innerHTML = `<span class="live-dot"></span>CACHED`;
+      }
+
+      const espOnline = Boolean(isLiveOnline && lastTelemetrySnapshot.espOnline);
+      const wifiBox = document.getElementById("espWifiInlineBox");
+      const wifiTxt = document.getElementById("espWifiText");
+      const wifiIcon = document.getElementById("wifiCheckCircle");
+      wifiBox.className = "esp-wifi-sub " + (espOnline ? "ok" : "bad");
+      wifiTxt.textContent = espOnline ? "Connected" : "Not Connected";
+      wifiIcon.textContent = espOnline ? "📶" : "📵";
+
+      const espBadge = document.getElementById("espBadge");
+      espBadge.textContent = espOnline ? "ONLINE" : (isLiveOnline ? "OFFLINE" : "CACHED");
+      espBadge.className = espOnline ? "pill-badge-green" : "pill-badge-red";
+
+      const doorBadge = document.getElementById("doorBadge");
+      doorBadge.textContent = appState.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
+      doorBadge.className = appState.doorOpen ? "pill-badge-red" : "pill-badge-green";
+
+      document.getElementById("tempCurNum").textContent = Number(appState.tempCurrent).toFixed(1) + "°C";
+      setArc("tempFillPath", appState.tempCurrent, 25, 45);
+      document.getElementById("tempSetVal").textContent = "Target: " + Number(appState.tempSet).toFixed(1) + "°C";
+
+      document.getElementById("humCurNum").textContent = Math.round(appState.humCurrent) + "%";
+      setArc("humFillPath", appState.humCurrent, 0, 100);
+      document.getElementById("humSetVal").textContent = "Target: " + Math.round(appState.humSet) + "%";
+
+      document.getElementById("trayCurPos").textContent = `${appState.currentPosLabel} (${appState.currentPosDeg}°)`;
+      document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
+
+      const hState = lastTelemetrySnapshot.heaterState || "OFF";
+      const hBox = document.getElementById("heaterBox");
+      const hBadge = document.getElementById("heaterBadge");
+      const hSub = document.getElementById("heaterSub");
+      hBadge.textContent = hState;
+      hBadge.className = "hw-badge" + (hState === "ON" || hState === "EXCEEDED" ? " on-red" : "");
+      hBox.className = "hw-card" + (hState === "EXCEEDED" ? " heater-exceeded" : hState === "ON" ? " heater-active" : "");
+      hSub.textContent = hState === "EXCEEDED" ? "Thermal Cutoff!" : hState === "ON" ? "Heating Active" : "Auto Relay Normal";
+
+      const fanOn = lastTelemetrySnapshot.fanOn !== false;
+      const fanRpm = lastTelemetrySnapshot.fanRpm || 1450;
+      document.getElementById("fanBadge").textContent = fanOn ? "ON" : "OFF";
+      document.getElementById("fanSpinner").classList.toggle("spinning", fanOn && isLiveOnline);
+      document.getElementById("fanSub").textContent = fanOn ? `Active • RPM: ${fanRpm}` : "Stopped • RPM: 0";
+
+      updateHomeStoreSummaries();
+      if (document.getElementById("storeModal").classList.contains("open")) {
+        renderStoreModal();
+      }
     }
 
     function sendCmd(action, value, extra = {}) {
@@ -1182,6 +1296,8 @@
 
     function pushStoresSnapshot() {
       lastLocalStoreWriteTs = Date.now();
+      pendingStorePush = true;
+      saveCache();
       fetch(STORES_URL, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -1191,7 +1307,9 @@
           updatedBy: "APP",
           ts: lastLocalStoreWriteTs
         })
-      }).catch(() => {});
+      })
+        .then(res => { if (res.ok) pendingStorePush = false; })
+        .catch(() => {});
     }
 
     function clearSelectionHighlights() {
@@ -1234,6 +1352,7 @@
 
         document.getElementById("trayCurPos").textContent = `${target.label} (${target.deg}°)`;
         document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
+        saveCache();
 
         turnBtn.classList.remove("flashing-red");
         clearSelectionHighlights();
@@ -1606,13 +1725,28 @@
     }
 
     function applyFirebaseData(data, serverReachable) {
-      if (!data) {
+      if (!data || !serverReachable) {
         renderTopRowButtons({
-          serverOk: Boolean(serverReachable),
-          internetOk: phoneHasRealInternet,
+          serverOk: false,
+          internetOk: false,
           appSyncOk: false
         });
+        renderAllStateUI(false);
         return;
+      }
+
+      if (pendingStorePush) {
+        pendingStorePush = false;
+        fetch(STORES_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            "1": appState.stores[1],
+            "2": appState.stores[2],
+            updatedBy: "APP",
+            ts: lastLocalStoreWriteTs || Date.now()
+          })
+        }).catch(() => {});
       }
 
       if (typeof data.devicePassword === "string" && data.devicePassword.length > 0) {
@@ -1624,82 +1758,40 @@
       const isFresh = (hbSec === 0) || (Math.abs(nowSec - hbSec) <= 35);
       const espOnline = (data.espWifi === "connected") && isFresh;
 
-      const wifiBox = document.getElementById("espWifiInlineBox");
-      const wifiTxt = document.getElementById("espWifiText");
-      const wifiIcon = document.getElementById("wifiCheckCircle");
-      wifiBox.className = "esp-wifi-sub " + (espOnline ? "ok" : "bad");
-      wifiTxt.textContent = espOnline ? "Connected" : "Not Connected";
-      wifiIcon.textContent = espOnline ? "📶" : "📵";
-
-      renderTopRowButtons({
-        serverOk: Boolean(serverReachable),
-        internetOk: phoneHasRealInternet && Boolean(serverReachable),
-        appSyncOk: Boolean(serverReachable) && (espOnline || Boolean(data.stores))
-      });
-
-      const espBadge = document.getElementById("espBadge");
-      espBadge.textContent = espOnline ? "ONLINE" : "OFFLINE";
-      espBadge.className = espOnline ? "pill-badge-green" : "pill-badge-red";
-
       appState.doorOpen = Boolean(data.doorOpen);
-      const doorBadge = document.getElementById("doorBadge");
-      doorBadge.textContent = appState.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
-      doorBadge.className = appState.doorOpen ? "pill-badge-red" : "pill-badge-green";
-
-      if (typeof data.tempCurrent === "number") {
-        appState.tempCurrent = data.tempCurrent;
-        document.getElementById("tempCurNum").textContent = data.tempCurrent.toFixed(1) + "°C";
-        setArc("tempFillPath", data.tempCurrent, 25, 45);
-      }
-      if (typeof data.tempSet === "number") {
-        appState.tempSet = data.tempSet;
-        document.getElementById("tempSetVal").textContent = "Target: " + data.tempSet.toFixed(1) + "°C";
-      }
-
-      if (typeof data.humCurrent === "number") {
-        appState.humCurrent = data.humCurrent;
-        document.getElementById("humCurNum").textContent = Math.round(data.humCurrent) + "%";
-        setArc("humFillPath", data.humCurrent, 0, 100);
-      }
-      if (typeof data.humSet === "number") {
-        appState.humSet = data.humSet;
-        document.getElementById("humSetVal").textContent = "Target: " + Math.round(data.humSet) + "%";
-      }
-
+      if (typeof data.tempCurrent === "number") appState.tempCurrent = data.tempCurrent;
+      if (typeof data.tempSet === "number") appState.tempSet = data.tempSet;
+      if (typeof data.humCurrent === "number") appState.humCurrent = data.humCurrent;
+      if (typeof data.humSet === "number") appState.humSet = data.humSet;
       if (typeof data.currentPosDeg === "number") {
         appState.currentPosDeg = data.currentPosDeg;
         appState.currentPosLabel = data.currentPosLabel || "LEFT";
-        document.getElementById("trayCurPos").textContent = `${appState.currentPosLabel} (${appState.currentPosDeg}°)`;
       }
       if (typeof data.lastPosDeg === "number") {
         appState.lastPosDeg = data.lastPosDeg;
         appState.lastPosLabel = data.lastPosLabel || "RIGHT";
-        document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
       }
 
-      const hState = data.heaterState || "OFF";
-      const hBox = document.getElementById("heaterBox");
-      const hBadge = document.getElementById("heaterBadge");
-      const hSub = document.getElementById("heaterSub");
-      hBadge.textContent = hState;
-      hBadge.className = "hw-badge" + (hState === "ON" || hState === "EXCEEDED" ? " on-red" : "");
-      hBox.className = "hw-card" + (hState === "EXCEEDED" ? " heater-exceeded" : hState === "ON" ? " heater-active" : "");
-      hSub.textContent = hState === "EXCEEDED" ? "Thermal Cutoff!" : hState === "ON" ? "Heating Active" : "Auto Relay Normal";
-
-      const fanOn = data.fanOn !== false;
-      const fanRpm = data.fanRpm || 1450;
-      document.getElementById("fanBadge").textContent = fanOn ? "ON" : "OFF";
-      document.getElementById("fanSpinner").classList.toggle("spinning", fanOn);
-      document.getElementById("fanSub").textContent = fanOn ? `Active • RPM: ${fanRpm}` : "Stopped • RPM: 0";
+      lastTelemetrySnapshot = {
+        espOnline,
+        heaterState: data.heaterState || "OFF",
+        fanOn: data.fanOn !== false,
+        fanRpm: data.fanRpm || 1450
+      };
 
       if (data.stores && (Date.now() - lastLocalStoreWriteTs > 4500)) {
         if (data.stores["1"]) appState.stores[1] = normalizeIncomingStore(1, data.stores["1"]);
         if (data.stores["2"]) appState.stores[2] = normalizeIncomingStore(2, data.stores["2"]);
-        updateHomeStoreSummaries();
-        if (document.getElementById("storeModal").classList.contains("open")) {
-          renderStoreModal();
-        }
       }
+
+      saveCache();
+      renderAllStateUI(true);
+
+      renderTopRowButtons({
+        serverOk: true,
+        internetOk: phoneHasRealInternet || true,
+        appSyncOk: espOnline || Boolean(data.stores)
+      });
     }
 
     async function syncLoop() {
@@ -1718,9 +1810,18 @@
     }
 
     document.getElementById("addDateInput").value = todayISO();
-    setArc("tempFillPath", 37.5, 25, 45);
-    setArc("humFillPath", 58, 0, 100);
-    updateHomeStoreSummaries();
+    loadCache();
+    renderAllStateUI(false);
+    renderTopRowButtons({ serverOk: false, internetOk: false, appSyncOk: false });
+
+    window.addEventListener("online", () => {
+      syncLoop();
+    });
+    window.addEventListener("offline", () => {
+      phoneHasRealInternet = false;
+      applyFirebaseData(null, false);
+    });
+
     syncLoop();
     setInterval(syncLoop, 2500);
   </script>
