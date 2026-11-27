@@ -45,7 +45,7 @@
       gap: 6px;
     }
 
-    /* 1st Card: Header + Row 2 (ESP32 Left + 3 Buttons Right-to-Left Larger with Space) */
+    /* 1st Card: Header + Row 2 */
     .top-header-card {
       background: linear-gradient(180deg, #0d1a30 0%, #091222 100%);
       border: 1.5px solid #1d4ed8;
@@ -145,12 +145,23 @@
       animation: none;
     }
 
-    .twoway-sync-pill {
+    /* Server Pill with Two Way Sync Cyan Style + Animated Arrows */
+    @keyframes serverSyncGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45);
+        border-color: rgba(56, 189, 248, 0.65);
+      }
+      50% {
+        box-shadow: 0 0 10px 2px rgba(56, 189, 248, 0.35);
+        border-color: #7dd3fc;
+      }
+    }
+    .server-sync-pill {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       background: rgba(56, 189, 248, 0.16);
-      border: 1px solid rgba(56, 189, 248, 0.55);
+      border: 1px solid rgba(56, 189, 248, 0.6);
       color: #7dd3fc;
       font-size: 0.72rem;
       font-weight: 900;
@@ -158,19 +169,50 @@
       border-radius: 999px;
       white-space: nowrap;
       letter-spacing: 0.2px;
+      transition: all 0.25s ease;
+    }
+    .server-sync-pill.active {
+      animation: serverSyncGlow 1.3s ease-in-out infinite;
+    }
+    .server-sync-pill.offline {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      animation: none;
     }
 
-    /* Replaced 2nd Row: ESP32 Left + 3 Buttons Right-to-Left */
+    @keyframes transferArrowsBounce {
+      0%, 100% {
+        transform: translateY(0px) scale(1);
+        filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.75));
+      }
+      50% {
+        transform: translateY(-1.5px) scale(1.16);
+        filter: drop-shadow(0 0 7px rgba(125, 211, 252, 0.95));
+      }
+    }
+    .server-arrows-img {
+      width: 15px;
+      height: 15px;
+      object-fit: contain;
+      border-radius: 3px;
+      display: inline-block;
+    }
+    .server-arrows-img.animating {
+      animation: transferArrowsBounce 0.95s ease-in-out infinite;
+    }
+
+    /* 2nd Row: Blue WiFi Badge + ESP32 Left, Internet + App Sync Right */
     .header-row-2-inline {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
       background: var(--bg-inner);
       border: 1px solid #1e293b;
       border-radius: 10px;
-      padding: 8px 10px;
+      padding: 7px 9px;
       flex-wrap: nowrap;
       overflow-x: auto;
     }
@@ -181,10 +223,24 @@
       gap: 2px;
       flex-shrink: 0;
     }
+    .esp-badge-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .blue-wifi-badge-img {
+      width: 22px;
+      height: 16px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #ffffff;
+      padding: 1px;
+      flex-shrink: 0;
+    }
     .esp-heading-lg {
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       color: #e2e8f0;
       line-height: 1.1;
       text-transform: uppercase;
@@ -193,7 +249,7 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       font-weight: 800;
       line-height: 1.15;
       white-space: nowrap;
@@ -204,11 +260,11 @@
     .esp-wifi-sub.bad {
       color: #f87171;
     }
-    .top-3-btns {
+
+    .top-right-indicators {
       display: inline-flex;
-      flex-direction: row-reverse;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       margin-left: auto;
       flex-shrink: 0;
     }
@@ -216,9 +272,9 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 6px 10px;
+      padding: 5px 9px;
       border-radius: 999px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 800;
       white-space: nowrap;
       cursor: default;
@@ -235,16 +291,21 @@
       border-color: rgba(239, 68, 68, 0.55);
       color: #fca5a5;
     }
-    @keyframes arrowPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.22); opacity: 0.55; }
+    .purple-waves-img {
+      width: 15px;
+      height: 15px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #ffffff;
+      padding: 1px;
+      flex-shrink: 0;
     }
-    .two-arrows-icon {
-      display: inline-block;
-      font-weight: 900;
+    @keyframes wavePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.16); }
     }
-    .two-arrows-icon.active-blink {
-      animation: arrowPulse 0.8s infinite;
+    .purple-waves-img.active {
+      animation: wavePulse 1.1s ease-in-out infinite;
     }
 
     /* Row 2: ESP32 & DOOR (50/50) */
@@ -549,16 +610,18 @@
       text-align: center;
       white-space: nowrap;
     }
-    .fan-spin-icon {
+    .fan-blade-img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      border-radius: 50%;
       display: inline-block;
-      font-size: 1.06rem;
-      line-height: 1;
     }
     @keyframes spinAnim {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-    .fan-spin-icon.spinning {
+    .fan-blade-img.spinning {
       animation: spinAnim 0.85s linear infinite;
     }
 
@@ -780,7 +843,7 @@
 </head>
 <body>
 
-  <!-- 1st Card: Header + Row 2 (ESP32 Left + 3 Buttons Right-to-Left Larger with Space) -->
+  <!-- 1st Card: Header + Row 2 -->
   <div class="top-header-card">
     <div class="header-row-1">
       <div class="brand-left">
@@ -789,27 +852,28 @@
       </div>
       <div class="header-badges">
         <span id="liveBadge" class="live-pill"><span class="live-dot"></span>LIVE</span>
-        <span class="twoway-sync-pill">⇅ Two Way Sync</span>
+        <span id="serverSyncPill" class="server-sync-pill active">
+          <img id="serverArrowsImg" src="download.png" alt="Server Sync" class="server-arrows-img animating" />
+          <span>Server</span>
+        </span>
       </div>
     </div>
 
     <div class="header-row-2-inline">
       <div class="esp-stack-col">
-        <div class="esp-heading-lg">ESP32</div>
+        <div class="esp-badge-row">
+          <img src="download (2).png" alt="WiFi" class="blue-wifi-badge-img" />
+          <span class="esp-heading-lg">ESP 32</span>
+        </div>
         <div id="espWifiInlineBox" class="esp-wifi-sub bad">
-          <span id="wifiCheckCircle">📵</span>
-          <span id="espWifiText">Not Connected</span>
+          <span id="espWifiText">Disconnected</span>
         </div>
       </div>
 
-      <div class="top-3-btns">
-        <span id="btnServerArrows" class="top-st-btn bad">
-          <span id="serverArrowsGlyph" class="two-arrows-icon">⇅</span>
-          <span>Server</span>
-        </span>
-
+      <div class="top-right-indicators">
         <span id="btnPhoneInternetOk" class="top-st-btn bad">
-          <span>Internet OK</span>
+          <img id="internetWavesImg" src="download (1).png" alt="Internet" class="purple-waves-img" />
+          <span>Internet</span>
         </span>
 
         <span id="btnAppSyncState" class="top-st-btn bad">
@@ -918,7 +982,7 @@
 
     <div id="fanBox" class="hw-card">
       <div class="hw-top-inline">
-        <span id="fanSpinner" class="fan-spin-icon spinning">❄️</span>
+        <img id="fanSpinner" src="download (3).png" alt="FAN" class="fan-blade-img spinning" />
         <span class="fan-label-txt">FAN</span>
         <span id="fanBadge" class="hw-badge">ON</span>
       </div>
@@ -1241,10 +1305,8 @@
       const espOnline = Boolean(isLiveOnline && lastTelemetrySnapshot.espOnline);
       const wifiBox = document.getElementById("espWifiInlineBox");
       const wifiTxt = document.getElementById("espWifiText");
-      const wifiIcon = document.getElementById("wifiCheckCircle");
       wifiBox.className = "esp-wifi-sub " + (espOnline ? "ok" : "bad");
-      wifiTxt.textContent = espOnline ? "Connected" : "Not Connected";
-      wifiIcon.textContent = espOnline ? "📶" : "📵";
+      wifiTxt.textContent = espOnline ? "Connected" : "Disconnected";
 
       const espBadge = document.getElementById("espBadge");
       espBadge.textContent = espOnline ? "ONLINE" : (isLiveOnline ? "OFFLINE" : "CACHED");
@@ -1687,14 +1749,16 @@
     }
 
     function renderTopRowButtons({ serverOk, internetOk, appSyncOk }) {
-      const srvBtn = document.getElementById("btnServerArrows");
-      const srvGlyph = document.getElementById("serverArrowsGlyph");
-      srvBtn.className = "top-st-btn " + (serverOk ? "ok" : "bad");
-      srvGlyph.classList.toggle("active-blink", Boolean(serverOk));
+      const srvPill = document.getElementById("serverSyncPill");
+      const srvImg = document.getElementById("serverArrowsImg");
+      srvPill.className = "server-sync-pill " + (serverOk ? "active" : "offline");
+      srvImg.classList.toggle("animating", Boolean(serverOk));
 
       const netBtn = document.getElementById("btnPhoneInternetOk");
+      const wavesImg = document.getElementById("internetWavesImg");
       netBtn.className = "top-st-btn " + (internetOk ? "ok" : "bad");
-      netBtn.querySelector("span").textContent = internetOk ? "Internet OK" : "No Net";
+      netBtn.querySelector("span").textContent = internetOk ? "Internet" : "No Net";
+      wavesImg.classList.toggle("active", Boolean(internetOk));
 
       const syncBtn = document.getElementById("btnAppSyncState");
       syncBtn.className = "top-st-btn " + (appSyncOk ? "ok" : "bad");
