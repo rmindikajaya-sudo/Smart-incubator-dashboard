@@ -1,0 +1,2190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RTN Egg Bot</title>
+  <style>
+    :root {
+      --bg-page: #050814;
+      --bg-card: #0c1328;
+      --bg-inner: #080d1e;
+      --border-card: #22325c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --green-ok: #22c55e;
+      --red-alert: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 15% 8%, rgba(139, 92, 246, 0.22), transparent 42%),
+        radial-gradient(circle at 88% 85%, rgba(56, 189, 248, 0.16), transparent 45%),
+        var(--bg-page);
+      color: var(--text-main);
+    }
+
+    body {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 6px 8px 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    /* 3D Glossy Card Mixin Look */
+    .card-3d {
+      background: linear-gradient(165deg, #131d3d 0%, #0b1124 55%, #080c1b 100%);
+      border: 1.5px solid rgba(99, 102, 241, 0.42);
+      box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.55),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.16),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.45);
+    }
+
+    /* 1st Card: 3D Header + Inline Row 2 */
+    .top-header-card {
+      background: linear-gradient(155deg, #18234a 0%, #0d1530 58%, #090e22 100%);
+      border: 1.5px solid rgba(129, 140, 248, 0.55);
+      border-radius: 15px;
+      padding: 8px 10px;
+      width: 100%;
+      flex-shrink: 0;
+      box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.6),
+        0 0 14px rgba(99, 102, 241, 0.2),
+        inset 0 1.5px 1px rgba(255, 255, 255, 0.22),
+        inset 0 -2px 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .header-row-1 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .brand-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .egg-outline-icon {
+      width: 22px;
+      height: 25px;
+      border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+      border: 1.8px solid #818cf8;
+      background: radial-gradient(circle at 35% 30%, rgba(167, 139, 250, 0.45), rgba(30, 27, 75, 0.7));
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 2px 5px rgba(0, 0, 0, 0.45);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 0.94rem;
+      font-weight: 900;
+      letter-spacing: 0.25px;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+      white-space: nowrap;
+    }
+
+    .header-badges {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    @keyframes liveSplashFlash {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      }
+      50% {
+        opacity: 0.65;
+        transform: scale(1.04);
+        box-shadow: 0 0 0 5px rgba(34, 197, 94, 0), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      }
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.26), rgba(21, 128, 61, 0.24));
+      border: 1px solid rgba(74, 222, 128, 0.7);
+      color: #4ade80;
+      font-size: 0.68rem;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      animation: liveSplashFlash 1.2s infinite;
+    }
+
+    .live-pill.offline-mode {
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.26), rgba(180, 83, 9, 0.24));
+      border-color: rgba(251, 191, 36, 0.7);
+      color: #fbbf24;
+      animation: none;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .live-pill.offline-mode .live-dot {
+      background: #f59e0b;
+    }
+
+    @keyframes serverSyncGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      }
+      50% {
+        box-shadow: 0 0 9px 2px rgba(129, 140, 248, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    .server-sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(180deg, rgba(99, 102, 241, 0.28), rgba(14, 165, 233, 0.22));
+      border: 1px solid rgba(125, 211, 252, 0.65);
+      color: #bae6fd;
+      font-size: 0.69rem;
+      font-weight: 900;
+      padding: 3px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .server-sync-pill.active {
+      animation: serverSyncGlow 1.4s ease-in-out infinite;
+    }
+
+    .server-sync-pill.offline {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(248, 113, 113, 0.55);
+      color: #fca5a5;
+      animation: none;
+    }
+
+    @keyframes transferArrowsBounce {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-1.5px) scale(1.14); }
+    }
+
+    .server-arrows-img {
+      width: 14px;
+      height: 14px;
+      object-fit: contain;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .server-arrows-img.animating {
+      animation: transferArrowsBounce 0.95s ease-in-out infinite;
+    }
+
+    /* 2nd Row: Fully Inline & Balanced */
+    .header-row-2-inline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+      width: 100%;
+      background: linear-gradient(180deg, rgba(8, 13, 30, 0.88), rgba(12, 19, 42, 0.95));
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55);
+      border-radius: 11px;
+      padding: 5px 7px;
+      flex-wrap: nowrap;
+    }
+
+    .esp-inline-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .blue-wifi-badge-img {
+      width: 21px;
+      height: 17px;
+      object-fit: contain;
+      border-radius: 4px;
+      background: #ffffff;
+      padding: 1px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+    }
+
+    .esp-text-stack {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      line-height: 1.1;
+    }
+
+    .esp-heading-lg {
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      color: #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .esp-wifi-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.63rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .esp-wifi-sub.ok { color: #4ade80; }
+    .esp-wifi-sub.bad { color: #f87171; }
+
+    .wifi-state-mini-img {
+      width: 12px;
+      height: 12px;
+      object-fit: contain;
+      border-radius: 2px;
+      background: #ffffff;
+      padding: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .top-right-indicators {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .top-st-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 7px;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      white-space: nowrap;
+      border: 1px solid transparent;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.18);
+    }
+
+    .top-st-btn.ok {
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.24), rgba(21, 128, 61, 0.22));
+      border-color: rgba(74, 222, 128, 0.55);
+      color: #4ade80;
+    }
+
+    .top-st-btn.bad {
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.24), rgba(153, 27, 27, 0.22));
+      border-color: rgba(248, 113, 113, 0.55);
+      color: #fca5a5;
+    }
+
+    .purple-waves-img {
+      width: 13px;
+      height: 13px;
+      object-fit: contain;
+      border-radius: 3px;
+      background: #ffffff;
+      padding: 0.5px;
+      flex-shrink: 0;
+    }
+
+    @keyframes wavePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.16); }
+    }
+
+    .purple-waves-img.active {
+      animation: wavePulse 1.1s ease-in-out infinite;
+    }
+
+    /* Row 2: ESP32 & DOOR (50/50) */
+    .row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Expanded Bottom Rows (Heater/Fan & Store Details absorb saved meter space) */
+    .row-2col-grow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      flex: 1 1 0;
+      min-height: 0;
+    }
+
+    .pill-status-card {
+      border-radius: 12px;
+      padding: 6px 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .pill-status-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #e2e8f0;
+    }
+
+    .pill-badge-green {
+      background: rgba(22, 163, 74, 0.24);
+      border: 1px solid #22c55e;
+      color: #4ade80;
+      font-size: 0.64rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+
+    .pill-badge-red {
+      background: rgba(239, 68, 68, 0.24);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      font-size: 0.64rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+
+    /* 2nd & 3rd Cards: Compact Top Space Half-Round Needle Gauges */
+    .meter-card {
+      border-radius: 14px;
+      padding: 6px 10px 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      flex: 0 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes redSheddingCardBlink {
+      0%, 100% {
+        border-color: #ef4444;
+        box-shadow: 0 0 16px rgba(239, 68, 68, 0.65), inset 0 0 18px rgba(239, 68, 68, 0.28);
+      }
+      50% {
+        border-color: #fca5a5;
+        box-shadow: 0 0 4px rgba(239, 68, 68, 0.2), inset 0 0 4px rgba(239, 68, 68, 0.05);
+      }
+    }
+
+    .meter-card.warning-shedding {
+      animation: redSheddingCardBlink 0.65s infinite;
+    }
+
+    .meter-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 1px;
+      z-index: 2;
+    }
+
+    .meter-name {
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color: #a5b4fc;
+      white-space: nowrap;
+    }
+
+    .warning-shed-pill {
+      display: none;
+      background: #dc2626;
+      border: 1px solid #fecaca;
+      color: #ffffff;
+      font-size: 0.58rem;
+      font-weight: 900;
+      padding: 1.5px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      animation: redSheddingCardBlink 0.55s infinite;
+    }
+
+    .warning-shed-pill.visible {
+      display: inline-block;
+    }
+
+    .meter-range {
+      font-size: 0.63rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .gauge-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-top: -2px;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      max-width: 276px;
+      height: 122px;
+      display: block;
+      overflow: visible;
+    }
+
+    @keyframes segActiveBlink {
+      0%, 100% {
+        opacity: 1;
+        filter: drop-shadow(0 0 6px currentColor);
+      }
+      50% {
+        opacity: 0.32;
+        filter: none;
+      }
+    }
+
+    .seg-active-blink {
+      animation: segActiveBlink 0.75s ease-in-out infinite;
+    }
+
+    @keyframes needleRedWarnBlink {
+      0%, 100% {
+        filter: drop-shadow(0 0 7px #ef4444);
+        opacity: 1;
+      }
+      50% {
+        filter: drop-shadow(0 0 2px #7f1d1d);
+        opacity: 0.45;
+      }
+    }
+
+    .needle-red-warning {
+      animation: needleRedWarnBlink 0.55s infinite;
+    }
+
+    /* Tray Angle Card */
+    .tray-card {
+      border-radius: 13px;
+      padding: 7px 9px 8px;
+      flex-shrink: 0;
+    }
+
+    .tray-title {
+      font-size: 0.71rem;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+    }
+
+    .angle-btns-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 7px;
+      padding: 0 2px;
+    }
+
+    .angle-sq-btn {
+      width: 100%;
+      height: 31px;
+      border-radius: 9px;
+      border: 1.5px solid #6366f1;
+      background: linear-gradient(180deg, #121c3d, #0a1024);
+      color: #e2e8f0;
+      font-size: 0.71rem;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.14);
+      transition: all 0.2s ease;
+    }
+
+    .angle-sq-btn.selected {
+      background: linear-gradient(180deg, rgba(99, 102, 241, 0.42), rgba(14, 165, 233, 0.35));
+      border-color: #a5b4fc;
+      color: #ffffff;
+      box-shadow: 0 0 9px rgba(129, 140, 248, 0.55);
+    }
+
+    @keyframes rgbBorderCycle {
+      0% { border-color: #ef4444; box-shadow: 0 0 10px #ef4444; color: #fca5a5; }
+      33% { border-color: #22c55e; box-shadow: 0 0 10px #22c55e; color: #86efac; }
+      66% { border-color: #3b82f6; box-shadow: 0 0 10px #3b82f6; color: #93c5fd; }
+      100% { border-color: #ef4444; box-shadow: 0 0 10px #ef4444; color: #fca5a5; }
+    }
+
+    .angle-sq-btn.rgb-moving {
+      animation: rgbBorderCycle 0.75s linear infinite;
+      background: #111827;
+    }
+
+    .tray-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .pos-mini-box {
+      background: var(--bg-inner);
+      border: 1px solid #1e293b;
+      border-radius: 9px;
+      padding: 5px 4px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .pos-mini-lbl {
+      font-size: 0.52rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .pos-mini-val-white {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 1px;
+    }
+
+    .pos-mini-val-cyan {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #38bdf8;
+      margin-top: 1px;
+    }
+
+    .turn-egg-main-btn {
+      border: 1px solid rgba(165, 180, 252, 0.5);
+      border-radius: 9px;
+      background: linear-gradient(135deg, #6366f1, #0ea5e9);
+      color: #ffffff;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 6px 5px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(99, 102, 241, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes redFlashBtn {
+      0%, 100% { background: #dc2626; box-shadow: 0 0 14px rgba(239, 68, 68, 0.9); }
+      50% { background: #7f1d1d; box-shadow: 0 0 4px rgba(239, 68, 68, 0.3); }
+    }
+
+    .turn-egg-main-btn.flashing-red {
+      animation: redFlashBtn 0.45s infinite;
+      color: #ffffff;
+    }
+
+    /* Expanded Heater & Fan Row (Larger Card + Scaled Font Sizes) */
+    .hw-card {
+      border: 2px solid var(--green-ok);
+      border-radius: 14px;
+      padding: 10px 10px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .hw-card.heater-active {
+      border-color: #ef4444;
+      animation: borderFlashRed 0.9s infinite;
+    }
+
+    .hw-card.heater-exceeded {
+      animation: fullCardBlinkRed 0.6s infinite;
+    }
+
+    @keyframes borderFlashRed {
+      0%, 100% { border-color: #ef4444; }
+      50% { border-color: #fca5a5; }
+    }
+
+    @keyframes fullCardBlinkRed {
+      0%, 100% { background: #450a0a; border-color: #ef4444; }
+      50% { background: #0e1729; border-color: #ef4444; }
+    }
+
+    .hw-top-inline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .flame-lg {
+      font-size: 1.28rem;
+      line-height: 1;
+    }
+
+    .heater-label-red {
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: #f87171;
+      letter-spacing: 0.4px;
+    }
+
+    .fan-label-txt {
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: #38bdf8;
+      letter-spacing: 0.4px;
+      margin-left: 2px;
+    }
+
+    .hw-badge {
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.24);
+      border: 1.2px solid #22c55e;
+      color: #4ade80;
+    }
+
+    .hw-badge.on-red {
+      background: rgba(239, 68, 68, 0.28);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
+    .hw-sub-inline {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .fan-blade-img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    @keyframes spinAnim {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .fan-blade-img.spinning {
+      animation: spinAnim 0.85s linear infinite;
+    }
+
+    /* Expanded 1st & 2nd Store Details (Larger Card + Scaled Font Sizes) */
+    @keyframes cmykFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .cmyk-store-card {
+      background: linear-gradient(125deg, #0891b2, #7c3aed, #db2777, #d97706, #0284c7);
+      background-size: 320% 320%;
+      animation: cmykFlow 7s ease infinite;
+      border: 1.6px solid rgba(255, 255, 255, 0.35);
+      border-radius: 14px;
+      padding: 11px 12px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 5px 14px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.38);
+    }
+
+    .cmyk-store-card:active {
+      transform: scale(0.98);
+    }
+
+    .store-text-col {
+      min-width: 0;
+    }
+
+    .store-card-title {
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    }
+
+    .store-card-sub {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-top: 4px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    }
+
+    .inventory-book-box {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1.6px solid #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.02rem;
+      flex-shrink: 0;
+    }
+
+    /* Full-Page Popup Modal for Store Details */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.92);
+      z-index: 999;
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    .modal-backdrop.open {
+      display: block;
+    }
+
+    .modal-sheet {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #0e1729;
+      border: 1.5px solid #253858;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #38bdf8;
+    }
+
+    .modal-x-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .tabs-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #070d19;
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      padding: 7px 4px;
+      border-radius: 9px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #94a3b8;
+      font-size: 0.72rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: #0284c7;
+      border-color: #7dd3fc;
+      color: #ffffff;
+    }
+
+    .modal-box {
+      background: #0a1120;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .trays-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .tray-detail-card {
+      background: #0e1729;
+      border: 1px solid #26354f;
+      border-radius: 10px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .lock-pill {
+      display: inline-block;
+      background: rgba(185, 28, 28, 0.28);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 6px;
+      margin-left: 4px;
+    }
+
+    .lock-pill.unlocked {
+      background: rgba(22, 163, 74, 0.24);
+      border-color: #22c55e;
+      color: #4ade80;
+    }
+
+    .field-lbl {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 5px;
+    }
+
+    .input-dark, .select-dark {
+      width: 100%;
+      background: #0f1c33;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #ffffff;
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary-blue {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 0.84rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn-danger-red {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 0.86rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .btn-close-sheet {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      background: #132038;
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1st Card: 3D Header + Inline Status Row -->
+  <div class="top-header-card">
+    <div class="header-row-1">
+      <div class="brand-left">
+        <span class="egg-outline-icon">🥚</span>
+        <span class="brand-title">RTN Egg Bot</span>
+      </div>
+      <div class="header-badges">
+        <span id="liveBadge" class="live-pill"><span class="live-dot"></span>LIVE</span>
+        <span id="serverSyncPill" class="server-sync-pill active">
+          <img id="serverArrowsImg" src="icon-server-sync.png" alt="Server" class="server-arrows-img animating" />
+          <span>Server</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="header-row-2-inline">
+      <div class="esp-inline-group">
+        <img src="icon-wifi-badge.png" alt="WiFi" class="blue-wifi-badge-img" />
+        <div class="esp-text-stack">
+          <span class="esp-heading-lg">ESP 32</span>
+          <div id="espWifiInlineBox" class="esp-wifi-sub bad">
+            <img id="espWifiStateImg" src="icon-wifi-off.png" alt="State" class="wifi-state-mini-img" />
+            <span id="espWifiText">Disconnected</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="top-right-indicators">
+        <span id="btnPhoneInternetOk" class="top-st-btn bad">
+          <img id="internetWavesImg" src="icon-internet-waves.png" alt="Internet" class="purple-waves-img" />
+          <span>Internet</span>
+        </span>
+
+        <span id="btnAppSyncState" class="top-st-btn bad">
+          <span>App Sync</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2nd Row: ESP32: ONLINE | DOOR: CLOSED -->
+  <div class="row-2col">
+    <div class="pill-status-card card-3d">
+      <span class="pill-status-title">ESP32:</span>
+      <span id="espBadge" class="pill-badge-red">CHECKING...</span>
+    </div>
+    <div class="pill-status-card card-3d">
+      <span class="pill-status-title">DOOR:</span>
+      <span id="doorBadge" class="pill-badge-green">CLOSED 🔒</span>
+    </div>
+  </div>
+
+  <!-- 3rd Card: TEMPERATURE (Tight Top Space + 2-by-2 Color Pattern + Needle + Warning) -->
+  <div id="tempMeterCard" class="meter-card card-3d">
+    <div class="meter-top">
+      <span class="meter-name">🌡️ TEMPERATURE</span>
+      <span id="tempShedWarning" class="warning-shed-pill">⚠️ RED SHEDDING WARNING</span>
+      <span class="meter-range">0°C – 40°C</span>
+    </div>
+    <div class="gauge-stage">
+      <svg id="tempGaugeSvg" class="gauge-svg" viewBox="0 6 280 132"></svg>
+    </div>
+  </div>
+
+  <!-- 4th Card: HUMIDITY (Tight Top Space + 5-by-5 Color Pattern + Needle + Warning) -->
+  <div id="humMeterCard" class="meter-card card-3d">
+    <div class="meter-top">
+      <span class="meter-name">💧 HUMIDITY</span>
+      <span id="humShedWarning" class="warning-shed-pill">⚠️ HIGH HUMIDITY WARNING</span>
+      <span class="meter-range">0% – 100%</span>
+    </div>
+    <div class="gauge-stage">
+      <svg id="humGaugeSvg" class="gauge-svg" viewBox="0 6 280 132"></svg>
+    </div>
+  </div>
+
+  <!-- 5th Card: TRAY ANGLE -->
+  <div class="tray-card card-3d">
+    <div class="tray-title">🔄 TRAY ANGLE</div>
+    <div class="angle-btns-wrap">
+      <button id="btnSelLeft" class="angle-sq-btn" onclick="selectAngle(-45, 'LEFT')">LEFT</button>
+      <button id="btnSelCenter" class="angle-sq-btn" onclick="selectAngle(90, 'CENTER')">CENTER</button>
+      <button id="btnSelRight" class="angle-sq-btn" onclick="selectAngle(135, 'RIGHT')">RIGHT</button>
+    </div>
+    <div class="tray-bottom-grid">
+      <div class="pos-mini-box">
+        <span class="pos-mini-lbl">CURRENT POS</span>
+        <span id="trayCurPos" class="pos-mini-val-white">LEFT (-45°)</span>
+      </div>
+      <button id="btnTurnEggAction" class="turn-egg-main-btn" onclick="executeTurnEgg()">🔄 TURN EGG</button>
+      <div class="pos-mini-box">
+        <span class="pos-mini-lbl">LAST POS (EEPROM)</span>
+        <span id="trayLastPos" class="pos-mini-val-cyan">RIGHT (135°)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6th Row: Expanded HEATER & FAN Cards -->
+  <div class="row-2col-grow">
+    <div id="heaterBox" class="hw-card card-3d">
+      <div class="hw-top-inline">
+        <span class="flame-lg">🔥</span>
+        <span class="heater-label-red">HEATER</span>
+        <span id="heaterBadge" class="hw-badge">OFF</span>
+      </div>
+      <div id="heaterSub" class="hw-sub-inline">Auto Relay Normal</div>
+    </div>
+
+    <div id="fanBox" class="hw-card card-3d">
+      <div class="hw-top-inline">
+        <img id="fanSpinner" src="icon-fan-blade.png" alt="FAN" class="fan-blade-img spinning" />
+        <span class="fan-label-txt">FAN</span>
+        <span id="fanBadge" class="hw-badge">ON</span>
+      </div>
+      <div id="fanSub" class="hw-sub-inline">Active • RPM: 1450</div>
+    </div>
+  </div>
+
+  <!-- 7th Row: Expanded 1st Store & 2nd Store Details Cards -->
+  <div class="row-2col-grow">
+    <div class="cmyk-store-card" onclick="openStoreModal(1)">
+      <div class="store-text-col">
+        <div class="store-card-title">1st Store Details</div>
+        <div id="homeStore1Summary" class="store-card-sub">Loading...</div>
+      </div>
+      <span class="inventory-book-box">📖</span>
+    </div>
+
+    <div class="cmyk-store-card" onclick="openStoreModal(2)">
+      <div class="store-text-col">
+        <div class="store-card-title">2nd Store Details</div>
+        <div id="homeStore2Summary" class="store-card-sub">Loading...</div>
+      </div>
+      <span class="inventory-book-box">📖</span>
+    </div>
+  </div>
+
+  <!-- Store Details Full Popup Modal -->
+  <div id="storeModal" class="modal-backdrop">
+    <div class="modal-sheet">
+      <div class="modal-top">
+        <div id="modalStoreTitle" class="modal-title">📦 1st Store Details</div>
+        <button class="modal-x-btn" onclick="closeStoreModal()">✕</button>
+      </div>
+
+      <div class="tabs-bar">
+        <button id="tabBtnStatus" class="tab-btn active" onclick="switchTab('status')">📊 Status</button>
+        <button id="tabBtnAdd" class="tab-btn" onclick="switchTab('add')">+ Add</button>
+        <button id="tabBtnUnlock" class="tab-btn" onclick="switchTab('unlock')">🔓 Unlock</button>
+        <button id="tabBtnClear" class="tab-btn" onclick="switchTab('clear')">🗑️ Clear</button>
+      </div>
+
+      <!-- Status Tab -->
+      <div id="paneStatus">
+        <div class="modal-box row-between">
+          <span style="font-size:0.8rem; font-weight:700; color:#cbd5e1;">Egg Variety (වර්ගය):</span>
+          <span id="stVariety" style="font-size:0.88rem; font-weight:900; color:#facc15;">Quail</span>
+        </div>
+
+        <div class="modal-box">
+          <div class="row-between">
+            <span style="font-size:0.8rem; font-weight:800; color:#e2e8f0;">Tray Breakdown:</span>
+            <span id="stTotalEggs" style="background:#172554; color:#93c5fd; font-size:0.72rem; font-weight:800; padding:2px 8px; border-radius:8px;">Total: 0 Eggs</span>
+          </div>
+          <div class="trays-2col">
+            <div class="tray-detail-card">
+              <div id="stTray1Title" style="font-size:0.76rem; font-weight:800;">Tray 1 <span id="stTray1Lock" class="lock-pill unlocked">🔓 Open</span></div>
+              <div id="stTray1Count" style="font-size:0.96rem; font-weight:900; color:#38bdf8; margin:3px 0;">0/40 Eggs</div>
+              <div id="stTray1Day" style="font-size:0.68rem; color:#94a3b8;">Empty</div>
+            </div>
+            <div class="tray-detail-card">
+              <div id="stTray2Title" style="font-size:0.76rem; font-weight:800;">Tray 2 <span id="stTray2Lock" class="lock-pill unlocked">🔓 Open</span></div>
+              <div id="stTray2Count" style="font-size:0.96rem; font-weight:900; color:#38bdf8; margin:3px 0;">0/40 Eggs</div>
+              <div id="stTray2Day" style="font-size:0.68rem; color:#94a3b8;">Empty</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-box row-between">
+          <span style="font-size:0.78rem; color:#cbd5e1;">Stored Date:</span>
+          <span id="stStoredDate" style="font-size:0.84rem; font-weight:800; color:#c084fc;">--</span>
+        </div>
+
+        <div class="trays-2col" style="margin-top:0; margin-bottom:10px;">
+          <div class="modal-box" style="margin-bottom:0;">
+            <div style="font-size:0.7rem; color:#94a3b8;">Elapsed Days:</div>
+            <div id="stElapsed" style="font-size:0.94rem; font-weight:900; color:#4ade80; margin-top:2px;">0 Days</div>
+          </div>
+          <div class="modal-box" style="margin-bottom:0;">
+            <div style="font-size:0.7rem; color:#94a3b8;">Remaining:</div>
+            <div id="stRemaining" style="font-size:0.94rem; font-weight:900; color:#38bdf8; margin-top:2px;">17 Days</div>
+          </div>
+        </div>
+
+        <div class="modal-box row-between">
+          <span style="font-size:0.78rem; color:#cbd5e1;">Reminder Times:</span>
+          <span id="stReminders" style="font-size:0.84rem; font-weight:800; color:#fb7185;">07:15 &amp; 18:45</span>
+        </div>
+      </div>
+
+      <!-- Add Tab -->
+      <div id="paneAdd" style="display:none;">
+        <div class="modal-box">
+          <label class="field-lbl">Egg Variety (වර්ගය):</label>
+          <select id="addVarietySelect" class="select-dark">
+            <option value="Quail|17">Quail (17 Days)</option>
+            <option value="Chicken|21">Chicken (21 Days)</option>
+          </select>
+
+          <label class="field-lbl">දැන් තියන්න බලාපොරොත්තු වෙන මුළු බිත්තර ගණන (Max Store Space: 80):</label>
+          <div style="display:flex; gap:8px; margin-bottom:10px;">
+            <input id="plannedTotalInput" type="number" min="1" max="80" placeholder="උදා: 50" class="input-dark" style="margin-bottom:0;" />
+            <button type="button" class="btn-primary-blue" style="width:90px; flex-shrink:0;" onclick="confirmPlannedTotal()">OK</button>
+          </div>
+
+          <div id="trayAllocationBox" style="display:none; background:#070d19; border:1px solid #1e3a8a; border-radius:10px; padding:9px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-size:0.74rem; font-weight:800; color:#93c5fd;">බෙදීමට ඉතිරි බිත්තර:</span>
+              <span id="unassignedCountBadge" style="background:#1d4ed8; color:#fff; font-size:0.78rem; font-weight:900; padding:2px 9px; border-radius:999px;">0 Eggs</span>
+            </div>
+
+            <div class="trays-2col" style="margin-top:0; margin-bottom:8px;">
+              <div class="tray-detail-card">
+                <div id="allocTrayATitle" style="font-size:0.76rem; font-weight:800; color:#e2e8f0;">Tray 1</div>
+                <div id="allocTrayACur" style="font-size:0.88rem; font-weight:900; color:#38bdf8; margin:2px 0;">දැනට: 0/40</div>
+                <div id="allocTrayAFree" style="font-size:0.68rem; font-weight:800; color:#4ade80;">දාන්න පුළුවන්: 40</div>
+              </div>
+              <div class="tray-detail-card">
+                <div id="allocTrayBTitle" style="font-size:0.76rem; font-weight:800; color:#e2e8f0;">Tray 2</div>
+                <div id="allocTrayBCur" style="font-size:0.88rem; font-weight:900; color:#38bdf8; margin:2px 0;">දැනට: 0/40</div>
+                <div id="allocTrayBFree" style="font-size:0.68rem; font-weight:800; color:#4ade80;">දාන්න පුළුවන්: 40</div>
+              </div>
+            </div>
+
+            <label class="field-lbl">බිත්තර දාන Tray එක තෝරන්න (Auto-Merge නැත):</label>
+            <div style="display:flex; gap:6px;">
+              <select id="targetTraySelect" class="select-dark" style="margin-bottom:0; flex:1.1;">
+                <option id="optTrayA" value="0">Tray 1</option>
+                <option id="optTrayB" value="1">Tray 2</option>
+              </select>
+              <input id="singleTrayAddQty" type="number" min="1" max="40" placeholder="ප්‍රමාණය" class="input-dark" style="margin-bottom:0; flex:0.8;" />
+              <button type="button" class="btn-primary-blue" style="width:78px; flex-shrink:0; background:#10b981;" onclick="addEggsToSelectedTray()">+ දාන්න</button>
+            </div>
+          </div>
+
+          <div class="trays-2col" style="margin-top:0;">
+            <div>
+              <label class="field-lbl">Stored Date:</label>
+              <input id="addDateInput" type="date" class="input-dark" />
+            </div>
+            <div>
+              <label class="field-lbl">Reminder Count (කීයක්ද?):</label>
+              <select id="reminderCountSelect" class="select-dark" onchange="toggleReminderInputs()">
+                <option value="2">2 Times (Time 1 &amp; Time 2)</option>
+                <option value="1">1 Time (Single Time)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="trays-2col" style="margin-top:0;">
+            <div>
+              <label class="field-lbl">Reminder Time 1:</label>
+              <input id="remTime1Input" type="text" value="07:15" placeholder="HH:MM" class="input-dark" />
+            </div>
+            <div id="remTime2Wrap">
+              <label class="field-lbl">Reminder Time 2:</label>
+              <input id="remTime2Input" type="text" value="16:25" placeholder="HH:MM" class="input-dark" />
+            </div>
+          </div>
+
+          <button type="button" class="btn-primary-blue" style="background:#0f766e; margin-bottom:10px;" onclick="saveReminderTimesOnly()">⏰ Save Reminder Time(s)</button>
+          <button class="btn-primary-blue" onclick="saveAndLockStore()">💾 Save &amp; Lock Store</button>
+        </div>
+      </div>
+
+      <!-- Unlock Tab -->
+      <div id="paneUnlock" style="display:none;">
+        <div class="modal-box">
+          <div style="font-size:0.78rem; color:#e2e8f0; margin-bottom:8px; line-height:1.4;">
+            අත්වැරදීමකින් Tray එකක් Lock වුණා නම් Password ඇතුළත් කර Unlock කරන්න (Default: 1234):
+          </div>
+          <input id="unlockPassInput" type="password" placeholder="Enter Unlock Password" class="input-dark" />
+          <div class="trays-2col" style="margin-top:0;">
+            <button id="btnUnlockTray1" class="btn-primary-blue" onclick="unlockTray(1)">🔓 Unlock Tray 1</button>
+            <button id="btnUnlockTray2" class="btn-primary-blue" onclick="unlockTray(2)">🔓 Unlock Tray 2</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clear Tab -->
+      <div id="paneClear" style="display:none;">
+        <div class="modal-box">
+          <div style="font-size:0.78rem; color:#fca5a5; margin-bottom:8px; line-height:1.45;">
+            මෙම Store එකේ සියලුම බිත්තර දත්ත ඉවත් කර (Reset) නැවත 0 කිරීමට Password ඇතුළත් කර Verify කරන්න (Default: 1234).
+          </div>
+          <input id="clearPassInput" type="password" placeholder="Enter Password to Clear Store" class="input-dark" />
+          <button class="btn-danger-red" onclick="verifyAndClearStore()">🗑️ Verify Password &amp; Clear All Eggs in Store</button>
+        </div>
+      </div>
+
+      <button class="btn-close-sheet" onclick="closeStoreModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const FIREBASE_BASE = "https://eggbotrm-default-rtdb.asia-southeast1.firebasedatabase.app";
+    const FIREBASE_SECRET = "wiSVmpMOYWsolFFfNuTM4JbwDlDMBAAxkSlTlPm1";
+    const DB_URL = `${FIREBASE_BASE}/incubator.json?auth=${FIREBASE_SECRET}`;
+    const CMD_URL = `${FIREBASE_BASE}/incubator/cmd.json?auth=${FIREBASE_SECRET}`;
+    const STORES_URL = `${FIREBASE_BASE}/incubator/stores.json?auth=${FIREBASE_SECRET}`;
+    const CACHE_KEY = "RTN_EGG_BOT_CACHE_V2";
+
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+
+    let activeStoreId = 1;
+    let pendingAngle = null;
+    let isTurning = false;
+    let draftTrayCounts = [0, 0];
+    let remainingToAssign = 0;
+    let lastLocalStoreWriteTs = 0;
+    let pendingStorePush = false;
+    let devicePassword = "1234";
+    let phoneHasRealInternet = false;
+    let lastTelemetrySnapshot = {
+      espOnline: false,
+      heaterState: "OFF",
+      fanOn: true,
+      fanRpm: 1450
+    };
+
+    function todayISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    let appState = {
+      tempCurrent: 37.5,
+      tempSet: 37.5,
+      humCurrent: 58,
+      humSet: 60,
+      currentPosDeg: -45,
+      currentPosLabel: "LEFT",
+      lastPosDeg: 135,
+      lastPosLabel: "RIGHT",
+      doorOpen: false,
+      stores: {
+        1: {
+          variety: "Quail",
+          totalDays: 17,
+          storedDate: todayISO(),
+          reminders: "07:15 & 18:45",
+          trays: [
+            { name: "Tray 1", count: 0, max: 40, locked: false },
+            { name: "Tray 2", count: 0, max: 40, locked: false }
+          ]
+        },
+        2: {
+          variety: "Quail",
+          totalDays: 17,
+          storedDate: todayISO(),
+          reminders: "07:15 & 16:25",
+          trays: [
+            { name: "Tray 3", count: 0, max: 40, locked: false },
+            { name: "Tray 4", count: 0, max: 40, locked: false }
+          ]
+        }
+      }
+    };
+
+    function polarToXY(cx, cy, r, degFromLeft) {
+      const rad = ((180 - degFromLeft) * Math.PI) / 180;
+      return {
+        x: cx + r * Math.cos(rad),
+        y: cy - r * Math.sin(rad)
+      };
+    }
+
+    function describeAnnularWedge(cx, cy, rInner, rOuter, startDeg, endDeg) {
+      const p1 = polarToXY(cx, cy, rOuter, startDeg);
+      const p2 = polarToXY(cx, cy, rOuter, endDeg);
+      const p3 = polarToXY(cx, cy, rInner, endDeg);
+      const p4 = polarToXY(cx, cy, rInner, startDeg);
+      const largeArc = endDeg - startDeg > 180 ? 1 : 0;
+      return [
+        `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`,
+        `A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
+        `L ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`,
+        `A ${rInner} ${rInner} 0 ${largeArc} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
+        "Z"
+      ].join(" ");
+    }
+
+    function getTempSegmentColor(idx) {
+      if (idx === 19) return "#ef4444"; // 38 - 40°C RED
+      if (idx === 18) return "#22c55e"; // 36 - 38°C GREEN
+      const palette = [
+        "#2563eb", "#3b82f6",
+        "#0284c7", "#0ea5e9",
+        "#0891b2", "#06b6d4",
+        "#0d9488", "#14b8a6",
+        "#6366f1", "#8b5cf6",
+        "#a855f7", "#c084fc",
+        "#d97706", "#f59e0b",
+        "#eab308", "#facc15",
+        "#84cc16", "#a3e635"
+      ];
+      return palette[idx] || "#38bdf8";
+    }
+
+    function getHumSegmentColor(idx) {
+      if (idx >= 18) return "#ef4444"; // 90 - 100% RED
+      const palette = [
+        "#dc2626", "#ea580c",
+        "#d97706", "#f59e0b",
+        "#eab308", "#facc15",
+        "#84cc16", "#a3e635",
+        "#16a34a", "#22c55e",
+        "#10b981", "#34d399",
+        "#059669", "#06b6d4",
+        "#0891b2", "#0ea5e9",
+        "#3b82f6", "#6366f1"
+      ];
+      return palette[idx] || "#06b6d4";
+    }
+
+    function renderHalfRoundMeter({
+      svgId,
+      cardId,
+      warnPillId,
+      value,
+      target,
+      min,
+      max,
+      unit,
+      decimals,
+      colorFn,
+      redThreshold
+    }) {
+      const svg = document.getElementById(svgId);
+      if (!svg) return;
+
+      const cx = 140;
+      const cy = 114;
+      const rOuterBevel = 104;
+      const rSegOuter = 96;
+      const rSegInner = 71;
+      const numSegs = 20;
+      const stepVal = (max - min) / numSegs;
+      const stepDeg = 180 / numSegs;
+      const gapDeg = 1.1;
+
+      const clampedVal = Math.max(min, Math.min(max, Number(value) || 0));
+      const valRatio = (clampedVal - min) / (max - min);
+      const needleDeg = valRatio * 180;
+      const activeSegIdx = clampedVal <= min
+        ? -1
+        : Math.min(numSegs - 1, Math.floor((clampedVal - min - 0.0001) / stepVal));
+      const isRedZone = clampedVal >= redThreshold;
+
+      const cardEl = document.getElementById(cardId);
+      const warnEl = document.getElementById(warnPillId);
+      if (cardEl) cardEl.classList.toggle("warning-shedding", isRedZone);
+      if (warnEl) warnEl.classList.toggle("visible", isRedZone);
+
+      const uid = svgId;
+      let html = `
+        <defs>
+          <linearGradient id="${uid}_rimGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#a5b4fc" stop-opacity="0.75" />
+            <stop offset="50%" stop-color="#312e81" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.95" />
+          </linearGradient>
+          <radialGradient id="${uid}_pivotGrad" cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="55%" stop-color="#94a3b8" />
+            <stop offset="100%" stop-color="#1e293b" />
+          </radialGradient>
+        </defs>
+
+        <!-- 3D Outer Glossy Rim -->
+        <path d="${describeAnnularWedge(cx, cy, rSegOuter + 2, rOuterBevel, 0, 180)}"
+              fill="url(#${uid}_rimGrad)" stroke="rgba(199,210,254,0.35)" stroke-width="0.8" />
+        <line x1="${cx - rOuterBevel}" y1="${cy + 1}" x2="${cx + rOuterBevel}" y2="${cy + 1}"
+              stroke="rgba(129,140,248,0.4)" stroke-width="2" stroke-linecap="round" />
+      `;
+
+      for (let i = 0; i < numSegs; i++) {
+        const sStartDeg = i * stepDeg + gapDeg / 2;
+        const sEndDeg = (i + 1) * stepDeg - gapDeg / 2;
+        const segMinVal = min + i * stepVal;
+        const segMaxVal = min + (i + 1) * stepVal;
+        const segColor = colorFn(i);
+        const isActiveSeg = i === activeSegIdx;
+        const blinkAttr = isActiveSeg ? `class="seg-active-blink" style="color:${segColor}"` : "";
+
+        html += `<path d="${describeAnnularWedge(cx, cy, rSegInner, rSegOuter, sStartDeg, sEndDeg)}"
+                       fill="#111936" stroke="#070b19" stroke-width="0.6" />`;
+
+        if (clampedVal >= segMaxVal) {
+          html += `<path ${blinkAttr}
+                         d="${describeAnnularWedge(cx, cy, rSegInner, rSegOuter, sStartDeg, sEndDeg)}"
+                         fill="${segColor}" />`;
+        } else if (clampedVal > segMinVal) {
+          const partialRatio = (clampedVal - segMinVal) / stepVal;
+          const cutDeg = sStartDeg + (sEndDeg - sStartDeg) * partialRatio;
+          if (cutDeg > sStartDeg + 0.3) {
+            html += `<path ${blinkAttr}
+                           d="${describeAnnularWedge(cx, cy, rSegInner, rSegOuter, sStartDeg, cutDeg)}"
+                           fill="${segColor}" />`;
+          }
+        }
+      }
+
+      html += `
+        <text x="${cx - rOuterBevel + 4}" y="${cy + 15}" fill="#94a3b8" font-size="9" font-weight="800" text-anchor="start">${min}${unit}</text>
+        <text x="${cx + rOuterBevel - 4}" y="${cy + 15}" fill="#94a3b8" font-size="9" font-weight="800" text-anchor="end">${max}${unit}</text>
+      `;
+
+      const needleRotAngle = needleDeg - 90;
+      const needleFill = isRedZone ? "#ef4444" : "#f8fafc";
+      const needleStroke = isRedZone ? "#fecaca" : "#38bdf8";
+      const needleClass = isRedZone ? "needle-red-warning" : "";
+
+      const valText = `${clampedVal.toFixed(decimals)}${unit}`;
+      const targetText = `Target: ${Number(target).toFixed(decimals)}${unit}`;
+
+      html += `
+        <!-- Pointed 3D Needle (rendered behind value badge so center text stays crystal clear) -->
+        <g class="${needleClass}" transform="rotate(${needleRotAngle.toFixed(2)} ${cx} ${cy})">
+          <polygon points="${cx - 3.6},${cy} ${cx},${cy - 66} ${cx + 3.6},${cy}"
+                   fill="${needleFill}" stroke="${needleStroke}" stroke-width="0.9" />
+        </g>
+
+        <!-- Current Reading ABOVE Needle -->
+        <g>
+          <rect x="${cx - 42}" y="${cy - 54}" width="84" height="23" rx="7"
+                fill="rgba(8, 13, 30, 0.92)" stroke="rgba(129, 140, 248, 0.55)" stroke-width="1" />
+          <text x="${cx}" y="${cy - 38}" fill="${isRedZone ? '#fca5a5' : '#ffffff'}"
+                font-size="15.5" font-weight="900" text-anchor="middle">${valText}</text>
+        </g>
+
+        <!-- Pivot Cap -->
+        <circle cx="${cx}" cy="${cy}" r="9.5" fill="#090d1f" stroke="#818cf8" stroke-width="1.5" />
+        <circle cx="${cx}" cy="${cy}" r="6" fill="url(#${uid}_pivotGrad)" />
+
+        <!-- Set / Target Reading BELOW Needle -->
+        <g>
+          <rect x="${cx - 48}" y="${cy + 12}" width="96" height="17" rx="8.5"
+                fill="${isRedZone ? 'rgba(239,68,68,0.22)' : 'rgba(99,102,241,0.22)'}"
+                stroke="${isRedZone ? 'rgba(248,113,113,0.7)' : 'rgba(129,140,248,0.65)'}" stroke-width="1" />
+          <text x="${cx}" y="${cy + 23.5}" fill="${isRedZone ? '#fca5a5' : '#c7d2fe'}"
+                font-size="9.5" font-weight="800" text-anchor="middle">${targetText}</text>
+        </g>
+      `;
+
+      svg.innerHTML = html;
+    }
+
+    function saveCache() {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          appState,
+          telemetry: lastTelemetrySnapshot,
+          devicePassword,
+          savedAt: Date.now()
+        }));
+      } catch (e) {}
+    }
+
+    function loadCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.appState) {
+          appState = {
+            ...appState,
+            ...parsed.appState,
+            stores: {
+              1: parsed.appState.stores && parsed.appState.stores["1"] ? normalizeIncomingStore(1, parsed.appState.stores["1"]) : appState.stores[1],
+              2: parsed.appState.stores && parsed.appState.stores["2"] ? normalizeIncomingStore(2, parsed.appState.stores["2"]) : appState.stores[2]
+            }
+          };
+        }
+        if (parsed && parsed.telemetry) {
+          lastTelemetrySnapshot = { ...lastTelemetrySnapshot, ...parsed.telemetry };
+        }
+        if (parsed && typeof parsed.devicePassword === "string" && parsed.devicePassword.length > 0) {
+          devicePassword = parsed.devicePassword;
+        }
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function renderAllStateUI(isLiveOnline) {
+      const liveBadge = document.getElementById("liveBadge");
+      if (isLiveOnline) {
+        liveBadge.classList.remove("offline-mode");
+        liveBadge.innerHTML = `<span class="live-dot"></span>LIVE`;
+      } else {
+        liveBadge.classList.add("offline-mode");
+        liveBadge.innerHTML = `<span class="live-dot"></span>CACHED`;
+      }
+
+      const espOnline = Boolean(isLiveOnline && lastTelemetrySnapshot.espOnline);
+      const wifiBox = document.getElementById("espWifiInlineBox");
+      const wifiTxt = document.getElementById("espWifiText");
+      const wifiImg = document.getElementById("espWifiStateImg");
+      wifiBox.className = "esp-wifi-sub " + (espOnline ? "ok" : "bad");
+      wifiTxt.textContent = espOnline ? "Connected" : "Disconnected";
+      wifiImg.src = espOnline ? "icon-wifi-ok.png" : "icon-wifi-off.png";
+
+      const espBadge = document.getElementById("espBadge");
+      espBadge.textContent = espOnline ? "ONLINE" : (isLiveOnline ? "OFFLINE" : "CACHED");
+      espBadge.className = espOnline ? "pill-badge-green" : "pill-badge-red";
+
+      const doorBadge = document.getElementById("doorBadge");
+      doorBadge.textContent = appState.doorOpen ? "OPEN 🔓" : "CLOSED 🔒";
+      doorBadge.className = appState.doorOpen ? "pill-badge-red" : "pill-badge-green";
+
+      renderHalfRoundMeter({
+        svgId: "tempGaugeSvg",
+        cardId: "tempMeterCard",
+        warnPillId: "tempShedWarning",
+        value: appState.tempCurrent,
+        target: appState.tempSet,
+        min: 0,
+        max: 40,
+        unit: "°C",
+        decimals: 1,
+        colorFn: getTempSegmentColor,
+        redThreshold: 38.0
+      });
+
+      renderHalfRoundMeter({
+        svgId: "humGaugeSvg",
+        cardId: "humMeterCard",
+        warnPillId: "humShedWarning",
+        value: appState.humCurrent,
+        target: appState.humSet,
+        min: 0,
+        max: 100,
+        unit: "%",
+        decimals: 0,
+        colorFn: getHumSegmentColor,
+        redThreshold: 90
+      });
+
+      document.getElementById("trayCurPos").textContent = `${appState.currentPosLabel} (${appState.currentPosDeg}°)`;
+      document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
+
+      const hState = lastTelemetrySnapshot.heaterState || "OFF";
+      const hBox = document.getElementById("heaterBox");
+      const hBadge = document.getElementById("heaterBadge");
+      const hSub = document.getElementById("heaterSub");
+      hBadge.textContent = hState;
+      hBadge.className = "hw-badge" + (hState === "ON" || hState === "EXCEEDED" ? " on-red" : "");
+      hBox.className = "hw-card card-3d" + (hState === "EXCEEDED" ? " heater-exceeded" : hState === "ON" ? " heater-active" : "");
+      hSub.textContent = hState === "EXCEEDED" ? "Thermal Cutoff!" : hState === "ON" ? "Heating Active" : "Auto Relay Normal";
+
+      const fanOn = lastTelemetrySnapshot.fanOn !== false;
+      const fanRpm = lastTelemetrySnapshot.fanRpm || 1450;
+      document.getElementById("fanBadge").textContent = fanOn ? "ON" : "OFF";
+      document.getElementById("fanSpinner").classList.toggle("spinning", fanOn && isLiveOnline);
+      document.getElementById("fanSub").textContent = fanOn ? `Active • RPM: ${fanRpm}` : "Stopped • RPM: 0";
+
+      updateHomeStoreSummaries();
+      if (document.getElementById("storeModal").classList.contains("open")) {
+        renderStoreModal();
+      }
+    }
+
+    function sendCmd(action, value, extra = {}) {
+      fetch(CMD_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, value, ...extra, ts: Date.now() })
+      }).catch(() => {});
+    }
+
+    function pushStoresSnapshot() {
+      lastLocalStoreWriteTs = Date.now();
+      pendingStorePush = true;
+      saveCache();
+      fetch(STORES_URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          "1": appState.stores[1],
+          "2": appState.stores[2],
+          updatedBy: "APP",
+          ts: lastLocalStoreWriteTs
+        })
+      })
+        .then(res => { if (res.ok) pendingStorePush = false; })
+        .catch(() => {});
+    }
+
+    function clearSelectionHighlights() {
+      ["btnSelLeft", "btnSelCenter", "btnSelRight"].forEach(id => {
+        const b = document.getElementById(id);
+        b.classList.remove("selected", "rgb-moving");
+      });
+    }
+
+    function selectAngle(deg, label) {
+      if (isTurning || appState.doorOpen) return;
+      pendingAngle = { deg, label };
+      clearSelectionHighlights();
+      if (deg <= 0) document.getElementById("btnSelLeft").classList.add("selected");
+      else if (deg < 110) document.getElementById("btnSelCenter").classList.add("selected");
+      else document.getElementById("btnSelRight").classList.add("selected");
+    }
+
+    function executeTurnEgg() {
+      if (isTurning || appState.doorOpen) return;
+      const target = pendingAngle || (appState.currentPosDeg <= 0
+        ? { deg: 135, label: "RIGHT" }
+        : { deg: -45, label: "LEFT" });
+
+      isTurning = true;
+      const turnBtn = document.getElementById("btnTurnEggAction");
+      turnBtn.classList.add("flashing-red");
+
+      ["btnSelLeft", "btnSelCenter", "btnSelRight"].forEach(id => {
+        document.getElementById(id).classList.add("rgb-moving");
+      });
+
+      sendCmd("TURN_EGG", target.deg, { label: target.label, notifyTelegram: true });
+
+      setTimeout(() => {
+        appState.lastPosDeg = appState.currentPosDeg;
+        appState.lastPosLabel = appState.currentPosLabel;
+        appState.currentPosDeg = target.deg;
+        appState.currentPosLabel = target.label;
+
+        document.getElementById("trayCurPos").textContent = `${target.label} (${target.deg}°)`;
+        document.getElementById("trayLastPos").textContent = `${appState.lastPosLabel} (${appState.lastPosDeg}°)`;
+        saveCache();
+
+        turnBtn.classList.remove("flashing-red");
+        clearSelectionHighlights();
+        pendingAngle = null;
+        isTurning = false;
+      }, 1400);
+    }
+
+    function calcDays(dateStr, totalDays) {
+      if (!dateStr || dateStr === "--") return { elapsed: 0, remaining: totalDays || 17 };
+      const start = new Date(dateStr + "T00:00:00");
+      if (isNaN(start.getTime())) return { elapsed: 0, remaining: totalDays || 17 };
+      const now = new Date();
+      const diff = Math.max(0, Math.floor((now - start) / 86400000));
+      const maxD = totalDays || 17;
+      return { elapsed: diff, remaining: Math.max(0, maxD - diff) };
+    }
+
+    function isLockedWith24hRule(trayObj, storedDateStr) {
+      if (!trayObj || Number(trayObj.count || 0) <= 0) return false;
+      if (trayObj.locked) return true;
+      if (!storedDateStr || storedDateStr === "--") return false;
+      const start = new Date(storedDateStr + "T00:00:00");
+      if (isNaN(start.getTime())) return false;
+      return (Date.now() - start.getTime()) >= TWENTY_FOUR_HOURS_MS;
+    }
+
+    function normalizeIncomingStore(storeId, incoming) {
+      const tNumA = storeId === 1 ? 1 : 3;
+      const tNumB = storeId === 1 ? 2 : 4;
+      const variety = incoming.variety || "Quail";
+      const totalDays = Number(incoming.totalDays) || (variety === "Chicken" ? 21 : 17);
+      const storedDate = (incoming.storedDate && incoming.storedDate !== "--") ? incoming.storedDate : todayISO();
+      const reminders = incoming.reminders || (storeId === 1 ? "07:15 & 18:45" : "07:15 & 16:25");
+
+      const rawTrays = Array.isArray(incoming.trays) ? incoming.trays : [];
+      const t0 = rawTrays[0] || { count: Number(incoming.c1 || 0), locked: Boolean(incoming.l1) };
+      const t1 = rawTrays[1] || { count: Number(incoming.c2 || 0), locked: Boolean(incoming.l2) };
+
+      return {
+        variety,
+        totalDays,
+        storedDate,
+        reminders,
+        trays: [
+          {
+            name: `Tray ${tNumA}`,
+            count: Number(t0.count || 0),
+            max: 40,
+            locked: isLockedWith24hRule(t0, storedDate)
+          },
+          {
+            name: `Tray ${tNumB}`,
+            count: Number(t1.count || 0),
+            max: 40,
+            locked: isLockedWith24hRule(t1, storedDate)
+          }
+        ]
+      };
+    }
+
+    function toggleReminderInputs() {
+      const cnt = document.getElementById("reminderCountSelect").value;
+      document.getElementById("remTime2Wrap").style.display = cnt === "1" ? "none" : "block";
+    }
+
+    function buildReminderString() {
+      const cnt = document.getElementById("reminderCountSelect").value;
+      const t1 = (document.getElementById("remTime1Input").value || "").trim() || "07:15";
+      const t2 = (document.getElementById("remTime2Input").value || "").trim() || "16:25";
+      return cnt === "1" ? t1 : `${t1} & ${t2}`;
+    }
+
+    function saveReminderTimesOnly() {
+      const remStr = buildReminderString();
+      appState.stores[activeStoreId].reminders = remStr;
+      pushStoresSnapshot();
+      sendCmd("UPDATE_REMINDERS", activeStoreId, {
+        source: "APP",
+        notifyTelegram: true,
+        reminders: remStr
+      });
+      renderStoreModal();
+      alert(`Reminder Time සේව් විය: ${remStr}`);
+    }
+
+    function configureAddTabForStore(storeId) {
+      const tNumA = storeId === 1 ? 1 : 3;
+      const tNumB = storeId === 1 ? 2 : 4;
+      const s = appState.stores[storeId];
+
+      document.getElementById("optTrayA").textContent = `Tray ${tNumA}`;
+      document.getElementById("optTrayB").textContent = `Tray ${tNumB}`;
+      document.getElementById("allocTrayATitle").textContent = `Tray ${tNumA}`;
+      document.getElementById("allocTrayBTitle").textContent = `Tray ${tNumB}`;
+      document.getElementById("btnUnlockTray1").textContent = `🔓 Unlock Tray ${tNumA}`;
+      document.getElementById("btnUnlockTray2").textContent = `🔓 Unlock Tray ${tNumB}`;
+
+      const totalD = s.totalDays || (s.variety === "Chicken" ? 21 : 17);
+      document.getElementById("addVarietySelect").value = `${s.variety || "Quail"}|${totalD}`;
+      document.getElementById("addDateInput").value = (s.storedDate && s.storedDate !== "--") ? s.storedDate : todayISO();
+
+      const parts = (s.reminders || "07:15 & 16:25").split("&").map(x => x.trim()).filter(Boolean);
+      if (parts.length <= 1) {
+        document.getElementById("reminderCountSelect").value = "1";
+        document.getElementById("remTime1Input").value = parts[0] || "07:15";
+        document.getElementById("remTime2Input").value = "16:25";
+      } else {
+        document.getElementById("reminderCountSelect").value = "2";
+        document.getElementById("remTime1Input").value = parts[0] || "07:15";
+        document.getElementById("remTime2Input").value = parts[1] || "16:25";
+      }
+      toggleReminderInputs();
+
+      draftTrayCounts = [
+        Number(s.trays[0] ? s.trays[0].count : 0),
+        Number(s.trays[1] ? s.trays[1].count : 0)
+      ];
+      remainingToAssign = 0;
+      document.getElementById("plannedTotalInput").value = "";
+      document.getElementById("singleTrayAddQty").value = "";
+      document.getElementById("trayAllocationBox").style.display = "none";
+      renderDraftTrayStatus();
+    }
+
+    function renderDraftTrayStatus() {
+      const freeA = Math.max(0, 40 - draftTrayCounts[0]);
+      const freeB = Math.max(0, 40 - draftTrayCounts[1]);
+
+      document.getElementById("allocTrayACur").textContent = `දැනට: ${draftTrayCounts[0]}/40`;
+      document.getElementById("allocTrayAFree").textContent = `දාන්න පුළුවන්: ${freeA}`;
+      document.getElementById("allocTrayBCur").textContent = `දැනට: ${draftTrayCounts[1]}/40`;
+      document.getElementById("allocTrayBFree").textContent = `දාන්න පුළුවන්: ${freeB}`;
+      document.getElementById("unassignedCountBadge").textContent = `${remainingToAssign} Eggs`;
+    }
+
+    function confirmPlannedTotal() {
+      const s = appState.stores[activeStoreId];
+      const baseA = s.trays[0] && s.trays[0].locked ? Number(s.trays[0].count || 0) : 0;
+      const baseB = s.trays[1] && s.trays[1].locked ? Number(s.trays[1].count || 0) : 0;
+      const maxFreeStore = (40 - baseA) + (40 - baseB);
+
+      const planned = Math.floor(Number(document.getElementById("plannedTotalInput").value) || 0);
+      if (planned <= 0) {
+        alert("කරුණාකර බිත්තර ප්‍රමාණය ඇතුළත් කරන්න!");
+        return;
+      }
+      if (planned > maxFreeStore) {
+        alert(`එතනින් එහාට බැහැ! (Max 40/Tray — දැනට දාන්න පුළුවන් උපරිම ඉඩ ${maxFreeStore} Eggs පමණයි)`);
+        return;
+      }
+
+      draftTrayCounts = [baseA, baseB];
+      remainingToAssign = planned;
+      document.getElementById("trayAllocationBox").style.display = "block";
+      renderDraftTrayStatus();
+    }
+
+    function addEggsToSelectedTray() {
+      const idx = Number(document.getElementById("targetTraySelect").value) || 0;
+      const tNum = (activeStoreId === 1 ? 1 : 3) + idx;
+      const s = appState.stores[activeStoreId];
+
+      if (s.trays[idx] && s.trays[idx].locked) {
+        alert(`Tray ${tNum} දැනට Lock කර ඇත! පළමුව Unlock කරන්න හෝ අනෙක් Tray එක තෝරන්න.`);
+        return;
+      }
+
+      const qty = Math.floor(Number(document.getElementById("singleTrayAddQty").value) || 0);
+      const freeInTray = 40 - draftTrayCounts[idx];
+
+      if (qty <= 0) {
+        alert("දාන බිත්තර ගණන ඇතුළත් කරන්න!");
+        return;
+      }
+      if (qty > remainingToAssign) {
+        alert(`ඉතිරි වී ඇත්තේ බිත්තර ${remainingToAssign} ක් පමණයි!`);
+        return;
+      }
+      if (qty > freeInTray) {
+        alert(`එතනින් එහාට බැහැ! Tray ${tNum} සීමාව 40 යි (දැනට දාන්න පුළුවන්: ${freeInTray} Eggs).`);
+        return;
+      }
+
+      draftTrayCounts[idx] += qty;
+      remainingToAssign -= qty;
+      const otherIdx = idx === 0 ? 1 : 0;
+      const otherFree = 40 - draftTrayCounts[otherIdx];
+      document.getElementById("singleTrayAddQty").value = remainingToAssign > 0 ? Math.min(remainingToAssign, otherFree) : "";
+      renderDraftTrayStatus();
+    }
+
+    function saveAndLockStore() {
+      if (remainingToAssign > 0) {
+        alert(`තව බිත්තර ${remainingToAssign} ක් Tray එකකට දාලා නැහැ! ඉතිරි ටිකත් Tray එකට දාලා Save කරන්න.`);
+        return;
+      }
+
+      const [varName, daysStr] = document.getElementById("addVarietySelect").value.split("|");
+      const dt = document.getElementById("addDateInput").value || todayISO();
+      const rem = buildReminderString();
+      const tNumA = activeStoreId === 1 ? 1 : 3;
+      const tNumB = activeStoreId === 1 ? 2 : 4;
+
+      appState.stores[activeStoreId] = {
+        variety: varName,
+        totalDays: Number(daysStr) || (varName === "Chicken" ? 21 : 17),
+        storedDate: dt,
+        reminders: rem,
+        trays: [
+          { name: `Tray ${tNumA}`, count: draftTrayCounts[0], max: 40, locked: draftTrayCounts[0] > 0 },
+          { name: `Tray ${tNumB}`, count: draftTrayCounts[1], max: 40, locked: draftTrayCounts[1] > 0 }
+        ]
+      };
+
+      pushStoresSnapshot();
+      sendCmd("UPDATE_STORE", activeStoreId, {
+        source: "APP",
+        notifyTelegram: true,
+        variety: varName,
+        c1: draftTrayCounts[0],
+        c2: draftTrayCounts[1],
+        storedDate: dt,
+        reminders: rem,
+        storeData: appState.stores[activeStoreId]
+      });
+
+      updateHomeStoreSummaries();
+      renderStoreModal();
+      switchTab("status");
+    }
+
+    function openStoreModal(storeId) {
+      activeStoreId = storeId;
+      document.getElementById("modalStoreTitle").textContent =
+        storeId === 1 ? "📦 1st Store Details" : "📦 2nd Store Details";
+      document.getElementById("storeModal").classList.add("open");
+      configureAddTabForStore(storeId);
+      switchTab("status");
+      renderStoreModal();
+    }
+
+    function closeStoreModal() {
+      document.getElementById("storeModal").classList.remove("open");
+    }
+
+    function switchTab(tab) {
+      ["status", "add", "unlock", "clear"].forEach(t => {
+        document.getElementById("pane" + t.charAt(0).toUpperCase() + t.slice(1)).style.display = (t === tab) ? "block" : "none";
+        document.getElementById("tabBtn" + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle("active", t === tab);
+      });
+    }
+
+    function renderStoreModal() {
+      const s = appState.stores[activeStoreId];
+      if (!s) return;
+      const tNumA = activeStoreId === 1 ? 1 : 3;
+      const tNumB = activeStoreId === 1 ? 2 : 4;
+
+      const t1 = s.trays[0] || { name: `Tray ${tNumA}`, count: 0, max: 40, locked: false };
+      const t2 = s.trays[1] || { name: `Tray ${tNumB}`, count: 0, max: 40, locked: false };
+      const total = Number(t1.count || 0) + Number(t2.count || 0);
+      const dInfo = calcDays(s.storedDate, s.totalDays);
+
+      const lock1 = isLockedWith24hRule(t1, s.storedDate);
+      const lock2 = isLockedWith24hRule(t2, s.storedDate);
+      t1.locked = lock1;
+      t2.locked = lock2;
+
+      document.getElementById("stVariety").textContent = s.variety || "Quail";
+      document.getElementById("stTotalEggs").textContent = `Total: ${total} Eggs`;
+
+      document.getElementById("stTray1Title").innerHTML =
+        `Tray ${tNumA} <span id="stTray1Lock" class="lock-pill${lock1 ? "" : " unlocked"}">${lock1 ? "🔒 Locked" : "🔓 Open"}</span>`;
+      document.getElementById("stTray2Title").innerHTML =
+        `Tray ${tNumB} <span id="stTray2Lock" class="lock-pill${lock2 ? "" : " unlocked"}">${lock2 ? "🔒 Locked" : "🔓 Open"}</span>`;
+
+      document.getElementById("stTray1Count").textContent = `${t1.count}/${t1.max || 40} Eggs`;
+      document.getElementById("stTray2Count").textContent = `${t2.count}/${t2.max || 40} Eggs`;
+      document.getElementById("stTray1Day").textContent = t1.count > 0 ? `${s.variety} (Day ${dInfo.elapsed})` : "Empty";
+      document.getElementById("stTray2Day").textContent = t2.count > 0 ? `${s.variety} (Day ${dInfo.elapsed})` : "Empty";
+
+      document.getElementById("stStoredDate").textContent = total > 0 ? (s.storedDate || "--") : "--";
+      document.getElementById("stElapsed").textContent = `${total > 0 ? dInfo.elapsed : 0} Days`;
+      document.getElementById("stRemaining").textContent = `${total > 0 ? dInfo.remaining : (s.totalDays || 17)} Days`;
+      document.getElementById("stReminders").textContent = s.reminders || "07:15 & 16:25";
+    }
+
+    function unlockTray(trayIdx) {
+      const pwd = document.getElementById("unlockPassInput").value.trim();
+      if (pwd !== devicePassword) {
+        alert("Password වැරදියි! (Current Password ඇතුළත් කරන්න)");
+        return;
+      }
+      const tNum = activeStoreId === 1 ? trayIdx : (trayIdx + 2);
+      appState.stores[activeStoreId].trays[trayIdx - 1].locked = false;
+      document.getElementById("unlockPassInput").value = "";
+      pushStoresSnapshot();
+      sendCmd("UNLOCK_TRAY", tNum, { source: "APP", storeId: activeStoreId, trayIdx, notifyTelegram: true });
+      renderStoreModal();
+      alert(`Tray ${tNum} Unlocked!`);
+    }
+
+    function verifyAndClearStore() {
+      const pwd = document.getElementById("clearPassInput").value.trim();
+      if (pwd !== devicePassword) {
+        alert("Clear කිරීමට නිවැරදි Password එක ඇතුළත් කරන්න!");
+        return;
+      }
+      const tNumA = activeStoreId === 1 ? 1 : 3;
+      const tNumB = activeStoreId === 1 ? 2 : 4;
+      appState.stores[activeStoreId].trays = [
+        { name: `Tray ${tNumA}`, count: 0, max: 40, locked: false },
+        { name: `Tray ${tNumB}`, count: 0, max: 40, locked: false }
+      ];
+      document.getElementById("clearPassInput").value = "";
+      pushStoresSnapshot();
+      sendCmd("CLEAR_STORE", activeStoreId, { source: "APP", notifyTelegram: true });
+      updateHomeStoreSummaries();
+      renderStoreModal();
+      switchTab("status");
+      alert("Store දත්ත සාර්ථකව Clear කරන ලදී.");
+    }
+
+    function updateHomeStoreSummaries() {
+      [1, 2].forEach(id => {
+        const s = appState.stores[id];
+        const total = (s.trays || []).reduce((acc, t) => acc + Number(t.count || 0), 0);
+        const el = document.getElementById(id === 1 ? "homeStore1Summary" : "homeStore2Summary");
+        el.textContent = total > 0 ? `${s.variety || "Quail"} (${total} Eggs)` : "Empty (0 Eggs)";
+      });
+    }
+
+    function renderTopRowButtons({ serverOk, internetOk, appSyncOk }) {
+      const srvPill = document.getElementById("serverSyncPill");
+      const srvImg = document.getElementById("serverArrowsImg");
+      srvPill.className = "server-sync-pill " + (serverOk ? "active" : "offline");
+      srvImg.classList.toggle("animating", Boolean(serverOk));
+
+      const netBtn = document.getElementById("btnPhoneInternetOk");
+      const wavesImg = document.getElementById("internetWavesImg");
+      netBtn.className = "top-st-btn " + (internetOk ? "ok" : "bad");
+      netBtn.querySelector("span").textContent = internetOk ? "Internet" : "No Net";
+      wavesImg.classList.toggle("active", Boolean(internetOk));
+
+      const syncBtn = document.getElementById("btnAppSyncState");
+      syncBtn.className = "top-st-btn " + (appSyncOk ? "ok" : "bad");
+      syncBtn.querySelector("span").textContent = appSyncOk ? "App Sync" : "Sync Off";
+    }
+
+    async function probePhoneInternet() {
+      if (!navigator.onLine) {
+        phoneHasRealInternet = false;
+        return false;
+      }
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 2500);
+      try {
+        await fetch("https://www.gstatic.com/generate_204", {
+          mode: "no-cors",
+          cache: "no-store",
+          signal: ctrl.signal
+        });
+        clearTimeout(t);
+        phoneHasRealInternet = true;
+        return true;
+      } catch (e) {
+        clearTimeout(t);
+        phoneHasRealInternet = false;
+        return false;
+      }
+    }
+
+    function applyFirebaseData(data, serverReachable) {
+      if (!data || !serverReachable) {
+        renderTopRowButtons({
+          serverOk: false,
+          internetOk: false,
+          appSyncOk: false
+        });
+        renderAllStateUI(false);
+        return;
+      }
+
+      if (pendingStorePush) {
+        pendingStorePush = false;
+        fetch(STORES_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            "1": appState.stores[1],
+            "2": appState.stores[2],
+            updatedBy: "APP",
+            ts: lastLocalStoreWriteTs || Date.now()
+          })
+        }).catch(() => {});
+      }
+
+      if (typeof data.devicePassword === "string" && data.devicePassword.length > 0) {
+        devicePassword = data.devicePassword;
+      }
+
+      const nowSec = Math.floor(Date.now() / 1000);
+      const hbSec = Number(data.lastHeartbeatEpoch || 0);
+      const isFresh = (hbSec === 0) || (Math.abs(nowSec - hbSec) <= 35);
+      const espOnline = (data.espWifi === "connected") && isFresh;
+
+      appState.doorOpen = Boolean(data.doorOpen);
+      if (typeof data.tempCurrent === "number") appState.tempCurrent = data.tempCurrent;
+      if (typeof data.tempSet === "number") appState.tempSet = data.tempSet;
+      if (typeof data.humCurrent === "number") appState.humCurrent = data.humCurrent;
+      if (typeof data.humSet === "number") appState.humSet = data.humSet;
+      if (typeof data.currentPosDeg === "number") {
+        appState.currentPosDeg = data.currentPosDeg;
+        appState.currentPosLabel = data.currentPosLabel || "LEFT";
+      }
+      if (typeof data.lastPosDeg === "number") {
+        appState.lastPosDeg = data.lastPosDeg;
+        appState.lastPosLabel = data.lastPosLabel || "RIGHT";
+      }
+
+      lastTelemetrySnapshot = {
+        espOnline,
+        heaterState: data.heaterState || "OFF",
+        fanOn: data.fanOn !== false,
+        fanRpm: data.fanRpm || 1450
+      };
+
+      if (data.stores && (Date.now() - lastLocalStoreWriteTs > 4500)) {
+        if (data.stores["1"]) appState.stores[1] = normalizeIncomingStore(1, data.stores["1"]);
+        if (data.stores["2"]) appState.stores[2] = normalizeIncomingStore(2, data.stores["2"]);
+      }
+
+      saveCache();
+      renderAllStateUI(true);
+
+      renderTopRowButtons({
+        serverOk: true,
+        internetOk: phoneHasRealInternet || true,
+        appSyncOk: espOnline || Boolean(data.stores)
+      });
+    }
+
+    async function syncLoop() {
+      await probePhoneInternet();
+      try {
+        const res = await fetch(DB_URL, { cache: "no-store" });
+        if (res.ok) {
+          const json = await res.json();
+          applyFirebaseData(json, true);
+        } else {
+          applyFirebaseData(null, false);
+        }
+      } catch (err) {
+        applyFirebaseData(null, false);
+      }
+    }
+
+    document.getElementById("addDateInput").value = todayISO();
+    loadCache();
+    renderAllStateUI(false);
+    renderTopRowButtons({ serverOk: false, internetOk: false, appSyncOk: false });
+
+    window.addEventListener("online", () => {
+      syncLoop();
+    });
+    window.addEventListener("offline", () => {
+      phoneHasRealInternet = false;
+      applyFirebaseData(null, false);
+    });
+
+    syncLoop();
+    setInterval(syncLoop, 2500);
+  </script>
+</body>
+</html>
